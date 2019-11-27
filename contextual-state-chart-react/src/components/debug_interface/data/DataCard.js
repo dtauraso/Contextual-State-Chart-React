@@ -1,0 +1,1 @@
+// the trie tree struct represenation
