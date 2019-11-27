@@ -36,15 +36,37 @@ class App extends React.Component {
         TrieTreeInsertWords2: {
           init: {
             black_box: false,
-            active: true,
+            active: false,
             current_node_id: null,
             current_node_id_stack: [],
             current_node: null,
-            current_node_stack: []
+            current_node_stack: [],
+            // appears to work
+            code_block: (init_object) => {
+              init_object.current_node_id = 0
+              init_object.current_node_id_stack.push(0)
+            }
           },
           forLoop: {
             black_box: false,
             active: false,
+            
+            setup: {
+              
+            },
+            innerForLoop: {
+              setup: {
+
+              },
+              is_edge_equal_to_negative_1 : {
+                // only gets run if condition is true
+
+              },
+              is_edge_greater_than_0 : {
+
+              }
+
+            }
       
           }
         }
