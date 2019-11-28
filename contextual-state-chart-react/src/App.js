@@ -31,46 +31,7 @@ class App extends React.Component {
       // need people to see the previous debugging systems while I make progress on the 
       // functions are the saem, but the props are different
       // only let the function run when the button has activated
-      Version1: {
-        active_budget: 1,   // assume user pressed button
-        TrieTreeInsertWords2: {
-          init: {
-            black_box: false,
-            active: false,
-            current_node_id: null,
-            current_node_id_stack: [],
-            current_node: null,
-            current_node_stack: [],
-            // appears to work
-            code_block: (init_object) => {
-              init_object.current_node_id = 0
-              init_object.current_node_id_stack.push(0)
-            }
-          },
-          forLoop: {
-            black_box: false,
-            active: false,
-            
-            setup: {
-              
-            },
-            innerForLoop: {
-              setup: {
-
-              },
-              is_edge_equal_to_negative_1 : {
-                // only gets run if condition is true
-
-              },
-              is_edge_greater_than_0 : {
-
-              }
-
-            }
       
-          }
-        }
-      }
       
     }
   }
