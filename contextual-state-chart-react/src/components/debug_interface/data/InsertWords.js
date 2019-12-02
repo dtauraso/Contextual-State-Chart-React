@@ -127,6 +127,26 @@ class InsertWords extends React.Component {
 
 
             },
+            F2: (state, function_block) => {
+                // state.G,
+                // state.MakeMessages,
+                // state.data.Version1.TrieTreeInsertWords2.forLoop(the function),
+                // state.data.Version1,
+                // state.data.Version1.TrieTreeInsertWords2,
+                // state.key_count,
+                // state.messages,
+                // state.message_block
+                let [is_active, payload] = state.G(function_block, state.data.Version1)
+
+                state.message_block = function_block.code_block(state.data.Version1.TrieTreeInsertWords2, state.key_count)
+                // key_count += 1
+
+                // MakeMessages(is_active, messages, message_block, key_count)
+
+                // message_block = []
+
+                // key_count += 1
+            },
             data: {
                 Version1: {
                     active_budget: 1,   // assume user pressed button
@@ -147,6 +167,7 @@ class InsertWords extends React.Component {
                             black_box: false,
                             active: false,
                             one_click: false,
+                            // each code block: {function: () => {}, redirect_for_code_block: string_name_of_code_block}
                             // appears to work
                             code_block: (function_object, key_count) => {
                                 let my_messages = []
@@ -217,10 +238,83 @@ class InsertWords extends React.Component {
                             }
                     
                         }
+                    },
+                    // repeat_status is used with the repeat condition to allow the user
+                    // full control of the loop
+
+                    // the one_click status is to run 1 time step as 1 code block or 
+                    // a number of code blocks(user's choice)
+
+                    // a redirect will send control to another code block inside the function
+                    // It's used in place of a function call because embeding a function call inside a code block
+                    // will prevent the user from controlling the variable changes happening inside the function call
+                    // the redirect is basically a goto version of a function call
+                    code_block_tree: {
+                        string: "dummy start string",
+                        scopes: {
+                            init: {
+                                one_click: false,
+                                repeat_status: false,
+                                string: "init one"
+    
+                            },
+                            outerForLoop: {
+                                one_click: false,
+    
+                                repeat_status: true,
+                                repeat_condition: () => {},
+    
+                                string: "outerForLoop",
+                                scopes: {
+                                    setup: {
+                                        one_click: false,
+                                        repeat_status: false,
+                                        string: "outerForLoop setup",
+        
+        
+                                    },
+                                    innerForLoop: {
+                                        one_click: false,
+        
+                                        repeat_status: true,
+                                        repeat_condition: () => {},
+                                        string: "outerForLoop innerForLoop"
+        
+                                    }
+                                }
+                                
+                            },
+                            forLoopTwo: {
+                                one_click: false,
+    
+                                repeat_status: true,
+                                repeat_condition: () => {},
+                                string: "forLoopTwo",
+                                scopes: {
+                                    innerForLoop: {
+                                        one_click: false,
+        
+                                        repeat_status: true,
+                                        repeat_condition: () => {
+            
+                                        },
+                                        string: "forLoopTwo innerForLoop"
+        
+                                    }
+                                }
+                                
+    
+                            },
+                            lastScope: {
+                                one_click: false,
+                                repeat_status: false,
+                                string: "outerForLoop setup"
+                            }
+                        }
+                        
                     }
                 }
-            }
-            ,
+            },
             // normally, the timelines the code blocks run would be run inside the users head
             insertWordsControlFlowArray: [
                 (function_block, messages, message_block, key_count) => {
@@ -238,6 +332,7 @@ class InsertWords extends React.Component {
             ],
             // if the ith click was passed in then this could select the right one
             insertWords: () => {
+                // the 1 click runs will be assumed to start from the bottom of the tree and grow up
                 // assuming the user runs the function each timestep all the activated code will be run again
                 // unless we force each code block to not run if the user ran it las time insertWords was called
                 // let messages = []
@@ -341,6 +436,7 @@ class InsertWords extends React.Component {
                         this.state.key_count,
                         this.state.messages,
                         this.state.message_block)
+                    // this.state
                     this.state.key_count += 2
 
 
@@ -362,8 +458,65 @@ class InsertWords extends React.Component {
 
                 // if we can't run the for loop
                     // back out with empty div
-
+                // this.state.data.Version1.code_block_tree
                 // each code block can early return
+            },
+            TraverseCodeBlocks: () => {
+                console.log(this.state.data.Version1["code_block_tree"])
+                let stack = [{codeBlock: this.state.data.Version1["code_block_tree"], ithChildCodeBlock: 0}]
+                console.log(Object.keys(this.state.data.Version1["code_block_tree"]["scopes"]))
+                console.log(stack)
+                let count = 0
+                // each round maps to 1 click
+                while(stack.length > 0 && count <= 10) {
+                
+                    // process
+
+                    let node = stack[stack.length - 1]["codeBlock"]
+                    console.log("node keys", Object.keys(node), (Object.keys(node).includes("scopes")))
+                    // pick next node
+                    if(!(Object.keys(node).includes("scopes"))) {
+                        console.log("done")
+                        console.log("stack", stack)
+                        // pop
+                        // increment child
+                        // get ith child if can
+                        stack.pop()
+                        console.log("stop here", stack[stack.length - 1]["codeBlock"]["scopes"])
+                        console.log("code blocks", Object.keys(stack[stack.length - 1]["codeBlock"]["scopes"]))
+                        // while there are no more children pop from stack
+                        while(stack[stack.length - 1]["ithChildCodeBlock"] >=
+                        Object.keys(stack[stack.length - 1]["codeBlock"]["scopes"]).length) {
+                            stack.pop()
+
+                        }
+                        console.log("have more children to visit")
+                        stack[stack.length - 1]["ithChildCodeBlock"] += 1
+                        let ithChild = stack[stack.length - 1]["ithChildCodeBlock"]
+                        console.log(stack[stack.length - 1])
+                        const nextKey = Object.keys(stack[stack.length - 1]["codeBlock"]["scopes"])[  ithChild ]
+                        console.log(nextKey)
+                        console.log(stack[stack.length - 1]["codeBlock"]["scopes"][nextKey])
+                        throw new Error();
+                        
+                    }
+                    console.log(node)
+                    // console.log("children", Object.keys(node), node)
+                    // fails here
+                    // throw new Error();
+                    // leaf node doesn't have scopes
+                    console.log("children", Object.keys(node["scopes"]), node["scopes"])
+                    // get first neighbor
+                    // needs to be the object
+                    // need the 0th object
+                    const key = Object.keys(node["scopes"])[0]
+                    console.log("next item =>", key, node["scopes"][key]["string"])
+                    
+                    stack.push({codeBlock: node["scopes"][key], ithChildCodeBlock: 0})
+                    console.log("stack", stack)
+                    // get next neighbor
+                    count += 1
+                }
             }
         }
     }
@@ -372,8 +525,9 @@ class InsertWords extends React.Component {
         return (
             <div>
                 {/* look at modal view in Celebrity Dead or Alive */}
-                <button >1 step</button>
-                {this.state.insertWords()}
+                {/* <button >1 step</button>
+                {this.state.insertWords()} */}
+                {this.state.TraverseCodeBlocks()}
                 {/* make a new function to handle the click conversion */}
             </div>
         )
