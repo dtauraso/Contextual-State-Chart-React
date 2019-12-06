@@ -1,4 +1,5 @@
 import React from 'react';
+import update from "react-addons-update";
 
 import './App.css';
 import Header from "./components/debug_interface/Header";
@@ -26,6 +27,8 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
+      myObject: { nestedObject: 0},
+      myOtherObject: {nestedObject2: 50}
       // white box training wheels to black box batch testing for trie
       // put each old debugging version for the section into a modal when done
       // need people to see the previous debugging systems while I make progress on the 
@@ -36,11 +39,37 @@ class App extends React.Component {
     }
   }
 
+  thisIsATest = () => {
+
+    // const myState = {...this.state}
+    const newThing = {nestedObject: this.state.myObject.nestedObject + 1}
+    // console.log(myState)
+    // console.log(newThing)
+    // myState["myObject"] = newThing
+    // console.log(myState)
+    console.log(this.state)
+    this.state = {
+      // copy original
+      ...this.state,
+      // overwrite with what I want
+      myObject: newThing
+    }
+    // change it but don't rerender
+    // this.state["myObject"] = { myObject: newThing}
+
+    console.log(this.state)
+
+
+      
+  }
+  
+
   render() {
     return (
       <div className="App">
-        <Header />
-        <Data />
+        {this.thisIsATest()}
+        {/* <Header /> */}
+        {/* <Data /> */}
         {/* the action of vars changing through time and passing to functions 
         function signature
         the expressions passed in
@@ -143,7 +172,7 @@ class App extends React.Component {
             Press button
                 Wave activates the next code block
         */}
-        <InsertWords props={this.state}/>
+        {/* <InsertWords props={this.state}/> */}
         {/* <Variables /> */}
       </div>
     );

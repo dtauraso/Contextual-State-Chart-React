@@ -64,7 +64,7 @@ class InsertWords extends React.Component {
                         black_box: false,
                         active: false,
                         one_click: false,
-                        scopes : {
+                        blocks : {
                             init: {
                                 string: "init", 
                                 black_box: false,
@@ -83,78 +83,112 @@ class InsertWords extends React.Component {
                                     return my_messages
                                 }
                             },
-                            forLoop: {
-                                string: "forLoop",
-                                black_box: false,
-                                active: false,
-                                one_click: false,
-                                i: 0,
-                                repeat: true,
-                                code_block: (function_object, key_count) => {
-                                    let my_messages = []
-    
-                                    // console.log("key count", function_object.key_count)
-                                    
-                                    if(function_object.forLoop.repeat) {
-                                        // console.log("i", function_object.forLoop.i)
-                                        // can't have out of bounds while testing
-                                        if(function_object.forLoop.i < function_object.stuff.length) {
-                                            // may want to put the tracking system in here for the inner loop(then call it via function_object
-                                            // .forLoop.innerForLoop)
-                                            // if there was a function call here, how would I know to redirect it?
-                                            // make all the if statements code blocks that only run if they are true
-                                            // track setup
-                                            // track innerForLoop
+                            branches: {
+                                forLoop: {
+                                    string: "forLoop",
+                                    black_box: false,
+                                    active: false,
+                                    one_click: false,
+                                    i: 0,
+                                    repeat: true,
+                                    code_block: (function_object, key_count) => {
+                                        let my_messages = []
+        
+                                        // console.log("key count", function_object.key_count)
+                                        
+                                        if(function_object.forLoop.repeat) {
+                                            // console.log("i", function_object.forLoop.i)
+                                            // can't have out of bounds while testing
+                                            if(function_object.forLoop.i < function_object.stuff.length) {
+                                                // may want to put the tracking system in here for the inner loop(then call it via function_object
+                                                // .forLoop.innerForLoop)
+                                                // if there was a function call here, how would I know to redirect it?
+                                                // make all the if statements code blocks that only run if they are true
                                                 // track setup
-                                                // track and is_edge_equal_to_negative_1 only if condition is true
-                                                // track and is_edge_greater_than_0 only if condition is true
-    
-                                            // console.log(function_object.stuff[function_object.forLoop.i])
-                                            
-    
-                                            // messages.push(<div key={key_count}>{`${insert_words_block.forLoop.i} th stuff ${insert_words_block.stuff[insert_words_block.forLoop.i]}`}</div>)
-                                            my_messages.push(<div key={key_count}>
-                                                {`${function_object.forLoop.i} th stuff ${function_object.stuff[function_object.forLoop.i]}`}
-                                                </div>)
-    
-                                        } else {
-                                            // console.log(function_object.stuff[function_object.stuff.length - 1])
-    
+                                                // track innerForLoop
+                                                    // track setup
+                                                    // track and is_edge_equal_to_negative_1 only if condition is true
+                                                    // track and is_edge_greater_than_0 only if condition is true
+        
+                                                // console.log(function_object.stuff[function_object.forLoop.i])
+                                                
+        
+                                                // messages.push(<div key={key_count}>{`${insert_words_block.forLoop.i} th stuff ${insert_words_block.stuff[insert_words_block.forLoop.i]}`}</div>)
+                                                my_messages.push(<div key={key_count}>
+                                                    {`${function_object.forLoop.i} th stuff ${function_object.stuff[function_object.forLoop.i]}`}
+                                                    </div>)
+        
+                                            } else {
+                                                // console.log(function_object.stuff[function_object.stuff.length - 1])
+        
+                                            }
+        
                                         }
-    
-                                    }
-                                    return my_messages
-                                },
-
-                                scopes: {
-                                    // looop throught 2 values
-                                    setup: {
-                                        string: "forLoop setup"                     
+                                        return my_messages
                                     },
-                                    innerForLoop: {
-                                        string: "forLoop innerForLoop",
+    
+                                    blocks: {
+                                        // looop throught 2 values
+                                        setup: {
+                                            string: "forLoop setup"                     
+                                        },
+                                        branches: {
+                                            innerForLoop: {
+                                                string: "forLoop innerForLoop",
+        
+                                                blocks: {
+        
+                                                    setup: {
+                                                        string: "forLoop innerForLoop setup"
+                                                    },
+                                                    // needs to know there is a block of ifs
+                                                    // only one if can be true
+                                                    // may need to put a jumping routine into DFT
+                                                    // so we only visit one true if statement
+        
+                                                    // UTM
+                                                    branches: {
 
-                                        scopes: {
+                                                        is_edge_equal_to_negative_1 : {
 
-                                            setup: {
-                                                string: "forLoop innerForLoop setup"
-                                            },
-                                            is_edge_equal_to_negative_1 : {
-                                                string: "forLoop innerForLoop is_edge_equal_to_negative_1"
-
-                                            },
-                                            is_edge_greater_than_0 : {
-                                                string: "forLoop innerForLoop is_edge_greater_than_0"
-
+                                                            
+                                                            // will need a guard function here to decide what code block to pick
+                                                            // make it well enough for my algorithm to use
+                                                            string: "forLoop innerForLoop is_edge_equal_to_negative_1",
+                                                            blocks: {
+                                                                branches: {
+                                                                        one_if_statement : {
+                                                                            string: "forLoop innerForLoop is_edge_equal_to_negative_1 branches one_if_statement"
+                                                                        
+                                                                    }
+                                                                }
+                                                            }
+                                                            
+            
+                                                        },
+                                                        is_edge_greater_than_0 : {
+                                                            string: "forLoop innerForLoop is_edge_greater_than_0"
+                                                            
+                                                        }
+                                                        
+                                                        
+                                                    },
+                                                    end: {
+                                                        string: "forLoop innerForLoop end"
+                                                    }
+                                                    
+                                                }
+                                                
+        
                                             }
                                         }
                                         
-
                                     }
+                                    
+                            
                                 }
-                                
-                        
                             }
+                            
                         }
                         
                     },
@@ -333,7 +367,7 @@ class InsertWords extends React.Component {
         key_count,
         messages,
         message_block) => {
-            let [is_active, payload] = this.G(this_state_data_Version1_TrieTreeInsertWords2_init, this_state_data_Version1)
+            let [is_active] = this.G(this_state_data_Version1_TrieTreeInsertWords2_init, this_state_data_Version1)
 
             message_block = this_state_data_Version1_TrieTreeInsertWords2_init.code_block(this_state_data_Version1_TrieTreeInsertWords2, key_count)
             key_count += 1
@@ -357,9 +391,9 @@ class InsertWords extends React.Component {
         // state.key_count,
         // state.messages,
         // state.message_block
-        let [is_active, payload] = this.G(function_block, state.data.Version1)
+        // let [is_active, payload] = this.G(function_block, state.data.Version1)
 
-        state.message_block = function_block.code_block(state.data.Version1.TrieTreeInsertWords2, state.key_count)
+        // state.message_block = function_block.code_block(state.data.Version1.TrieTreeInsertWords2, state.key_count)
         // key_count += 1
 
         // MakeMessages(is_active, messages, message_block, key_count)
@@ -394,7 +428,7 @@ class InsertWords extends React.Component {
         // this.state.messages was passed in as a value, but the value is a reference
         // this.state.key_count was passed in as a value so this this.state.key_count didn't get updated       
         // not good design to have to compensate for problems 
-        this.state.key_count += 2
+        // this.state.key_count += 2
         // console.log(key_count, messages)
         // debugger
         // let [is_active, payload] = this.state.G(this.state.data.Version1.TrieTreeInsertWords2.init, this.state.data.Version1)
@@ -422,7 +456,7 @@ class InsertWords extends React.Component {
         // return <div>{"keep going with execution"}</div>
         // console.log("middle", this.state.data)
 
-        this.state.data.Version1.active_budget = 2;
+        // this.state.data.Version1.active_budget = 2;
         // let count = 0
         let insert_words_block = this.state.data.Version1.TrieTreeInsertWords2
         // console.log("current status", insert_words_block)
@@ -476,7 +510,7 @@ class InsertWords extends React.Component {
                 this.state.messages,
                 this.state.message_block)
             // this.state
-            this.state.key_count += 2
+            // this.state.key_count += 2
 
 
             insert_words_block.forLoop.i += 1
@@ -524,6 +558,40 @@ class InsertWords extends React.Component {
 
     }
     visitOneNode = (stack, count) => {
+        // program block pointer
+
+        // loops are repeating if statements
+        // may need to tell the difference between loops and if statements
+        
+
+        // if we are at branch
+            // if the only choice is an if statement with a repeat == true
+                //
+            // try the branches and pick the winner
+            // process node
+            // push the picked status along with the node
+
+
+        // else regular code block
+            // process node
+            // push node on
+        // may not process leaf node
+        // else at leaf
+            
+            // if leaf is a chosen block
+            // else
+                // push off
+            // while stack is not empty
+                // if bottom is a chosen block
+                    // go to the branches node so we don't visit false branches
+                    // pop off untill we can get to the next one
+                // else if bottom is a chosen repeat block
+                    // if repeat is false
+                        // dont't reuse the block
+                    // reuse the block
+                // else
+                    // push off unless we can get the next one
+
         if(stack.length > 0 && count <= 10) {
         
             // process
@@ -608,6 +676,8 @@ class InsertWords extends React.Component {
                 y = stack[stack.length - 1]["codeBlock"]["scopes"]
                 z = Object.keys(y)
                 a = z.length - 1
+                // will need to jump over (now) invalid code blocks from the remaining if statements
+                // or can visit them and not run them(innefficient though)
                 if(x <= a) {
                     let ithChild = stack[stack.length - 1]["ithChildCodeBlock"]
                     const nextKey = Object.keys(stack[stack.length - 1]["codeBlock"]["scopes"])[  ithChild ]
@@ -617,10 +687,26 @@ class InsertWords extends React.Component {
                     // console.log([...stack])
                     
                 }
+            console.log([...stack])
 
             }
             count += 1
         }
+    }
+    dispatch = (stack_item) => {
+
+        // if we are running a code block tree(macro scope)
+            // call DFT on current code block using stackItemFunction on each stack item
+            // call stackItemFunction(stack_item)
+        // if we are running a single code block(micro scope)
+            // if the code block is a redirect
+            // else
+    }
+    stackItemFunction = (stack_item) => {
+        // run the stack_items function
+        // collect the function cb and the records for the function tree
+
+
     }
     // implicitely binds to the class "this"
     thisIsATest = () => {
