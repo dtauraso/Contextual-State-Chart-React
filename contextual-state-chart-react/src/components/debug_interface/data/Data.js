@@ -4,162 +4,275 @@ class Data extends React.Component{
     constructor() {
         super();
         this.state = {
-            'input' : /* passes '1 + 2 + 3 + 4',*//*'1 + 2 + 3 + 4 - 5 + 6 + 7 - 8 - 9 + 10 + 11 + 12',*//*'1+',*//*'1 +2',*/'1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12', // '1 '
+            // /* done */'input' : /* passes '1 + 2 + 3 + 4',*//*'1 + 2 + 3 + 4 - 5 + 6 + 7 - 8 - 9 + 10 + 11 + 12',*//*'1+',*//*'1 +2',*/'1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12', // '1 '
             // 10 - 18 - 8 - 42
-            'expression' : [],
-            'collectedString' : '',
-            'i' : 0,
+            //  /* done */'expression' : [],
+            // 'collected_string' : '',
+            // 'i' : 0,
         
-            'operationVars' : {
+            // 'operationVars' : {
         
-                'a' : 0,
+            //     'a' : 0,
         
-                'b' : 0},
+            //     'b' : 0},
         
-            'lexVars' : {
-                'operators' : ['*', '/', '-', '+'],
-                'j' : 0,
-                'operations' : {'*': "mult", '/': "divide", '+': "plus", '-': "minus"}},
+            // 'lexVars' : {
+            //     'operators' : ['*', '/', '-', '+'],
+            //     'j' : 0,
+            //     'operations' : {'*': "mult", '/': "divide", '+': "plus", '-': "minus"}},
             // this control graph uses string for states and cases
-            'nodeGraph2' : {
+            'stateTrie' : {
         
                     // any next states having {} means it is a finishing state(but having no edges as true signals an error )
                     // {'next': [], 'children':[], 'functions':[]}
                     // {'next': {'0': {}}, 'children':{'0': {}}, 'functions':{'0'}}
+                    // [start, 0], [start, variables]
+                    // 'function'   : "",
+                    // 'next'       : [[]],
+                    // 'children'   : [[]],
+                    // 'variable'   : ,
+                    // 'parents'    : [[]]
+                    // 'varChildren'
+                    // 'prev'
+
+                    // will have to check for key membership before accessing
+                    // I am  using object trees and linked lists as a more scalable way to solve nonlinear
+                    // problems than using a solution that would only work for the linear nature of this problem.
+                    // That way these techniques can be applied to many different kinds of programs much more different
+                    // than the calculator problem.
+                    'start' : {
+                        '0': {
+                            'function'  : "returnTrue",
+                            'children'  : [['split']],
+                            'parents'   : [['root', '0']]},
+                        },
+                        'variables' : {
+                            'children'  : [['input']],
+                            'parents'   : [['root', '0']]
+                        }
+                    },
+
+                        'input' : {
+                            'variable'  : {'type': 'string', 'value': '1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12'},
+                            'parents'   : [['start', '0']]
+                        },
+
+                        'split' : {
+                            'function'  : "returnTrue",
+                            'next'      : [['validate'], ['invalid']],
+                            'children'  : [['char']],
+                            'parents'   : [['start', '0']]
+                        },
+                            'collectedString' : {
+                                'variable' : {'type':'string', 'value': ''}
+                            },
+                            'tokens' : {
+                                'variable' : {'type': 'list', 'value': []}
+                            },
+                            // split
+                            'char' : {
+                                'function'   : "collectChar",
+                                'next'       : [['last_to_save'], ['char'], ['save']],
+                                'parents'    : [['split']] // actually needs parents because it's the first state checked from split
+                            },
+
+                            'save': {
+                                'function'   : "save",
+                                'next'       : [[' ']]                                
+                            },
+
+                            ' ' : {
+                                'function'   : "cf.parseChar",
+                                'next'       : [[' '], ['init']]
+                            },
         
-                    'split' :
-                        {'next': {'0': {'validate':'0', 'invalid':'0'}},
-                        'children': {'0': {'char':'0'}},
-                        'functions':{'0':"returnTrue"},
-                        'parents' :{'0':{'root':'0'}}},
+                            'init': {
+                                'function'   : "init",
+                                'next'       : [['char']]
+                            },
+
+                            'last_to_save' : {
+                                'function'   : "lastToSave"
+                            },
+                        
         
+                        'validate' : {
+                            'function'  : "validate",
+                            'next'      : [['evaluateExpression', '0']]
+                        },
+                         
+                        'order of operations' : {
+                            '0' : {
+                                'function'   : "returnTrue",
+                                'next'       : [['inputHas1Value'], ['evaluateExpression']],
+                                'children'   : [['a']],
+                                'varChildren' : {'evaluationVars' : 1, 'operatorDict' : 1, 'currentTermStateName' : {'0' : 1}}
+    
+                            },                           
+                        },
+                            'accumulator' : {
+                                // accumulator
+                                '0' : {
+                                    'children' : [['operation']],
+                                    'varChildren' : {'acumulator' : 1, 'currentTermStateName' : {'1' : 1}}
+                                
+                                },
+                                // the only code I can automate is the data being transfered on the ferry
+                                'ferry up' : {
+                                    'end' : {}
+                                },
+                                'ferry down' : {
+                                    'start' : {}
+                                }
+                            },
+                                // assume each parent may have a 'ferry' context for results going upstream or downstream. 
+                                'operation' : {
+                                    '0' : {
+                                        'children' : [['a']],
+                                        'varChildren' : { 'x' : 1, 'y' : 1, 'z' : 1, 'currentTermStateName' : {'2' : 1}}
+    
+                                    },
+                                    // this context will hold the value of z, because x, y, and z will be erased
+                                    // when b is done running
+                                    'ferry up' : {
+                                        'start' : {}
+                                    },
+                                    'ferry down' : {
+                                        'end' : {}
+                                    }
+                                },
+                                    'x' : {
+
+                                    },
+                                    'y' : {
+
+                                    },
+                                    'z' : {
+
+                                    },
+                                    // a op b stuff goes here
+                                    'a' : {
+                                        'function'   : "getA"/*  setKindOfNumberToA */,
+                                        'next'       : [['op'], ['chain is over']],
+                                        'parents'    : [['evaluateExpression']]
         
+                                    },
+            
+                                    'op' : {
+                                        'function'   : "cf.parseChar",
+                                        'next'       : [['error'], ['b', 'evaluate']]
+                                    },
         
-                    'validate' :
-                        {'next': {'0': {'evaluateExpression': '0'}},
-                        'children':{'0': {}}, 
-                        'functions':{'0': "validate"},
-                        'parents' :{'0':{}}},
-        
-        
-                    'evaluateExpression' :
-                        {'next': {'0': {'inputHas1Value':'0','evaluateExpression':'0'}},
-                        'children':{'0': {'a':'0'}},
-                        'functions':{'0': "returnTrue"},
-                        'parents' :{'0':{}}},
-        
-        
-        
-                    'reset_for_next_round_of_input':
-                        {'next': {'0': {'end_of_evaluating': '0'}},
-                        'children':{'0':{}},
-                        'functions':{'0':"resetForNextRound"},
-                        'parents': {'0':{}}},
-        
-        
-                    'end_of_evaluating' :
-                        {'next': {'0': {}},
-                        'children':{'0': {}},
-                        'functions':{'0':"returnTrue"},
-                        'parents':	{'0':{}}},
-        
-                    'input_has_1_value' :
-                        {'next': {'0': {}},
-                        'children':{'0': {}},
-                        'functions':{'0':"showAndExit"},
-                        'parents': {'0':{}}},
-        
-        
-                        // split
-                        'char':
-                            {'next': {'0': {'last_to_save': '0', 'char': '0', 'save': '0'}},
-                            'children':{'0': {}},
-                            'functions':{'0':"collectChar"},
-                            'parents': {'0':{'split':'0'}}}, // actually needs parents because it's the first state checked from split
-        
-                        'save':
-                            {'next': {'0': {' ': '0'}},
-                            'children':{'0': {}},
-                            'functions':{'0':"save"},
-                            'parents': {'0':{}}},
-        
-                        ' ' :
-                            {'next': {'0':{' ':'0','init':'0'}},
-                            'children':{'0':{}},
-                            'functions':{'0':"cf.parseChar"},
-                            'parents': {'0':{}}},
-        
-        
-                        'init':
-                            {'next': {'0': {'char': '0'}},
-                            'children':{'0': {}},
-                            'functions':{'0': "init"},
-                            'parents': {'0':{}}},
-        
-                        'last_to_save' :
-                            {'next': {'0': {}},
-                            'children':{'0': {}},
-                            'functions':{'0': "lastToSave"},
-                            'parents': {'0':{}}},
-        
-        
-        
-                        // evaluateExpression
-                        'a' :
-                            {'next': {'0' : {'reset_for_next_round_of_input':'0', 'op':'0', 'op_ignore':'0'}},
-                            'children': { '0':{}},
-                            'functions' : {'0':"getA"/*  setKindOfNumberToA */},
-                            'parents': {'0':{'evaluateExpression': '0'}}},
-        
-                        'op' :
-                            {'next': {'0':{'error': '0', 'b':'evaluate'}},
-                            'children': {'0':{}}, 
-                            'functions' : { '0': "cf.parseChar"},
-                            'parents': {'0':{}}},
-        
-                        'b' :
-                            {'next': { 'evaluate':{'reset_for_next_round_of_input':'0', 'a':'0', 'op_ignore':'0'}},
-                            'children': {'evaluate':{}},
-                            'functions' : {'evaluate':"evaluate"},
-                            'parents': {'0':{}, 'evaluate':{}}},
-        
-        
-                        'op_ignore' :
-                            {'next': {'0':{'error': '0', 'value_ignore':'0'}},
-                            'children': {'0':{}},
-                            'functions' : {'0':"cf.parseChar"},
-                            'parents': {'0':{}}},
-        
-                        'value_ignore' :
-                            {'next': {'0':{'reset_for_next_round_of_input':'0', 'op_ignore':'0', 'value_ignore': 'valid_op'},'valid_op': {'op':'0'}},
-                            'children': {'0':{}, 'valid_op': {}},
-                            'functions' : {'0':"cf.parseChar", 'valid_op': "validOp"},
-                            'parents': {'0':{'ignore':'0'}, 'valid_op': {}}},
-        
-        
-        
-        
-                        'error' :
-                            {'next': {'0':{}},
-                            'children':{'0':{}},
-                            'functions':{'0':"noMoreInput"},
-                            'parents':{'0':{}}},
-        
-        
-                        'invalid' :
-                            {'next': {'0': {}},
-                            'children':{'0': {}},
-                            'functions':{'0': "inputIsInvalid"},
-                            'parents': {'0': {}}}
-        
-        
-        
-        
-        
+                                    'b' : {
+                                        'evaluate' : {
+                                            'function'   : "evaluate",
+                                        }
+                                    },   
+                            // acc op= b stuff goes here
+                        // order of operations goes here
+                        // evaluateChain
+                            // evaluateOperation
+                            'evaluationVars' : {
+                                'varChildren' : {'x' : 1, 'y' : 1, 'i' : 1},
+                                'parents' : [['variables', '0']]
+                                
+                            },
+                            'operatorDict' : {
+                                'varChildren' : {
+                                    'currentOperator' : 1,
+                                    'operators' : {
+                                        'operatorList' : 1,
+                                        'operaorFunctionDict' : 1}
+                                },
+                                'parents' : [['variables', '0']]
+
+                            },
+                                'x' : {
+                                    'variable' : {'type': 'int', 'value': 0},
+                                    'parents' : [['evaluateExpression', 'evaluationVars']]
+                                },
+
+                                'y' : {
+                                    'variable' : {'type': 'int', 'value': 0},
+                                    'parents' : [['evaluateExpression', 'evaluationVars']]
+
+                                },
+
+                                'i' : {
+                                    'variable' : {'type': 'int', 'value': 0}
+                                },
+
+                                'currentOperator' : {
+                                    'variable' : {'type': 'int', 'value': 0}
+                                },
+
+                                'operators' : {
+                                    'operatorList' : {
+                                        'variable' : {'type': 'list', 'value': ['*', '/', '-', '+']}
+                                    },
+                                    'operaorFunctionDict' : {
+                                        'variable' : {'type': 'dict', 'value': {'*': "mult", '/': "divide", '+': "plus", '-': "minus"}}
+
+                                    },
+                                    'operatorChainLength' : {
+                                        'variable' : {'type': 'int', 'value': 0}
+                                    }
+                                },
+
+                            'expression' : {
+                                'variable'   : {'type': 'list', 'value': []},
+                                'parents'    : [['evaluateExpression']]
+
+                            },
+
+                                 
+            
+                            'op_ignore' : {
+                                'function'   : "cf.parseChar",
+                                'next'       : [['error'], ['value_ignore', '0']]
+                            },
+            
+                            'value_ignore' : {
+                                '0' : {
+                                    'function'   : "cf.parseChar",
+                                    'next'       : [['reset_for_next_round_of_input'], ['op_ignore'], ['value_ignore', 'valid_op']]
+                                },
+                                'valid_op' : {
+                                    'function'   : "validOp",
+                                    'next'       : [['op']]
+                                }
+                            },
+
+                            'error' : {
+                                'function'   : "noMoreInput"
+                            },
+
+                            'invalid' : {
+                                'function'   : "inputIsInvalid"
+                            },
+
+                        'reset_for_next_round_of_input' : {
+                            'function'   : "resetForNextRound",
+                            'next'       : [['end_of_evaluating']]
+                        },
+
+                        'end_of_evaluating' : {
+                            'function'   : "returnTrue",
+
+                        },
+                        'input_has_1_value' : {
+                            'function'   : "showAndExit",
+
+                        }                        
                 }
         };
     }
-    getA = (store, var_store, node) => {
+
+    // for now let all functions access all variables using a path of length 1
+    // the point is to fight react as little as possible(don't know if we can access
+    // and modify nested state by using recursion and a path of state)
+    // the variable's role determines where it is in the graph 
+    getA = (parent, currentState) => {
         // use setState(), no mutation
         // https://stackoverflow.com/questions/18933985/this-setstate-isnt-merging-states-as-i-would-expect
         // https://github.com/VoliJS/NestedLink
@@ -171,34 +284,70 @@ class Data extends React.Component{
         // this.setState({ selected: newSelected });
 
         // this.setState({ selected: Object.assign({}, this.state.selected, { name: "Barfoo" }) });
-
+        // 'evaluateExpression' , '0'
+        // let a = stateTrie['x']
 
         // all chains start with this function
-        this.state = {
-            ...this.state,
-            operation_vars: {chain_length: 0}
-        }
+        // this.state = {
+        //     ...this.state,
+        //     operation_vars: {chain_length: 0}
+        // }
         // this.setState({operationVars: {chainLength: 0}})
         // var_store['operation_vars']['chain_length'] = 0
     
         //console.log(var_store['operation_vars']['kind_of_number'])
-        let i = this.state['i']
-        let input = this.state['input']
-        this.state = {
-            ...this.state,
-            operation_vars: {a: input[i]}
-        }
+        let i = this.state['stateTrie']['i']
+        let input = this.state['stateTrie']['input']
+        let chainLength = this.state['stateTrie']['chainLength']
+
+        // a = input[i]
+
+        
+
+        // this.state = {
+        //     ...this.state,
+        //     operation_vars: {a: input[i]}
+        // }
         // this.setState({operation_vars: {a: input[i]}})
         // var_store['operation_vars']['a'] = input[i]
-        let chainLength = this.state["operationVars"]["chainLength"]
-        this.state = {
-            ...this.state,
-            operation_vars: {chainLength: chainLength + 1}
-        }
+
+        // let chainLength = this.state["operationVars"]["chainLength"]
+        // this.state = {
+        //     ...this.state,
+        //     operation_vars: {chainLength: chainLength + 1}
+        // }
         // this.setState({operation_vars: {chainLength: chainLength + 1}})
+        // this.state = {
+        //     ...this.state,
+        //     i: this.state["i"] + 1
+        // }
+
         this.state = {
             ...this.state,
-            i: this.state["i"] + 1
+            'stateTrie' : {
+                ...this.state['stateTrie'],
+                'x' : {
+                    ...this.state['stateTrie']['x'],
+                    'variable' : {
+                        ...this.state['stateTrie']['x']['variable'],
+                        'value' : input[i]
+                    }
+                },
+                'operatorChainLength' : {
+                    ...this.state['stateTrie']['operatorChainLength'],
+                    'variable' : {
+                        ...this.state['stateTrie']['operatorChainLength']['variable'],
+                        'value' : chainLength + 1
+                    }
+                },
+                'i' : {
+                    ...this.state['stateTrie']['i'],
+                    'variable' : {
+                        ...this.state['stateTrie']['i']['variable'],
+                        'value' : i + 1
+                    }
+                }
+            }
         }
         // var_store['operation_vars']['chain_length'] += 1
         // this.setState({i: this.state["i"] + 1})
@@ -208,29 +357,61 @@ class Data extends React.Component{
         return true
     }
     
-    getB = (store, var_store, node) => {
+    getB = (parent, currentState) => {
     
         //console.log(var_store['operation_vars']['kind_of_number'])
-        let i = var_store['i']
-        let input = var_store['input']
+        let i = this.state['stateTrie']['i']
+        let input = this.state['stateTrie']['input']
+        
         var_store['operation_vars']['b'] = input[i]
         var_store['operation_vars']['chain_length'] += 1
         var_store['i'] += 1
+
+        // update
+        this.state = {
+            ...this.state,
+            'stateTrie' : {
+                ...this.state['stateTrie'],
+                'x' : {
+                    ...this.state['stateTrie']['x'],
+                    'variable' : {
+                        ...this.state['stateTrie']['x']['variable'],
+                        'value' : input[i]
+                    }
+                },
+                'operatorChainLength' : {
+                    ...this.state['stateTrie']['operatorChainLength'],
+                    'variable' : {
+                        ...this.state['stateTrie']['operatorChainLength']['variable'],
+                        'value' : chainLength + 1
+                    }
+                },
+                'i' : {
+                    ...this.state['stateTrie']['i'],
+                    'variable' : {
+                        ...this.state['stateTrie']['i']['variable'],
+                        'value' : i + 1
+                    }
+                }
+            }
+        }
+
+        
         //console.log(var_store)
     
         return true
     }
     
-    // isOp = (store, var_store, node) => {
-    //     // check current operand with jth operand
-    //     let i = var_store['i']
-    //     let input = var_store['input']
-    //     //console.log(input[i])
-    //     let j = var_store['lex_vars']['j']
-    //     let operators = var_store['lex_vars']['operators']
-    //     return input[i] === operators[j]
+    isOp = (parent, currentState) => {
+        // check current operand with jth operand
+        let i = var_store['i']
+        let input = var_store['input']
+        //console.log(input[i])
+        let j = var_store['lex_vars']['j']
+        let operators = var_store['lex_vars']['operators']
+        return input[i] === operators[j]
     
-    // }
+    }
     
     // evaluate = (store, var_store, node) => {
     
@@ -578,7 +759,15 @@ class Data extends React.Component{
 // delete all objects in the temp context of the parent machine
 // get data from the ferry context and transfer it to drop site
 
-
+// [free object] => parent of the children the ferry context was going to put into without visiting the intermediate nodes
+// now we already know what the start and stop points are, so the only thing needed is to say pass to child or pass to parent
+// the children receiveing the data can be considered 1 object
+// control flow and state can be reused via the hierarchy
+// have the object be a free state so anyone in any part of the tree needing to use it can use it
+// the control flow tree can be resued by having multiple parents
+// can't eliminate the transport data idea, just don't cross the streams
+// control flow can take 1 path to the functions using the data
+// object model can take another path to the functions using the data
 // applications: calculator -> representation -> langugae
 // make the language with this
     render() {
