@@ -67,9 +67,9 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        {this.thisIsATest()}
+        {/* {this.thisIsATest()} */}
         {/* <Header /> */}
-        {/* <Data /> */}
+        <Data />
         {/* the action of vars changing through time and passing to functions 
         function signature
         the expressions passed in
