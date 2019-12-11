@@ -1,10 +1,69 @@
 import React from "react"
 
+const findState = (tree, path) => {
+    let i = 0
+    let state = tree
+    while( i < path.length) {
+        state = state[path[i]]
+        if(state === undefined) {
+            return null
+        }
+        i += 1
+    }
+    return state
+
+}
+
+
+// I'm aware all states and vars are accessible using tree(It's a convenience for now),
+// but the idea is for the child states to only use data from the parent
+// This is not only about making a calculator app.
+// It's about making a flexible program representation and the calculator app
+// is just a test input.
 const returnTrue = (tree, parent, currentState) => {
     return true
 }
 const returnFalse = (tree, parent, currentState) => {
     return false
+}
+const makeVariableContext = (path) => {
+    let variableState = [...path]
+    variableState.pop()
+    variableState.push('variables')
+    return variableState
+}
+const getChildVariable = (tree, currentState, variableName) => {
+    let variableState = makeVariableContext(currentState)
+    let currentStateTree = findState(tree, variableState)
+    let inputVariable = findState(currentStateTree['varChildren'], variableName)
+    if(inputVariable === null) {
+        return null
+    }
+    return findState(tree, variableName)['variable']
+}
+const makeDownStreamContext = (path) => {
+    let variableState = [...path]
+    variableState.pop()
+    variableState.push('downstream')
+    return variableState
+}
+
+const startState = (tree, parent, currentState) => {
+    // parent is currently root which is a non-existtant dummy state
+    // load up the downstream
+    
+    console.log("start state", currentState)
+    let variable = getChildVariable(tree, currentState, ['input', '0'])
+    if(variable === null) {
+        return false
+    }
+    console.log("current state tree", variable['value'])
+    // needs error checking
+    let downStreamState = makeDownStreamContext(currentState)
+    console.log(findState(tree, downStreamState))
+    // if()
+    console.log(findState(tree, currentState))
+    return true
 }
 const collectChar = (tree, parent, currentState) => {
     
@@ -19,10 +78,11 @@ const collectChar = (tree, parent, currentState) => {
 
     // }
     // return false
+    console.log(tree)
     console.log("got here")
-    return true;
+    return true
 }
-var state = {
+var myState = {
 
     // /* done */'input' : /* passes '1 + 2 + 3 + 4',*//*'1 + 2 + 3 + 4 - 5 + 6 + 7 - 8 - 9 + 10 + 11 + 12',*//*'1+',*//*'1 +2',*/'1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12', // '1 '
     // 10 - 18 - 8 - 42
@@ -60,28 +120,58 @@ var state = {
             // problems than using a solution that would only work for the linear nature of this problem.
             // That way these techniques can be applied to many different kinds of programs much more different
             // than the calculator problem.
+
             'start' : {
                 '0': {
-                    'function'  : returnTrue,
-                    'children'  : [['split']],
+                    'function'  : startState,
+                    'children'  : [['split', '0']],
                     'parents'   : [['root', '0']]
                 },
                 'variables' : {
-                    'children'  : [['input']],
+                    'varChildren'  : {'input': {'0' : 1}},
                     'parents'   : [['root', '0']]
-                }
+                },
+                'downstream' : {
+                    'start' : {}
+                },
+                // 'upstream' : {
+                //     'end' : {}
+                // }
+                
+                
             },
 
                 'input' : {
-                    'variable'  : {'type': 'string', 'value': '1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12'},
-                    'parents'   : [['start', '0']]
+                    '0' : {
+                        'variable'  : {'type': 'string', 'value': '1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12'},
+                        'parents'   : [['start', '0']]
+    
+                    },
+                    'split' : {
+                        'variable'  : null,
+                        'parents'   : [['split', '0']]
+    
+                    }
                 },
 
                 'split' : {
-                    'function'  : returnTrue,
-                    'next'      : [['validate'], ['invalid']],
-                    'children'  : [['char']],
-                    'parents'   : [['start', '0']]
+                    '0' : {
+                        'function'  : returnTrue,
+                        'next'      : [['validate'], ['invalid']],
+                        'children'  : [['char']],
+                        'parents'   : [['start', '0']]
+                    },
+                    'variables' : {
+                        'varChildren'  : {'input': {'split' : 1}, 'collectedString' : 1, 'tokens' : 1},
+                        'parents'   : [['start', '0']]
+                    },
+                    'downstream' : {
+                        'end' : {}
+                    },
+                    // 'upstream' : {
+                    //     'start' : {}
+                    // }
+                    
                 },
                     'collectedString' : {
                         'variable' : {'type':'string', 'value': ''}
@@ -197,12 +287,13 @@ var state = {
                             }
                         },
                         // the only code I can automate is the data being transfered on the ferry
-                        'upstream' : {
-                            'end' : {}
-                        },
                         'downstream' : {
                             'start' : {}
+                        },
+                        'upstream' : {
+                            'end' : {}
                         }
+                        
                     },
                         'operator' : {
                             'variable' : {'type': 'string', 'value': ''},
@@ -836,17 +927,7 @@ class Data extends React.Component{
         return Object.keys(state).includes('children')
         // console.log(Object.keys(state).includes('function'))
     }
-    findState = (tree, path) => {
-        let i = 0
-        let state = tree
-        while( i < path.length) {
-            state = state[path[i]]
-            i += 1
-        }
-        return state
-
-    }
-    visit = (tree, parent, nextStates, recursiveId) => {
+    visit = (tree, parent, nextStates, recursiveId, downStream, upStream) => {
         console.log("visit", recursiveId, parent, nextStates)
         // console.log(Object.keys(tree['stateTrie']))
         if(recursiveId === 3) {
@@ -858,8 +939,12 @@ class Data extends React.Component{
         let i = 0
         while(i < nextStates.length) {
 
-            let currentState = this.findState(tree['stateTrie'], nextStates[i])
-            let resultOfFunction = currentState['function'](parent, nextStates[i])
+            let currentState = findState(tree['stateTrie'], nextStates[i])
+                                // save the stream data here
+
+            // is this the child we actually need the stream data for?
+
+            let resultOfFunction = currentState['function'](tree['stateTrie'], parent, nextStates[i])
             // console.log(this.findState(tree['stateTrie'], nextStates[i]))
             // console.log(resultOfFunction)
             if(resultOfFunction) {
@@ -867,8 +952,23 @@ class Data extends React.Component{
                 if(this.isParent(currentState)) {
 
                     console.log("has children")
-                    
-                    this.visit(tree, currentState, currentState['children'], recursiveId + 1)
+                    // if parent has this, it's the same parent the state send to stream
+                    // we are transport data up or down from A to B only
+                    // does parent have any stream?
+                        // does parent have downstream?
+                            // end
+                                // save downStream to parent's downStream end
+                            // start
+                                // store downStream from parent's downStream start
+                        // else if uspstream
+                            // end
+                                // save upStream to parent's upStream end
+                            // start
+                                // store upStream from parent's upStream start and erase the parent's downStream start
+                    // else if no stream
+                        // don't do anything with stream data
+                    // get downstream data from parent and pass it down
+                    this.visit(tree, currentState, currentState['children'], recursiveId + 1, downStream, upStream)
                     // console.log('recursion unwinding')
                     // console.log([...currentState['children']])
                 } else {
@@ -888,7 +988,8 @@ class Data extends React.Component{
         return (
             <div >
                 {/* {console.log('happening')} */}
-                <button onClick={() => this.visit(state, ['root'], [['start', '0']], 0)}>start</button>
+                {/* the parent and the first state to run need to be the same for the first call */}
+                <button onClick={() => this.visit(myState, ['start', '0'], [['start', '0']], 0, null, null)}>start</button>
             </div>
         )
     }
