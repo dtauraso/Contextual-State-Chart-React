@@ -14,14 +14,6 @@ const findState = (tree, path) => {
     let firstNode = path[0]
 
     return findState(tree[firstNode], path.filter((node, i) => i > 0))
-    // while( i < path.length) {
-    //     state = state[path[i]]
-    //     if(state === undefined) {
-    //         return null
-    //     }
-    //     i += 1
-    // }
-    // return state
 
 }
 /*
@@ -30,8 +22,11 @@ const findState = (tree, path) => {
     string : f(state[string])
 }
 */
-// can't pass a string to a function then have the function use the string literal
-// used as a key for the next object returned
+
+
+const setToValue = (container, value) => {
+    return value
+}
 const append = (container, value) => {
 
     return [...container, value]
@@ -43,20 +38,32 @@ const deepAssign = (state, path, value, cb) => {
     // console.log("reduced path", path.filter((node, i) => i > 0))
     // console.log(path.length === 0)
     // console.log(state)
-    const firstNode = path[0]
-    if(path.length === 0 || !state.hasOwnProperty(firstNode)) {
+
+    if(path.length === 0) {
         // console.log("replace", state, value)
         return cb(state, value)
-    } else {
-        return {
-            ...state,
-            // [] seems to protect the variable name from being treated as a key
-            [firstNode]: deepAssign(    state[firstNode],
-                                        path.filter((node, i) => i > 0),
-                                        value,
-                                        cb)
+
+    } else if(path.length > 0) {
+
+        const firstNode = path[0]
+
+        if(!state.hasOwnProperty(firstNode)) {
+
+            // copy of original with some object references from the original?
+            return {...state}
+        }
+        else {
+            return {
+                ...state,
+                // [] seems to protect the variable name from being treated as a key
+                [firstNode]: deepAssign(    state[firstNode],
+                                            path.filter((node, i) => i > 0),
+                                            value,
+                                            cb)
+            }
         }
     }
+     
     
 }
 // this.state = {
@@ -102,25 +109,18 @@ const returnFalse = (tree, parent, currentState) => {
     return false
 }
 
-const getChildVariable = (tree, currentState, variableName) => {
-    let variableState = replaceContext(currentState, ['variables'])
-    let currentStateTree = findState(tree, variableState)
-    let inputVariable = findState(currentStateTree['varChildren'], variableName)
-    if(inputVariable === null) {
-        return null
-    }
-    return findState(tree, variableName)['variable']
-}
 
-const replaceContext = (path, extra) => {
+const replaceContext = (path, extra, cutoffPosition) => {
 
     let oldPath = [...path]
-    oldPath = oldPath.filter((node, i) => i < oldPath.length - 1)
+    oldPath = oldPath.filter((node, i) => i < cutoffPosition)
     return [...oldPath, ...extra]
 }
 const getDownStreamStart = (tree, currentState) => {
 
-    let variableState = replaceContext(currentState, ['downstream', 'start'])
+    let variableState = [...currentState, 'downstream', 'start']
+    // console.log("messed up variable name", currentState, variableState)
+
     let currentStateTree = findState(tree, variableState)
     let inputVariable = currentStateTree
     if(inputVariable === null) {
@@ -129,28 +129,62 @@ const getDownStreamStart = (tree, currentState) => {
     return inputVariable
 
 }
+const getDownStreamEnd = (tree, currentState) => {
 
+    let variableState = [...currentState, 'downstream', 'end']
+    // console.log("messed up variable name", currentState, variableState)
+
+    let currentStateTree = findState(tree, variableState)
+    let inputVariable = currentStateTree
+    if(inputVariable === null) {
+        return null
+    }
+    return inputVariable
+
+}
+const getChildVariable = (tree, currentState, variableName) => {
+    let variableState = [...currentState, 'variables']
+    // console.log("messed up variable name", currentState, variableState)
+    let currentStateTree = findState(tree, variableState)
+    // console.log(currentStateTree, variableName)
+    let inputVariable = findState(currentStateTree, variableName)
+    console.log(inputVariable)
+    if(inputVariable === null) {
+        return null
+    }
+    return inputVariable['variable']
+}
+const makePath = (currentState, variableNameList) => {
+    return ['stateTrie', ...currentState, 'variables', ...variableNameList]
+}
 const startState = (parent, currentState) => {
     // parent is currently root which is a non-existtant dummy state
     // load up the downstream
     // ['stateTrie']
     console.log("start state", currentState)
-    let variable = getChildVariable(tree['stateTrie'], currentState, ['input', '0'])
+    // use the full path name [curentState, 'variables', 'input']
+    let variableName = ['input']
+    let fullVariablePath = ['stateTrie', ...currentState, 'variables', ...variableName]
+    console.log("fullVariablePath", fullVariablePath)
+    let variable = findState(tree, fullVariablePath)
+    //getChildVariable(tree['stateTrie'], currentState, variableName)
     if(variable === null) {
         return false
     }
-    console.log("current state tree", variable['value'])
+    console.log("current state tree", variable)
     // needs error checking
     let downStreamStateStart = getDownStreamStart(tree['stateTrie'], currentState) //makeDownStreamContext(currentState)
     console.log(downStreamStateStart)
     // console.log(tree)
     // missing the path to the downstream start
     // need the full path starting from 'stateTrie' and replaceContext only appends
-    console.log(replaceContext(['stateTrie', ...currentState], ['downstream', 'start']))
+    console.log(['stateTrie', ...currentState, 'downstream', 'start'])
+    // ["start", "0"] (3) ["stateTrie", "downstream", "start"]
+    // console.log("messed up context name", currentState, replaceContext(['stateTrie', ...currentState], ['downstream', 'start'], 2))
 
     tree = deepAssign(  tree,
-                        replaceContext(['stateTrie', ...currentState], ['downstream', 'start']),
-                        ['input', '0'],
+                        ['stateTrie', ...currentState, 'downstream', 'start'],
+                        fullVariablePath,
                         append)
     console.log("my tree", tree)
     // downStreamStateStart['start'] = result
@@ -167,8 +201,55 @@ const startState = (parent, currentState) => {
     // console.log(findState(tree, currentState))
     return true
 }
+
+const splitState = (parent, currentState) => {
+    console.log('in split', parent, currentState)
+    console.log("my tree", tree)
+    let fullVariablePaths = findState(tree, ['stateTrie', ...currentState, 'downstream', 'end'])
+    console.log(fullVariablePaths)
+    let variableMapList = [makePath(currentState, ['input'])]
+    console.log("variables to map", variableMapList)
+    let hopperVariableToStateVariable = fullVariablePaths.map((fullVariablePath, i) => {
+        return [fullVariablePath, variableMapList[i]]
+    })
+    console.log(hopperVariableToStateVariable)
+
+    hopperVariableToStateVariable.forEach(pair => {
+
+        let [hopperVariable, stateVariable] = pair
+        console.log(hopperVariable, stateVariable)
+        let variable = findState(tree, hopperVariable)
+        console.log(variable['variable'], [...stateVariable, 'variable'])
+        tree = deepAssign(  tree,
+                            [...stateVariable, 'variable'],  // path
+                            variable['variable'], // data to set
+                            setToValue)
+
+    })
+    tree = deepAssign(  tree,
+                        ['stateTrie', ...currentState, 'downstream', 'end'],
+                        [],
+                        setToValue
+                        )
+    console.log(tree)
+    return true
+    // let variable = findState(tree, hopperVariableToStateVariable[0][0])
+    // console.log(variable)
+    // console.log(hopperVariableToStateVariable[0])
+    // for each state
+        // 
+
+    // the parent states store the downstream end data for their children
+
+
+}
+const getVariableValueFromParent = (parent, variableName) => {
+
+    return findState(tree, ["stateTrie", ...parent, 'variables', variableName, 'variable', 'value'])
+}
 const collectChar = (parent, currentState) => {
     
+
     // let i = var_store['i']
     // let input = var_store['input']
     // //console.log(input[i])
@@ -182,6 +263,10 @@ const collectChar = (parent, currentState) => {
     // return false
     console.log(tree)
     console.log("got here")
+    console.log(parent)
+    // let variableName = 'input'
+    let variable = getVariableValueFromParent(parent, 'input')
+    console.log(variable)
     return true
 }
 var tree = {
@@ -222,57 +307,69 @@ var tree = {
             // problems than using a solution that would only work for the linear nature of this problem.
             // That way these techniques can be applied to many different kinds of programs much more different
             // than the calculator problem.
-
             'start' : {
                 '0': {
                     'function'  : startState,
                     'children'  : [['split', '0']],
-                    'parents'   : [['root', '0']]
+                    'parents'   : [['root', '0']],
+                    // var names only have to be unique within the scope of a unique state
+                    // make these children again per unique state
+
+                    'variables' : {
+                        'input' : {
+                            'variable'  : {'type': 'string', 'value': '1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12'},
+                            'parents'   : [['start', '0']]
+                        },
+                        'extra' : {
+                            'variable'  : {'type': 'string', 'value': 'abc'},
+                            'parents'   : [['start', '0']]
+    
+                        },
+                        // 'varChildren'  : {'input': {'0' : 1}},
+                    },
+                    'downstream' : {
+                        'start' : []
+                    },
+                    // 'upstream' : {
+                    //     'end' : {}
+                    // }
                 },
-                'variables' : {
-                    'varChildren'  : {'input': {'0' : 1}},
-                    'parents'   : [['root', '0']]
-                },
-                'downstream' : {
-                    'start' : []
-                },
-                // 'upstream' : {
-                //     'end' : {}
-                // }
+                
                 
                 
             },
-                // have a workspace state holding a reference to all items I'm accessing for the current machine
-                'input' : {
-                    '0' : {
-                        'variable'  : {'type': 'string', 'value': '1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12'},
-                        'parents'   : [['start', '0']]
-    
-                    },
-                    'split' : {
-                        'variable'  : null,
-                        'parents'   : [['split', '0']]
-    
-                    }
-                },
-
                 'split' : {
                     '0' : {
-                        'function'  : returnTrue,
+                        'function'  : splitState,
                         'next'      : [['validate'], ['invalid']],
                         'children'  : [['char']],
-                        'parents'   : [['start', '0']]
+                        'parents'   : [['start', '0']],// "variabls" are nested states from the "class" state
+                        'variables' : {
+                            'input' : {
+                                'variable'  : null,
+                                'parents'   : [['split', '0']]
+                            },
+                            'collectedString' : {
+                                'variable' : {'type':'string', 'value': ''},
+                                'parents'   : [['split', '0']]
+
+                            },
+                            'tokens' : {
+                                'variable' : {'type': 'list', 'value': []},
+                                'parents'   : [['split', '0']]
+                            }
+                        },
+                        // ['start', 'variables', 'input']
+                        // downstream end must not have a state ending in the same name(can't guarantee this)
+                        // if the user can set the names in order then user can use the var name they want and assume it will map to the correct state
+                        'downstream' : {
+                            'end' : []
+                        },
+                        // 'upstream' : {
+                        //     'start' : []
+                        // }
                     },
-                    'variables' : {
-                        'varChildren'  : {'input': {'split' : 1}, 'collectedString' : 1, 'tokens' : 1},
-                        'parents'   : [['start', '0']]
-                    },
-                    'downstream' : {
-                        'end' : {}
-                    },
-                    // 'upstream' : {
-                    //     'start' : {}
-                    // }
+                    
                     
                 },
                     'collectedString' : {
@@ -390,10 +487,10 @@ var tree = {
                         },
                         // the only code I can automate is the data being transfered on the ferry
                         'downstream' : {
-                            'start' : {}
+                            'start' : []
                         },
                         'upstream' : {
-                            'end' : {}
+                            'end' : []
                         }
                         
                     },
@@ -428,10 +525,10 @@ var tree = {
                             // this context will hold the value of z, because x, y, and z will be erased
                             // when b is done running
                             'upstream' : {
-                                'start' : {}
+                                'start' : []
                             },
                             'downstream' : {
-                                'end' : {}
+                                'end' : []
                             }
                         },
                             'x' : {
@@ -1029,7 +1126,83 @@ class Data extends React.Component{
         return Object.keys(state).includes('children')
         // console.log(Object.keys(state).includes('function'))
     }
+    isStream = (parent) => {
+        console.log('isStream')
+        console.log(parent)
+        // let x = replaceContext(parent, [], 1)
+        // console.log("base state", x)
+        let y = findState(tree['stateTrie'], parent)
+        console.log("state object", parent, y)
+        let keys = Object.keys(y)
+        let filteredKeys = keys.filter(key => key === "downstream" || key === "upstream")
+        console.log("stream keys", filteredKeys)
+        return filteredKeys.length > 0
+        // get the parent keys(have to modify the parent)
+        // find out if upStream or downStream are members of the key set
+    }
+    isDownStream = (state) => {
+        let y = findState(tree['stateTrie'], state)
+
+        let keys = Object.keys(y)
+        return keys.includes("downstream")
+    }
+    handleStreamData = (state, downStream, upStream) => {
+        // let x = replaceContext(state, [], 1)
+
+        let y = findState(tree['stateTrie'], state)
+
+        let keys = Object.keys(y)
+        if(keys.includes("downstream")) {
+            console.log("we are in downstream")
+            let downStreamStateStart = getDownStreamStart(tree['stateTrie'], state) //makeDownStreamContext(currentState)
+            let downStreamStateEnd = getDownStreamEnd(tree['stateTrie'], state)
+            // need to check for the stream key instead?
+            if(downStreamStateStart !== null) {
+
+                console.log("our hoopper start data", downStreamStateStart)
+                // adding data
+                tree = deepAssign(  tree,
+                                    ['stateTrie', ...state, 'downstream', 'start'],
+                                    [],
+                                    setToValue)
+                // make one that takes away data
+                return downStreamStateStart
+            }
+            else if(downStreamStateEnd !== null) {
+                console.log("our hoopper end data", downStream , "=>", downStreamStateEnd)
+                // let dataFromHopper = [...downStreamStateEnd]
+                console.log(downStream)
+
+                /// put data in downstream hopper
+                tree = deepAssign(  tree,
+                                    ['stateTrie', ...state, 'downstream', 'end'],
+                                    downStream,
+                                    setToValue)
+                console.log(tree)
+                // console.log(downStream)
+
+                console.log("done", downStream)
+                // erase carrying data
+                return
+            }
+            
+        } else {
+
+        }
+        // does parent have downstream?
+            // end
+                // save downStream to parent's downStream end
+            // start
+                // store downStream from parent's downStream start and erase the parent's downStream start
+        // else if uspstream
+            // end
+                // save upStream to parent's upStream end
+            // start
+                // store upStream from parent's upStream start and erase the parent's upStream start
+    }
+
     visit = (parent, nextStates, recursiveId, downStream, upStream) => {
+        // ['start', '0'] will be the parent 2 times in a row
         console.log("visit", recursiveId, parent, nextStates)
         // console.log(Object.keys(tree['stateTrie']))
         if(recursiveId === 3) {
@@ -1047,11 +1220,20 @@ class Data extends React.Component{
 
             if(!resultOfFunction) {
 
+                // can only do this to deposit data
+                if(this.isStream(state)) {
+                    if(this.isDownStream(state)) {
+                        console.log("at downstream end for", state, downStream)
+                        this.handleStreamData(state, downStream, upStream)
+
+                    }
+
+                }
                 let currentState = findState(tree['stateTrie'], state)
                                 // save the stream data here
-
+                // the hopper data for this state should be deposited before the state is run(so the state can get it)
                 // is this the child we actually need the stream data for?
-
+                // the parent is used to access the data the state will use()
                 resultOfFunction = currentState['function'](parent, state)
                 // console.log(this.findState(tree['stateTrie'], nextStates[i]))
                 // console.log(resultOfFunction)
@@ -1061,9 +1243,22 @@ class Data extends React.Component{
                         console.log("after function", tree)
                         console.log("stat ran", state)
                         let downStreamStateStart = getDownStreamStart(tree['stateTrie'], state) //makeDownStreamContext(currentState)
-                        console.log("data from hopper", downStreamStateStart)
+                        console.log("data from downstream start hopper", downStreamStateStart)
 
-                        console.log("has children")
+                        console.log("has children", currentState['children'])
+                        // can only do this to pickup data
+                        if(this.isStream(state)) {
+                            // dowStreamStart
+                            // downStreamStateStart will not always be there
+                            console.log("collect", downStreamStateStart)
+                            // constantly going to replace downStream with whatever is in the current downstream
+                            downStream = this.handleStreamData(state, downStream, upStream)
+                            console.log(tree)
+                            console.log("data to send downstream", downStream)
+            
+                        } else {
+                            console.log("can't collect")
+                        }
                         // if parent has this, it's the same parent the state send to stream
                         // we are transport data up or down from A to B only
                         // does parent have any stream?
@@ -1080,7 +1275,7 @@ class Data extends React.Component{
                         // else if no stream
                             // don't do anything with stream data
                         // get downstream data from parent and pass it down
-                        this.visit(currentState, currentState['children'], recursiveId + 1, downStream, upStream)
+                        this.visit(state, currentState['children'], recursiveId + 1, downStream, upStream)
                         // console.log('recursion unwinding')
                         // console.log([...currentState['children']])
                     } else {
