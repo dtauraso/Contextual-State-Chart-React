@@ -254,8 +254,12 @@ const makePath = (currentState, variableNameList) => {
     // variable name is not a list anymore
     return ['stateTrie', ...currentState, 'variables', ...variableNameList]
 }
-const storeIntoDownStreamStart = (state, variableName) => {
 
+const storeIntoDownStreamStart = (state, variableName) => {
+    // new idea:
+    // have the hopper collect all data from state to be transfered to the destination state
+    // this way the entire hopper operation is automated
+    // be more specific about waht vars to transfer later
     let fullVariablePath = ['stateTrie', ...state, 'variables', variableName, 'variable']
     // console.log("fullVariablePath", fullVariablePath)
     let variable = findState(tree, fullVariablePath)
