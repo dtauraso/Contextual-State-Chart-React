@@ -1,7 +1,139 @@
 import React from "react"
 
+// 'added'
+// 'deleted'
+// 'unset'
+const makeNode = (value) => {
+
+    return {data: value, flag: 'new' }
+}
+const deleteNode = (value) => {
+    return {...value, flag: 'deleted'}
+}
+const unsetNode = (value) => {
+    return {...value, flag: 'unset'}
+}
+// there is a difference between putting data in my format and marking the users level of changes
+const convertToRecordingForm = (object) => {
+
+    // console.log('convertToRecordingForm', object, typeof(object))
+    
+    if(typeof(object) === 'string') {
+        let newArray = []
+        for(let i = 0; i < object.length; i++) {
+            // O(n^2) but no mutation
+            newArray = [    ...newArray,
+                            makeNode(object[i])]
+        }        
+        return newArray
+    }
+    if(Array.isArray(object)) {
+        let newArray = []
+        for(let i = 0; i < object.length; i++) {
+            // O(n^2) but no mutation
+            newArray = [    ...newArray,
+                            makeNode(object[i])]
+        }        
+        return newArray
+
+    }
+    if(typeof(object) === 'object') {
+        // key -> value
+        let keys = Object.keys(object)
+        // merge {...stuff} with keys.map while making sure the iteration doesn't become n^2
+        // as things would be duplicated
+        let newObject = {}
+        for(var i in keys) {
+            let ithKey = keys[i]
+            newObject = {   ...newObject,
+                            [ithKey]: makeNode(object[ithKey])}
+        }
+        // console.log(newObject)
+        return newObject
+    }
+}
+
+const pushBack = (packageArray) => {
+
+    let [array, value] = packageArray
+    // console.log('keys', Object.keys(array))
+    return [...array, makeNode(value)]
+}
+const popBack = (array) => {
+
+    return array.map((item, i) => (i === array.length - 1) ? deleteNode(item) : item)
+}
+const insertObject = (object) => {
+    // recursively recreate the object and set all it's values's flag to 'added'
+}
+const insertItem = (array, i, value) => {
+
+    // assumes the array has been converted to the recording form
+    // the value is the data the user is interested in(not one with a recording flag)
+    // friends = [
+    //     ...friends.slice(0, friendIndex),
+    //     friend,
+    //     ...friends.slice(friendIndex + 1)
+    //   ];
+    return [
+            ...array.slice(0, i),
+            makeNode(value),
+            ...array.slice(i + 1)
+        ]
+
+}
+const deleteItem = (array, i) => {
 
 
+}
+
+const edit = (array, i, value) => {
+    // insert value at i, delete pushed old value at i + 1
+    array = insertItem(array, i, value)
+    // item to delete is now at i + 1
+    return array.map((item, index) => (index === (i + 1) ? deleteNode(item) : item))
+
+}
+const search = (array, value) => {
+    let i = 0
+
+    array.forEach((item, index) => {
+        if(item.data === value){
+            i = index
+            return i
+        }
+    })
+}
+
+const collectFlagedItems = (parentState) => {
+
+    // dft
+    // return the top level items that have a node recorded
+    // return a tree of the var names and objects holding the recorded nodes
+
+}
+const collectFlaggedElements = (array) => {
+
+    return array.filter(item => item.flag !== 'unset')
+}
+
+const cleanUp = (stateChartTree) => {
+
+    // delete all items flaged for removal and unset the flags of remaining items
+    // dft
+    // if node is recorded
+        // if node is 'deleted'
+            // delete it
+        // else
+            // set the flag to 'unset'
+}
+
+const cleanFlaggedElements = (array) => {
+
+    return array
+                .filter(item => item.flag !== 'deleted')
+                .map(item => (item.flag !== 'unset' ? unsetNode(item) : item))
+}
 const findState = (tree, path) => {
 
     
@@ -17,7 +149,22 @@ const findState = (tree, path) => {
 
 }
 
+const pushBackItem = (container, value) => {
+    // the value contains the array and the item to push back
+    return pushBack(value)
+}
+const popBackItem = (container, value) => {
+    return popBack(value)
+}
 
+const cleanArray = (container, value) => {
+
+    return cleanFlaggedElements(value)
+}
+const convertToRecord = (conainer, value) => {
+    console.log('convertToRecord', conainer, value)
+    return convertToRecordingForm(value)
+}
 const setToValue = (container, value) => {
     return value
 }
@@ -104,52 +251,80 @@ const getDownStreamEnd = (tree, currentState) => {
 }
 
 const makePath = (currentState, variableNameList) => {
+    // variable name is not a list anymore
     return ['stateTrie', ...currentState, 'variables', ...variableNameList]
 }
 const storeIntoDownStreamStart = (state, variableName) => {
 
-    // let variableName = ['input']
-    let fullVariablePath = ['stateTrie', ...state, 'variables', ...variableName]
+    let fullVariablePath = ['stateTrie', ...state, 'variables', variableName, 'variable']
     // console.log("fullVariablePath", fullVariablePath)
     let variable = findState(tree, fullVariablePath)
+    console.log('value to transfer', variable)
     //getChildVariable(tree['stateTrie'], currentState, variableName)
     if(variable === null) {
         return false
     }
-    // console.log("current state tree", variable)
-    // needs error checking
-    let downStreamStateStart = getDownStreamStart(tree['stateTrie'], state) //makeDownStreamContext(currentState)
 
     tree = deepAssign(  tree,
                         ['stateTrie', ...state, 'downstream', 'start'],
-                        fullVariablePath,
+                        {[variableName]: variable},
                         append)
 
 }
+
 const storeIntoDownStreamEnd = (state, variableName) => {
+
 
     // currently only works for 1 variable name
     let fullVariablePaths = findState(tree, ['stateTrie', ...state, 'downstream', 'end'])
-    // console.log(fullVariablePaths)
-    let variableMapList = [makePath(state, variableName)]
-    // console.log("variables to map", variableMapList)
-    let hopperVariableToStateVariable = fullVariablePaths.map((fullVariablePath, i) => {
-        return [fullVariablePath, variableMapList[i]]
-    })
-    // console.log(hopperVariableToStateVariable)
+    console.log(state, 'our new variables', fullVariablePaths)
+    // maps each name from the source to the destination
+    fullVariablePaths.forEach(variable => {
+        // console.log(getVariableValuePath(state, variableName))
 
-    hopperVariableToStateVariable.forEach(pair => {
-
-        let [hopperVariable, stateVariable] = pair
-        // console.log(hopperVariable, stateVariable)
-        let variable = findState(tree, hopperVariable)
-        // console.log(variable['variable'], [...stateVariable, 'variable'])
+        const key = Object.keys(variable)[0]
+        // console.log(tree)
+        // variable is not yet set so can't allow the tree to ever be null(can't drill down too far)
         tree = deepAssign(  tree,
-                            [...stateVariable, 'variable'],  // path
-                            variable['variable'], // data to set
+                            ['stateTrie', ...state, 'variables', variableName, 'variable'],  // path
+                            variable[key], // data to set
                             setToValue)
-
     })
+    console.log(tree)
+    // debugger
+    // console.log(getVariableValuePath(state, variableName))
+    // only want from 0 to the nth item the hooper is passing down
+    // nth state variable name -> nth hooper value
+    // map by name rather than by position
+    // console.log(Object.keys(findState(tree, ["stateTrie", ...state, 'variables'])).filter((name, i) => i < fullVariablePaths.length))
+    // let variableMapList = [makePath(state, variableName)]
+    // console.log("variables to map", variableMapList)
+    // instead of mapping by position, map by name(the source name must be the same as the destination name)
+    // violates the rule that no variables with a common name can both be inside a state(only if the 2 parent variable names
+    // share a prefix)
+    // that rule is in place so the user can type the first name of the variable and have it be the only one findable in the parent scope
+    // even if it has many more name parts
+    // test the first word of each variable name and if they are the same then don't finish and quit function with a message
+    // assume for now each variable name is 1 string long
+    // let hopperVariableToStateVariable = fullVariablePaths.map((fullVariablePath, i) => {
+    //     return [fullVariablePath, variableMapList[i]]
+    // })
+    // console.log(hopperVariableToStateVariable)
+    // the hopper variable is a path name
+    // the state variable is a path name
+    // path names look like this: [string, string, ...]
+    // hopperVariableToStateVariable.forEach(pair => {
+
+    //     let [hopperVariable, stateVariable] = pair
+    //     // console.log(hopperVariable, stateVariable)
+    //     let variable = findState(tree, hopperVariable)
+    //     // console.log(variable['variable'], [...stateVariable, 'variable'])
+    //     tree = deepAssign(  tree,
+    //                         [...stateVariable, 'variable'],  // path
+    //                         variable['variable'], // data to set
+    //                         setToValue)
+
+    // })
     tree = deepAssign(  tree,
                         ['stateTrie', ...state, 'downstream', 'end'],
                         [],
@@ -157,12 +332,14 @@ const storeIntoDownStreamEnd = (state, variableName) => {
                         )
 
 }
+// can the tracking system be done without the user writing any tracking code?
+// yes if the tracking code is made before or after the state function code gets run
 const startState = (parent, currentState) => {
     // parent is currently root which is a non-existtant dummy state
     // load up the downstream
     // ['stateTrie']
     console.log("start state", currentState)
-    storeIntoDownStreamStart(currentState, ['input'])
+    storeIntoDownStreamStart(currentState, 'input')
 
     console.log("my tree", tree)
 
@@ -173,16 +350,61 @@ const startState = (parent, currentState) => {
 const splitState = (parent, currentState) => {
     console.log('in split', parent, currentState)
     console.log("my tree", tree)
-    storeIntoDownStreamEnd(currentState, ['input'])
+    storeIntoDownStreamEnd(currentState, 'input')
     console.log(tree)
     return true
 
 
 }
+const getVariableValuePath = (parent, variableName) => {
+    return ["stateTrie", ...parent, 'variables', variableName, 'variable', 'value']
+}
 const getVariableValueFromParent = (parent, variableName) => {
 
-    return findState(tree, ["stateTrie", ...parent, 'variables', variableName, 'variable', 'value'])
+    return findState(tree, getVariableValuePath(parent, variableName))
 }
+
+const userAppend = (tree, parentState, variableName, value) => {
+
+    // console.log(parentState, variableName, value)
+    const variableValuePath = getVariableValuePath(parentState, variableName)
+    // console.log(variableValuePath)
+    tree = deepAssign(  tree,
+                        variableValuePath,  // path
+                        [findState(tree, variableValuePath), value], // data to set
+                        pushBackItem)
+    return tree
+}
+const userPopBack = (tree, parentState, variableName) => {
+
+    const variableValuePath = getVariableValuePath(parentState, variableName)
+
+    tree = deepAssign(  tree,
+                        variableValuePath,  // path
+                        findState(tree, variableValuePath), // data to set
+                        popBackItem)
+    return tree
+}
+
+const userConvertToRecord = (tree, parent, variableName) => {
+    const variableValuePath = getVariableValuePath(parent, variableName)
+    tree = deepAssign(  tree,
+                        variableValuePath,  // path
+                        findState(tree, variableValuePath), // data to set
+                        convertToRecord)
+    return tree
+}
+const cleanRecords = (tree, parent, variableName) => {
+    const variableValuePath = getVariableValuePath(parent, variableName)
+
+    tree = deepAssign(  tree,
+        variableValuePath,  // path
+        findState(tree, variableValuePath), // data to set
+        cleanArray)
+    return tree
+
+}
+// only mark at the level the user sets or mark all levels?
 const collectChar = (parent, currentState) => {
     
 
@@ -204,6 +426,81 @@ const collectChar = (parent, currentState) => {
     let variable = getVariableValueFromParent(parent, 'input')
     console.log(variable)
     console.log(getVariableValueFromParent(parent, 'tokens'))
+    let x = convertToRecordingForm([2, 3, 4])
+    console.log(x)
+
+    let y = convertToRecordingForm('12345')
+    console.log(y)
+
+    let z = convertToRecordingForm(
+        [{group: 'no', object: {token: '12', category: 'number'}}]
+    )
+    console.log(z)
+    tree = userConvertToRecord(tree, parent, 'collectedString')
+    // let variableValuePath = getVariableValuePath(parent, 'collectedString')
+    // ["stateTrie", ...parent, 'variables', 'collectedString', 'variable', 'value']
+    // tree = deepAssign(  tree,
+    //                     variableValuePath,  // path
+    //                     findState(tree, variableValuePath), // data to set
+    //                     convertToRecord)
+    console.log('converted', getVariableValueFromParent(parent, 'collectedString'))
+
+    // convert tree variable
+    // append
+    tree = userAppend(tree, parent, 'collectedString', '1')
+
+    // tree = deepAssign(  tree,
+    //                     variableValuePath,  // path
+    //                     [findState(tree, variableValuePath), '1'], // data to set
+    //                     pushBackItem)
+    console.log('append', getVariableValueFromParent(parent, 'collectedString'))
+
+    tree = userAppend(tree, parent, 'collectedString', '+')
+
+    // tree = deepAssign(  tree,
+    //                     variableValuePath,  // path
+    //                     [findState(tree, variableValuePath), '+'], // data to set
+    //                     pushBackItem)
+    console.log('append', getVariableValueFromParent(parent, 'collectedString'))
+
+    // popBack
+    tree = userPopBack(tree, parent, 'collectedString')
+    // tree = deepAssign(  tree,
+    //                     variableValuePath,  // path
+    //                     findState(tree, variableValuePath), // data to set
+    //                     popBackItem)
+    console.log('popBack', getVariableValueFromParent(parent, 'collectedString'))
+
+    // collect records
+    let records = collectFlaggedElements(getVariableValueFromParent(parent, 'collectedString'))
+    console.log(records)
+    // clean out
+    tree = cleanRecords(tree, parent, 'collectedString')
+
+    // tree = deepAssign(  tree,
+    //                     variableValuePath,  // path
+    //                     findState(tree, variableValuePath), // data to set
+    //                     cleanArray)
+    console.log('cleaned', getVariableValueFromParent(parent, 'collectedString'))
+    console.log(tree)
+
+
+    tree = userConvertToRecord(tree, parent, 'tokens')
+
+
+    tree = userAppend(tree, parent, 'tokens', '12')
+    tree = userAppend(tree, parent, 'tokens', '+')
+    tree = userAppend(tree, parent, 'tokens', '20')
+
+    tree = userPopBack(tree, parent, 'tokens')
+
+    console.log('tokens result', getVariableValueFromParent(parent, 'tokens'))
+    let tokensRecords = collectFlaggedElements(getVariableValueFromParent(parent, 'tokens'))
+    console.log('new stuff from tokens', tokensRecords)
+
+    tree = cleanRecords(tree, parent, 'tokens')
+    console.log(tree)
+
 
     return true
 }
@@ -1075,6 +1372,21 @@ class Data extends React.Component{
 
 
     visit = (parent, nextStates, recursiveId, stateCount, downStream, upStream) => {
+        // runs each runable state in the contextual state chart
+        // time complexity
+        // n * n
+        // n nodes
+        // each node runs a recording system that copies entire tree(n nodes)
+
+        // 2 important things to be done when the user runs code in a state
+        // they have to transport data from 1 level to another
+        // they have to track all changes for debugging
+        // this all has to fit into the unique state model(each state, each variable has a unique name so any level of 
+        // context can be expressed throughout the state chart)
+        // the user also must be able to type in the variable name of their orginal choosing to access it
+        // while the variable is also unique(hard to solve dilemna)
+        // this must be a simple to use state machine(the user must feel like it's just regular programming)
+        // if the user feels like it's cumbersome then the solution has failed
         // ['start', '0'] will be the parent 2 times in a row
         console.log("visit", recursiveId, parent, nextStates)
         // console.log(Object.keys(tree['stateTrie']))
@@ -1083,7 +1395,7 @@ class Data extends React.Component{
         //     console.log()
         //     return
         // }
-        if(stateCount === 5) {
+        if(stateCount === 3) {
             console.log('done with states')
             console.log()
             return
@@ -1120,14 +1432,26 @@ class Data extends React.Component{
                     if(resultOfFunction) {
                         ranTrueFunction = true
                         stateCount += 1
+                        // collect records of changes made in the parent's variables
+                        // reset records of changes made in the parent's variables
                         // is the current state a parent?
                         if(this.isParent(currentState)) {
-                            console.log("after function", tree)
-                            console.log("stat ran", state)
-                            let downStreamStateStart = getDownStreamStart(tree['stateTrie'], state) //makeDownStreamContext(currentState)
-                            console.log("data from downstream start hopper", downStreamStateStart)
+                            // console.log("after function", tree)
+                            // console.log("stat ran", state)
+                            // stringify state
+                            // use the string as a key maping to the hopper value(so hopper can be used
+                            // with many different transporting states at once)
+                            // hopper value is expressed as a node with modification flags
+                            // the flags show what was changed for the diffing algorithm to record after each state is run
+                            // this way the user can directly change the machine variables(no local varaibles will be tracked)
+                            // and have their changes get logged automatcally 
+                            // have the transport system transport the variable and value because
+                            // the machine's variables will be cleared before the machine travels up the hierarchy
+                            // that means the last state has to put the variable data into the hopper to transport it up()
+                            // let downStreamStateStart = getDownStreamStart(tree['stateTrie'], state) //makeDownStreamContext(currentState)
+                            // console.log("data from downstream start hopper", downStreamStateStart)
 
-                            console.log("has children", currentState['children'])
+                            // console.log("has children", currentState['children'])
                             // can only do this to pickup data
                             if(this.isDownStreamStart(state)) {
                                 // dowStreamStart
@@ -1150,9 +1474,9 @@ class Data extends React.Component{
                             // console.log('recursion unwinding')
                             // console.log([...currentState['children']])
                         } else {
-                            console.log("no children")
+                            // console.log("no children")
                             nextStates = currentState['next']
-                            console.log(nextStates, 'to try')
+                            // console.log(nextStates, 'to try')
                         }
                         // break
 
