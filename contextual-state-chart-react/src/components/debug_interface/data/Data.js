@@ -223,119 +223,12 @@ const returnFalse = (tree, parent, currentState) => {
 }
 
 
-const getDownStreamStart = (tree, currentState) => {
-
-    let variableState = [...currentState, 'downstream', 'start']
-    // console.log("messed up variable name", currentState, variableState)
-
-    let currentStateTree = findState(tree, variableState)
-    let inputVariable = currentStateTree
-    if(inputVariable === null) {
-        return null
-    }
-    return inputVariable
-
-}
-const getDownStreamEnd = (tree, currentState) => {
-
-    let variableState = [...currentState, 'downstream', 'end']
-    // console.log("messed up variable name", currentState, variableState)
-
-    let currentStateTree = findState(tree, variableState)
-    let inputVariable = currentStateTree
-    if(inputVariable === null) {
-        return null
-    }
-    return inputVariable
-
-}
 
 const makePath = (currentState, variableNameList) => {
     // variable name is not a list anymore
     return ['stateTrie', ...currentState, 'variables', ...variableNameList]
 }
 
-const storeIntoDownStreamStart = (state, variableName) => {
-    // new idea:
-    // have the hopper collect all data from state to be transfered to the destination state
-    // this way the entire hopper operation is automated
-    // be more specific about waht vars to transfer later
-    let fullVariablePath = ['stateTrie', ...state, 'variables', variableName, 'variable']
-    // console.log("fullVariablePath", fullVariablePath)
-    let variable = findState(tree, fullVariablePath)
-    console.log('value to transfer', variable)
-    //getChildVariable(tree['stateTrie'], currentState, variableName)
-    if(variable === null) {
-        return false
-    }
-
-    tree = deepAssign(  tree,
-                        ['stateTrie', ...state, 'downstream', 'start'],
-                        {[variableName]: variable},
-                        append)
-
-}
-
-const storeIntoDownStreamEnd = (state, variableName) => {
-
-
-    // currently only works for 1 variable name
-    let fullVariablePaths = findState(tree, ['stateTrie', ...state, 'downstream', 'end'])
-    console.log(state, 'our new variables', fullVariablePaths)
-    // maps each name from the source to the destination
-    fullVariablePaths.forEach(variable => {
-        // console.log(getVariableValuePath(state, variableName))
-
-        const key = Object.keys(variable)[0]
-        // console.log(tree)
-        // variable is not yet set so can't allow the tree to ever be null(can't drill down too far)
-        tree = deepAssign(  tree,
-                            ['stateTrie', ...state, 'variables', variableName, 'variable'],  // path
-                            variable[key], // data to set
-                            setToValue)
-    })
-    console.log(tree)
-    // debugger
-    // console.log(getVariableValuePath(state, variableName))
-    // only want from 0 to the nth item the hooper is passing down
-    // nth state variable name -> nth hooper value
-    // map by name rather than by position
-    // console.log(Object.keys(findState(tree, ["stateTrie", ...state, 'variables'])).filter((name, i) => i < fullVariablePaths.length))
-    // let variableMapList = [makePath(state, variableName)]
-    // console.log("variables to map", variableMapList)
-    // instead of mapping by position, map by name(the source name must be the same as the destination name)
-    // violates the rule that no variables with a common name can both be inside a state(only if the 2 parent variable names
-    // share a prefix)
-    // that rule is in place so the user can type the first name of the variable and have it be the only one findable in the parent scope
-    // even if it has many more name parts
-    // test the first word of each variable name and if they are the same then don't finish and quit function with a message
-    // assume for now each variable name is 1 string long
-    // let hopperVariableToStateVariable = fullVariablePaths.map((fullVariablePath, i) => {
-    //     return [fullVariablePath, variableMapList[i]]
-    // })
-    // console.log(hopperVariableToStateVariable)
-    // the hopper variable is a path name
-    // the state variable is a path name
-    // path names look like this: [string, string, ...]
-    // hopperVariableToStateVariable.forEach(pair => {
-
-    //     let [hopperVariable, stateVariable] = pair
-    //     // console.log(hopperVariable, stateVariable)
-    //     let variable = findState(tree, hopperVariable)
-    //     // console.log(variable['variable'], [...stateVariable, 'variable'])
-    //     tree = deepAssign(  tree,
-    //                         [...stateVariable, 'variable'],  // path
-    //                         variable['variable'], // data to set
-    //                         setToValue)
-
-    // })
-    tree = deepAssign(  tree,
-                        ['stateTrie', ...state, 'downstream', 'end'],
-                        [],
-                        setToValue
-                        )
-
-}
 // can the tracking system be done without the user writing any tracking code?
 // yes if the tracking code is made before or after the state function code gets run
 const startState = (parent, currentState) => {
@@ -343,7 +236,7 @@ const startState = (parent, currentState) => {
     // load up the downstream
     // ['stateTrie']
     console.log("start state", currentState)
-    storeIntoDownStreamStart(currentState, 'input')
+    // storeIntoDownStreamStart(currentState, 'input')
 
     console.log("my tree", tree)
 
@@ -354,7 +247,7 @@ const startState = (parent, currentState) => {
 const splitState = (parent, currentState) => {
     console.log('in split', parent, currentState)
     console.log("my tree", tree)
-    storeIntoDownStreamEnd(currentState, 'input')
+    // storeIntoDownStreamEnd(currentState, 'input')
     console.log(tree)
     return true
 
@@ -427,6 +320,8 @@ const collectChar = (parent, currentState) => {
     console.log("collectChar")
     console.log(parent)
     // let variableName = 'input'
+    // console.log(getVariableValuePath(parent, 'input'))
+    // console.log(findState(tree, getVariableValuePath(parent, 'input')))
     let variable = getVariableValueFromParent(parent, 'input')
     console.log(variable)
     console.log(getVariableValueFromParent(parent, 'tokens'))
@@ -562,10 +457,39 @@ var tree = {
                             'parents'   : [['start', '0']]
     
                         },
+                    
                     },
                     'downstream' : {
-                        'start' : []
-                    },
+                        'start' : {'input': ['split', '0']}
+                    }
+
+                    // source: user: [[varName, VarNamevarName]]   machne: {varName: data, destination: state}
+                    // destination: 1 to 1
+
+                    // hopper table: split, 0, variables, input -> [start, 0, variables, input]
+                    // ordered pairs of 1 source and many possible distinations(must all be unique)
+                    // start has 
+                    //[{source, {destination: {varNameSource: varNameDestination}}}]
+
+
+                    // {destinationString, {source: {varName: data}}}
+
+                    // end has
+                    //[{destination, {source: {varName: data}}}]
+
+                    // A, not B(how long does A wait?kill all at end of last machine and note the ones that never got to B)
+                    // not A, B(Nothing came to B)
+                    // not A, not B(Do we check for travel lines that don't exist by accident?)
+                    // A, B(data was detected by B)
+                    // if data makes it
+                        // there is a destination key to find at the destination state
+                    // else
+                        // there is no destination key
+                        // print out there is a problem from the source to the destination and the data never came(no data came)
+                    // else if the user tries to access a variable that was supposed to be set by the transport system(how to know this?)
+                        // print out there is a problem from the source to the destination and the data never came(the specifically accessible data
+                        // never came)
+                   
                 },
                 
                 
@@ -601,7 +525,7 @@ var tree = {
                             }
                         },
                         'downstream' : {
-                            'end' : []
+                            'end' : {'input': ['start', '0']}
                         },
                     },
                     
@@ -1360,21 +1284,195 @@ class Data extends React.Component{
         let y = findState(tree['stateTrie'], state)
 
         let keys = Object.keys(y)
+        // console.log(y)
         return keys.includes("downstream")
     }
     isDownStreamEnd = (state) => {
         if(this.isDownStream(state)) {
-            return getDownStreamEnd(tree['stateTrie'], state) !== null
+            return this.getDownStreamEnd(tree['stateTrie'], state) !== null
         }
     }
     isDownStreamStart = (state) => {
         if(this.isDownStream(state)) {
-            return getDownStreamStart(tree['stateTrie'], state) !== null
+            return this.getDownStreamStart(tree['stateTrie'], state) !== null
         }
 
     }
+    getDownStreamStart = (tree, currentState) => {
+
+        let variableState = [...currentState, 'downstream', 'start']
+        // console.log("messed up variable name", currentState, variableState)
+    
+        let currentStateTree = findState(tree, variableState)
+        let inputVariable = currentStateTree
+        // console.log('input variable', inputVariable)
+        // debugger
+    
+        return inputVariable
+    
+    }
+    getDownStreamEnd = (tree, currentState) => {
+    
+        let variableState = [...currentState, 'downstream', 'end']
+        // console.log("messed up variable name", currentState, variableState)
+    
+        let currentStateTree = findState(tree, variableState)
+        let inputVariable = currentStateTree
+        if(inputVariable === null) {
+            return null
+        }
+        return inputVariable
+    
+    }
+
+    // how they are used
+    // storeIntoDownStreamStart(currentState, 'input')
+
+    // storeIntoDownStreamEnd(currentState, 'input')
 
 
+    storeIntoDownStreamStart = (state, variableName) => {
+        // new idea:
+        // have the hopper collect all data from state to be transfered to the destination state
+        // this way the entire hopper operation is automated
+        // be more specific about waht vars to transfer later
+        // need hooper flags in data structure to tell transport system where to pick up and drop data
+        let fullVariablePath = ['stateTrie', ...state, 'variables', variableName, 'variable']
+        // console.log("fullVariablePath", fullVariablePath)
+        // debugger
+        let variable = findState(tree, fullVariablePath)
+        // console.log('value to transfer', variable)
+        //getChildVariable(tree['stateTrie'], currentState, variableName)
+        if(variable === null) {
+            return false
+        }
+    
+        tree = deepAssign(  tree,
+                            ['stateTrie', ...state, 'downstream', 'start'],
+                            {[variableName]: variable},
+                            append)
+    
+    }
+    getDownStreamStartVariables = (tree, state, downstream) => {
+
+        // the data from downstream the user setup is in the form {variableName: destinationState}
+        // we want to return data in the form {varName: varData}
+        // console.log('here')
+        // console.log(state)
+        const fullOutgoingVariablePaths = ['stateTrie', ...state, 'downstream', 'start']
+        const variables = findState(tree, fullOutgoingVariablePaths)
+        // console.log(variables)
+        const variableNames = Object.keys(variables)
+        variableNames.forEach(variableName => {
+
+            // console.log(variableName, variables[variableName])
+            const fullVariablePath = ['stateTrie', ...state, 'variables', variableName, 'variable']
+            const variableData = findState(tree, fullVariablePath)
+            // console.log('OUR VARIABLE DATA', variableData)
+            // The user can't use ~ to make state names or this will not work
+            const stringifiedStateName = variables[variableName].join('~')
+
+            // console.log(variableName, variableData, stringifiedStateName)
+            // inefficient but works
+            downstream = {...downstream, [stringifiedStateName]: {[variableName]: variableData}}
+        })
+        
+        return downstream
+    }
+
+    // this.setDownStreamEndVariables(tree, state, downStream)
+    storeIntoDownStreamEndVariables = (tree, state, downStream) => {
+
+        // state is the destination state
+        // we want to read data from the downStream[stringifiedStateName] in the form {varName: varData}
+        // we want to store each variable name in the dict into the variable location
+        // described by the state and the variable name['stateTrie', ...state, 'variables', variableName, 'variable']
+    
+        // console.log(state, downStream)
+        const stringifiedStateName = state.join('~')
+        // console.log(downStream[stringifiedStateName])
+        const variableNames = Object.keys(downStream[stringifiedStateName])
+        variableNames.forEach(variableName => {
+
+            const fullVariablePath = ['stateTrie', ...state, 'variables', variableName, 'variable']
+
+            // console.log('var data to store', variableName, downStream[stringifiedStateName][variableName])
+            // console.log('location', fullVariablePath)
+            tree = deepAssign( tree,
+                                fullVariablePath,
+                                downStream[stringifiedStateName][variableName],
+                                setToValue
+            )
+        })
+        console.log('did it work?', tree)
+        return tree
+        // const fullVariablePath = ['stateTrie', ...state, 'variables', variableName, 'variable']
+        // want to visit all the variables saved and match them to the empty variable slots in the destination state
+        // make sure they match before saving them
+
+    }
+    storeIntoDownStreamEnd = (state, variableName) => {
+    
+    
+        // currently only works for 1 variable name
+        let fullVariablePaths = findState(tree, ['stateTrie', ...state, 'downstream', 'end'])
+        console.log(state, 'our new variables', fullVariablePaths)
+        // maps each name from the source to the destination
+        fullVariablePaths.forEach(variable => {
+            // console.log(getVariableValuePath(state, variableName))
+    
+            const key = Object.keys(variable)[0]
+            // console.log(tree)
+            // variable is not yet set so can't allow the tree to ever be null(can't drill down too far)
+            tree = deepAssign(  tree,
+                                ['stateTrie', ...state, 'variables', variableName, 'variable'],  // path
+                                variable[key], // data to set
+                                setToValue)
+        })
+        console.log(tree)
+        // debugger
+        // console.log(getVariableValuePath(state, variableName))
+        // only want from 0 to the nth item the hooper is passing down
+        // nth state variable name -> nth hooper value
+        // map by name rather than by position
+        // console.log(Object.keys(findState(tree, ["stateTrie", ...state, 'variables'])).filter((name, i) => i < fullVariablePaths.length))
+        // let variableMapList = [makePath(state, variableName)]
+        // console.log("variables to map", variableMapList)
+        // instead of mapping by position, map by name(the source name must be the same as the destination name)
+        // violates the rule that no variables with a common name can both be inside a state(only if the 2 parent variable names
+        // share a prefix)
+        // that rule is in place so the user can type the first name of the variable and have it be the only one findable in the parent scope
+        // even if it has many more name parts
+        // test the first word of each variable name and if they are the same then don't finish and quit function with a message
+        // assume for now each variable name is 1 string long
+        // let hopperVariableToStateVariable = fullVariablePaths.map((fullVariablePath, i) => {
+        //     return [fullVariablePath, variableMapList[i]]
+        // })
+        // console.log(hopperVariableToStateVariable)
+        // the hopper variable is a path name
+        // the state variable is a path name
+        // path names look like this: [string, string, ...]
+        // hopperVariableToStateVariable.forEach(pair => {
+    
+        //     let [hopperVariable, stateVariable] = pair
+        //     // console.log(hopperVariable, stateVariable)
+        //     let variable = findState(tree, hopperVariable)
+        //     // console.log(variable['variable'], [...stateVariable, 'variable'])
+        //     tree = deepAssign(  tree,
+        //                         [...stateVariable, 'variable'],  // path
+        //                         variable['variable'], // data to set
+        //                         setToValue)
+    
+        // })
+        // there may be unused items in the hopper due to all data from state being collected
+        tree = deepAssign(  tree,
+                            ['stateTrie', ...state, 'downstream', 'end'],
+                            [],
+                            setToValue
+                            )
+    
+    }
+    
     visit = (parent, nextStates, recursiveId, stateCount, downStream, upStream) => {
         // runs each runable state in the contextual state chart
         // time complexity
@@ -1390,6 +1488,21 @@ class Data extends React.Component{
         // the user also must be able to type in the variable name of their orginal choosing to access it
         // while the variable is also unique(hard to solve dilemna)
         // this must be a simple to use state machine(the user must feel like it's just regular programming)
+
+
+        // transport system
+        // sourceState: begin: varName -> destinationState : assume the varName will match the varName at
+        // the destinationState
+        // destinationState: end: varName -> sourceState : assume the varName will match the varName at
+        // the sourceState
+
+        // hopper table: destinationState -> {varName: varData}
+        // the destination state will know the source so if the hooper data isn't there there than we know what A and B are
+        // detecting the error of A -> B` -> B where B` is B but comes earlier
+        // don't know how to detect other kinds of errors so the user can track them down quicker
+        // generalized fully automated transport system for the user and detects 1 kind of error
+
+
         // if the user feels like it's cumbersome then the solution has failed
         // ['start', '0'] will be the parent 2 times in a row
         console.log("visit", recursiveId, parent, nextStates)
@@ -1399,7 +1512,7 @@ class Data extends React.Component{
         //     console.log()
         //     return
         // }
-        if(stateCount === 3) {
+        if(stateCount === 4) {
             console.log('done with states')
             console.log()
             return
@@ -1419,10 +1532,14 @@ class Data extends React.Component{
                     // can only do this to deposit data
                     if(this.isDownStreamEnd(state)) {
                         // console.log("at downstream end for", state, downStream)
-                        tree = deepAssign(  tree,
-                                            ['stateTrie', ...state, 'downstream', 'end'],
-                                            downStream,
-                                            setToValue)
+                        // this.setDownStreamEndVariables(tree, state, downStream)
+
+                        tree = this.storeIntoDownStreamEndVariables(tree, state, downStream)
+                        // console.log('dropped data off', tree)
+                        // tree = deepAssign(  tree,
+                        //                     ['stateTrie', ...state, 'downstream', 'end'],
+                        //                     downStream,
+                        //                     setToValue)
 
                     }
                     let currentState = findState(tree['stateTrie'], state)
@@ -1466,11 +1583,18 @@ class Data extends React.Component{
                                 // swap the state using the child state so the downStream data
                                 // is still recognized as it goes down the hierarchy
                                 // constantly going to replace downStream with whatever is in the current downstream
-                                downStream = getDownStreamStart(tree['stateTrie'], state)
-                                tree = deepAssign(  tree,
-                                                    ['stateTrie', ...state, 'downstream', 'start'],
-                                                    [],
-                                                    setToValue)
+                                // can't use ~ to make state names
+                                // const stringifiedStateName = state.join('~')
+                                // console.log(state.join('~'))
+                                // we are storing data in form {destinationState -> {varName: varData}}
+                                // where destination state is found inside the downstream start associated with the state                                
+                                downStream = this.getDownStreamStartVariables(tree, state, downStream)
+                                console.log(downStream)
+
+                                // tree = deepAssign(  tree,
+                                //                     ['stateTrie', ...state, 'downstream', 'start'],
+                                //                     [],
+                                //                     setToValue)
                 
                             }
                             // get downstream data from parent and pass it down
