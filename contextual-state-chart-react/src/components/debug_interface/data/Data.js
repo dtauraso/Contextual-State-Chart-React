@@ -195,22 +195,28 @@ const search = (array, value) => {
 }
 
 const collectMostShallowChange = (object) => {
+    // the most shallow changes are collected
+    // the top flag returned is always 'unset'
     // data, flag
     // problems
     // no change is resulting in undefined
     // things beneth 'unset' are not getting recorded
     // object is the tracked object
     // need to return an array of tracked objects or a single tracked object
-    console.log(object)
+    // console.log(object)
     if(Array.isArray(object)) {
 
         let newArray = []
-        // O(n^2) but no mutation
 
+        // O(n^2) but no mutation
         object.forEach(element => {
-            newArray = [    ...newArray,
-                            collectMostShallowChange(element)
-                        ]
+            let newElement = collectMostShallowChange(element)
+            if(newElement !== null) {
+                newArray = [    ...newArray,
+                                newElement
+                ]
+
+            }
         })
         return newArray
 
@@ -223,21 +229,51 @@ const collectMostShallowChange = (object) => {
         if(object['flag'] === 'deleted' || object['flag'] === 'new') {
             return object
         }
-        else {
-            let newObject = collectMostShallowChange(object['data'])
-            // console.log(object, typeof(object))
-            if(typeof(object) === 'object' || Array.isArray(object)) {
-                return newObject
-
+        // base case for {flag: "unset", data: "+"}
+        else if(object['flag'] === 'unset') {
+            if(typeof(object['data']) === 'string') {
+                return null
             }
             else {
-                return {}
+                // alter the flag value from 'unset' to collected to give it a purpose
+                let newObject = collectMostShallowChange(object['data'])
+                if(newObject !== null || newObject.length > 0) {
+                    return {
+                        'flag' : object['flag'] === 'unset' ? 'collected' : object['flag'],
+                        'data' : newObject
+                    }
+                }
+                
             }
+        }
+        else {
+            // data inside the object the 'data' key points to
+            let newObject = {}
+            let keys = Object.keys(object)
+            keys.forEach(key => {
+                let newItem = collectMostShallowChange(object[key])
+
+                // edge cases of the base cases being returned
+                if(newItem !== null) {
+                    if(Array.isArray(newItem)) {
+                        if(newItem.length > 0) {
+
+                            newObject = {   ...newObject,
+                                                [key]: newItem}
+                        }
+                    }
+                    else {
+                            newObject = {   ...newObject,
+                                            [key]: newItem}
+                    }
+                }
+            })
+
+            return newObject
         }
         
         
     }
-    // Will this case be run?
     else {
         // object should be a single string now
         return object
@@ -628,18 +664,18 @@ const collectChar = (parent, currentState) => {
     // console.log(getVariableValuePath2(parent, 'input'))
     // console.log(findState(tree, getVariableValuePath2(parent, 'input')))
     let variable = getVariableValueFromParent2(parent, 'input')
-    console.log('input', variable)
-    console.log(getVariableValueFromParent(parent, 'tokens'))
+    // console.log('input', variable)
+    // console.log(getVariableValueFromParent(parent, 'tokens'))
     let x = convertToRecordingForm([2, 3, 4])
-    console.log(x)
+    // console.log(x)
 
     let y = convertToRecordingForm('12345')
-    console.log(y)
+    // console.log(y)
 
     let z = convertToRecordingForm(
         [{group: 'no', object: {token: '12', category: 'number'}}]
     )
-    console.log(z)
+    // console.log(z)
     // the original record for array assumed the array was not already turned into a dict, hence the need for varaible
     // now that variable is gone, we are not at an array anymore
     // converted an empty string to an empty array in the value attribute
@@ -650,7 +686,7 @@ const collectChar = (parent, currentState) => {
     //                     variableValuePath,  // path
     //                     findState(tree, variableValuePath), // data to set
     //                     convertToRecord)
-    console.log('converted', getVariableValueFromParent(parent, 'collectedString'))
+    // console.log('converted', getVariableValueFromParent(parent, 'collectedString'))
 
     // convert tree variable
     // append
@@ -660,7 +696,7 @@ const collectChar = (parent, currentState) => {
     //                     variableValuePath,  // path
     //                     [findState(tree, variableValuePath), '1'], // data to set
     //                     pushBackItem)
-    console.log('append', getVariableValueFromParent(parent, 'collectedString'))
+    // console.log('append', getVariableValueFromParent(parent, 'collectedString'))
 
     tree = userAppend(tree, parent, 'collectedString', '+')
 
@@ -668,7 +704,7 @@ const collectChar = (parent, currentState) => {
     //                     variableValuePath,  // path
     //                     [findState(tree, variableValuePath), '+'], // data to set
     //                     pushBackItem)
-    console.log('append', getVariableValueFromParent(parent, 'collectedString'))
+    // console.log('append', getVariableValueFromParent(parent, 'collectedString'))
 
     // popBack
     tree = userPopBack(tree, parent, 'collectedString')
@@ -676,11 +712,11 @@ const collectChar = (parent, currentState) => {
     //                     variableValuePath,  // path
     //                     findState(tree, variableValuePath), // data to set
     //                     popBackItem)
-    console.log('popBack', getVariableValueFromParent(parent, 'collectedString'))
+    // console.log('popBack', getVariableValueFromParent(parent, 'collectedString'))
 
     // collect records
-    let records = collectFlaggedElements(getVariableValueFromParent(parent, 'collectedString'))
-    console.log(records)
+    // let records = collectFlaggedElements(getVariableValueFromParent(parent, 'collectedString'))
+    // console.log(records)
     // clean out
     // tree = cleanRecords(tree, parent, 'collectedString')
 
@@ -688,8 +724,8 @@ const collectChar = (parent, currentState) => {
     //                     variableValuePath,  // path
     //                     findState(tree, variableValuePath), // data to set
     //                     cleanArray)
-    console.log('cleaned', getVariableValueFromParent(parent, 'collectedString'))
-    console.log(tree)
+    // console.log('cleaned', getVariableValueFromParent(parent, 'collectedString'))
+    // console.log(tree)
 
 
     tree = userConvertToRecord(tree, parent, 'tokens')
@@ -701,19 +737,19 @@ const collectChar = (parent, currentState) => {
 
     tree = userPopBack(tree, parent, 'tokens')
 
-    console.log('tokens result', getVariableValueFromParent(parent, 'tokens'))
-    let tokensRecords = collectMostShallowChange(getVariableValueFromParent(parent, 'tokens'))
-    console.log('chages from tokens', tokensRecords)
+    // console.log('tokens result', getVariableValueFromParent(parent, 'tokens'))
+    // let tokensRecords = collectMostShallowChange(getVariableValueFromParent(parent, 'tokens'))
+    // console.log('chages from tokens', tokensRecords)
 
     // tree = cleanRecordsDeep(tree, parent, 'tokens')
     // console.log(tree)
 
-    console.log('testing recursive convert to recording form')
-    const newStuff = getVariableValueFromParent2(parent, 'input')
-    console.log('here is recording form', newStuff)
+    // console.log('testing recursive convert to recording form')
+    // const newStuff = getVariableValueFromParent2(parent, 'input')
+    // console.log('here is recording form', newStuff)
     // let result = convertToCallBackRecursive({'type': 'string', 'value': '1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12', 'test' : {'key': 'nested value'}}, makeNode)
     // console.log(result)
-    console.log('testData stuff', getVariableValueFromParent2(parent, 'testData'))
+    // console.log('testData stuff', getVariableValueFromParent2(parent, 'testData'))
     tree = userDeepDeleteKeyValue(tree, parent, 'testData', ['test'])
     // tree = cleanRecordsDeep(tree, parent, 'testData')
     // let path = getVariableValuePath2(parent, 'testData')
@@ -724,6 +760,7 @@ const collectChar = (parent, currentState) => {
     // console.log(tree)
     // const resultChangedFlag = updateFlagsRecursive(newStuff, 'unset')
     // console.log(resultChangedFlag)
+    // console.log('done')
     return true
 }
 var tree = {
@@ -1709,6 +1746,70 @@ class Data extends React.Component{
         // make sure they match before saving them
 
     }
+    collectChanges = (tree, state) => {
+        const variableStateLevel = findState(tree, ['stateTrie', ...state, 'variables'])
+        if(variableStateLevel !== null) {
+            
+            const variableNames = Object.keys(variableStateLevel)
+            // console.log('variables for this level', state, variableNames)
+            // console.log('tree before collecting')
+            // console.log(tree)
+            // problems 1
+            // 4 states should have change sets to look through
+            let mapping = {}
+            variableNames.map(variableName => {
+                // problem 2
+                // doesn't find nested items and gives undfined for no changes found
+                let changes = collectMostShallowChange(getVariableValueFromParent2(state, variableName))
+                // console.log('here are the changes collected for', variableName)
+
+                console.log(variableName, changes)
+                // console.log(tree)
+                mapping = { ...mapping,
+                            [variableName] : changes}
+
+            })
+            // console.log('after cleaning')
+            // console.log(tree)
+            return mapping
+        }
+        else {
+            // console.log('no vars for this level', state)
+            return {}
+        }
+    }
+    cleanChanges = (tree, state) => {
+        const variableStateLevel = findState(tree, ['stateTrie', ...state, 'variables'])
+        if(variableStateLevel !== null) {
+            
+            const variableNames = Object.keys(variableStateLevel)
+            // console.log('variables for this level', state, variableNames)
+            // console.log('tree before collecting')
+            // console.log(tree)
+            // problems 1
+            // 4 states should have change sets to look through
+            // let mapping = {}
+            variableNames.map(variableName => {
+                // problem 2
+                // doesn't find nested items and gives undfined for no changes found
+                // let changes = collectMostShallowChange(getVariableValueFromParent2(state, variableName))
+                // console.log(variableName, changes)
+                // console.log('before cleaning')
+                // console.log(tree)
+                // mapping = { ...mapping,
+                //             [variableName] : changes}
+                tree = cleanRecordsDeep(tree, state, variableName)
+
+            })
+            // console.log('after cleaning')
+            // console.log(tree)
+            return tree
+        }
+        else {
+            // console.log('no vars for this level', state)
+            return tree
+        }
+    }
     
     visit = (parent, nextStates, recursiveId, stateCount, downStream, upStream) => {
         // runs each runable state in the contextual state chart
@@ -1750,7 +1851,8 @@ class Data extends React.Component{
 
         // if the user feels like it's cumbersome then the solution has failed
         // ['start', '0'] will be the parent 2 times in a row
-        console.log("visit", recursiveId, parent, nextStates)
+        let numberOfChildrenRun = 0
+        console.log("visit", recursiveId, parent, nextStates, numberOfChildrenRun)
         // console.log(Object.keys(tree['stateTrie']))
         if(stateCount === 4) {
             console.log('done with states')
@@ -1785,44 +1887,54 @@ class Data extends React.Component{
                     if(resultOfFunction) {
                         ranTrueFunction = true
                         stateCount += 1
+                        numberOfChildrenRun += 1
                         // next thing to do:
-                        const variableStateLevel = findState(tree, ['stateTrie', ...parent, 'variables'])
-                        if(variableStateLevel !== null) {
-                            const variableNames = Object.keys(variableStateLevel)
-                            console.log('variables for this level', parent, state, variableNames)
-                            console.log('tree before collecting')
-                            console.log(tree)
-                            // problems 1
-                            // 4 states should have change sets to look through
-                            variableNames.forEach(variableName => {
-                                // problem 2
-                                // doesn't find nested items and gives undfined for no changes found
-                                const changes = collectMostShallowChange(getVariableValueFromParent2(parent, variableName))
-                                console.log(variableName, changes)
-                                console.log('before cleaning')
-                                console.log(tree)
-                                tree = cleanRecordsDeep(tree, parent, variableName)
-
-                            })
-                            console.log('after cleaning')
-                            console.log(tree)
-
-                        }
-                        else {
-                            console.log('no vars for this level', parent, state)
-                        }
                         // console.log('variables', findState(tree, ['stateTrie', ...parent, 'variables']))
                         // console.log('variables for this level', Object.keys(findState(tree, ['stateTrie', ...parent, 'variables'])))
                         // collect branches of the most shallow change of each variable stored in the parent state
                         // varName : all most shallow branches of change
                         // clean all flags in variables(change to unset or erase entire object)
                         // make sure the above works before working on the dom
+                        // console.log(this.isParent(currentState), numberOfChildrenRun)
+                        // if(numberOfChildrenRun === 1) {
+                        //     // right
+                        //     if(this.isParent(currentState)) {
+                        //         const mapping = this.collectChanges(tree, state)
+                        //         console.log('measuring changes to first parent', state, mapping)
+    
+                        //     }
+                        //     else {
+                        //         const mapping = this.collectChanges(tree, parent)
+                        //         console.log('measuring changes to nth state', parent, mapping)
+                        //     }
+                        // }
+                        // // right
+                        // else {
+                        //     const mapping = this.collectChanges(tree, parent)
+                        //     console.log('measuring changes to nth state', parent, mapping)
 
+                        // }
                         // collect records of changes made in the parent's variables
                         // reset records of changes made in the parent's variables
                         // is the current state a parent?
                         // is the current state the first state run for this level?
                         if(this.isParent(currentState)) {
+                            if(numberOfChildrenRun === 1) {
+                                const mapping = this.collectChanges(tree, state)
+                                console.log('measuring changes to first parent', state, mapping)
+                                tree = this.cleanChanges(tree, state)
+                                // console.log('after cleaning')
+                                // console.log(tree)
+
+                            }
+                            // the change logging must only be run one time per state
+                            else {
+                                const mapping = this.collectChanges(tree, parent)
+                                console.log('measuring changes to nth state', state, parent, mapping)
+                                tree = this.cleanChanges(tree, parent)
+                                // console.log('after cleaning')
+                                // console.log(tree)
+                            }
                             // console.log("after function", tree)
                             // console.log("stat ran", state)
                             // stringify state
@@ -1853,6 +1965,11 @@ class Data extends React.Component{
                         } else {
                             // console.log("no children")
                             nextStates = currentState['next']
+                            const mapping = this.collectChanges(tree, parent)
+                            console.log('measuring changes to nth state', state, parent, mapping)
+                            tree = this.cleanChanges(tree, parent)
+                            console.log('after cleaning')
+                            console.log(tree)
                             // console.log(nextStates, 'to try')
                         }
                         // break
