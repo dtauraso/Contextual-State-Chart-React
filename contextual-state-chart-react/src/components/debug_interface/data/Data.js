@@ -201,7 +201,6 @@ const collectMostShallowChange = (object) => {
     // need to return an array of tracked objects or a single tracked object
     // console.log(object)
 
-    // can't have an empty object as a value
     if(Array.isArray(object)) {
 
         let newArray = []
