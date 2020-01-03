@@ -235,13 +235,29 @@ const collectMostShallowChange = (object) => {
                 return null
             }
             else {
-                // alter the flag value from 'unset' to collected to give it a purpose
+
                 let newObject = collectMostShallowChange(object['data'])
-                if(newObject !== null || newObject.length > 0) {
-                    return {
-                        'flag' : object['flag'] === 'unset' ? 'collected' : object['flag'],
-                        'data' : newObject
+                // console.log('object from data', newObject, newObject.length)
+                if(newObject !== null) {
+                    if(Array.isArray(newObject)) {
+                        if(newObject.length > 0) {
+                            return newObject
+                        }
+                        else if(newObject.length === 0) {
+                            return []
+                        }
                     }
+                    else if(typeof(newObject) === 'object') {
+                        if(Object.keys(newObject).length > 0) {
+                            return newObject
+                        }
+                        if(Object.keys(newObject).length === 0) {
+                            return {}
+                        }
+                    }
+                }
+                else {
+                    return null
                 }
                 
             }
@@ -263,6 +279,12 @@ const collectMostShallowChange = (object) => {
                         }
                     }
                     else {
+                        // what are we going to keep?
+                        // {test: {…}}
+                        // test:
+                            // flag: "deleted"
+                            // data: 
+                                // key: (12) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]__proto__: Object__proto__: Object__proto__: Object 
                             newObject = {   ...newObject,
                                             [key]: newItem}
                     }
@@ -875,7 +897,7 @@ var tree = {
                                 'parents'   : [['split', '0']]
                             },
                             'collectedString' : {
-                                'variable' : {'type':'string', 'value': ''},
+                                'variable' : convertToCallBackRecursive({'type':'string', 'value': ''}, makeNode),
                                 'parents'   : [['split', '0']]
 
                             },
@@ -883,7 +905,7 @@ var tree = {
                             // split/0/tokens/0...n =>  [[group: no, object: {token: '12', category: 'number'}]]
 
                             'tokens' : {
-                                'variable' : {'type': 'list', 'value': []},
+                                'variable' : convertToCallBackRecursive({'type': 'list', 'value': []}, makeNode),
                                 'parents'   : [['split', '0']]
                             }
                         },
