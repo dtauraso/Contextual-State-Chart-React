@@ -78,7 +78,7 @@ const convertToCallBackRecursive = (object, cb) => {
             newArray = [    ...newArray,
                 convertToCallBackRecursive(object[i], cb) ]
         }
-        return cb(newArray)
+        return newArray
 
     }
     else if(typeof(object) === 'object') {
@@ -141,16 +141,36 @@ const updateFlagsRecursive = (object, newFlagValue) => {
     
 }
 
+// these functions are meant to operate on variable data deep inside the state chart
+// the same data for teh type was used as the value
 const pushBack = (packageArray) => {
-
+    // console.log('push')
     // console.log(packageArray)
-    let [array, value] = packageArray
+    let [trackedObject, newItem] = packageArray
     // console.log('keys', Object.keys(array))
-    return [...array, makeNode(value)]
+    // console.log(trackedObject)
+    
+    return {
+        flag: trackedObject['flag'],
+        data: {
+            type: [...trackedObject['data']['type']],
+            value: [...trackedObject['data']['value'], makeNode(newItem)]
+        }
+    }
+    // return [...array, makeNode(value)]
 }
 const popBack = (array) => {
+    // console.log('pop')
 
-    return array.map((item, i) => (i === array.length - 1) ? deleteNode(item) : item)
+    // console.log(array, array['data']['value'].map((item, i) => (i === array['data']['value'].length - 1) ? deleteNode(item) : item))
+    return {
+        flag: array['flag'],
+        data: {
+            type: [...array['data']['type']],
+            value: [...array['data']['value'].map((item, i) => (i === array['data']['value'].length - 1) ? deleteNode(item) : item)]
+        }
+    }
+    // return array.map((item, i) => (i === array.length - 1) ? deleteNode(item) : item)
 }
 const insertObject = (object) => {
     // recursively recreate the object and set all it's values's flag to 'added'
@@ -591,7 +611,7 @@ const getVariableValueFromParent2 = (parent, variableName) => {
 const userAppend = (tree, parentState, variableName, value) => {
 
     // console.log(parentState, variableName, value)
-    const variableValuePath = getVariableValuePath(parentState, variableName)
+    const variableValuePath = getVariableValuePath2(parentState, variableName)
     // console.log(variableValuePath)
     tree = deepAssign(  tree,
                         variableValuePath,  // path
@@ -601,7 +621,7 @@ const userAppend = (tree, parentState, variableName, value) => {
 }
 const userPopBack = (tree, parentState, variableName) => {
 
-    const variableValuePath = getVariableValuePath(parentState, variableName)
+    const variableValuePath = getVariableValuePath2(parentState, variableName)
 
     tree = deepAssign(  tree,
                         variableValuePath,  // path
@@ -697,14 +717,14 @@ const collectChar = (parent, currentState) => {
     // the original record for array assumed the array was not already turned into a dict, hence the need for varaible
     // now that variable is gone, we are not at an array anymore
     // converted an empty string to an empty array in the value attribute
-    tree = userConvertToRecord(tree, parent, 'collectedString')
+    // tree = userConvertToRecord(tree, parent, 'collectedString')
     // let variableValuePath = getVariableValuePath(parent, 'collectedString')
     // ["stateTrie", ...parent, 'variables', 'collectedString', 'variable', 'value']
     // tree = deepAssign(  tree,
     //                     variableValuePath,  // path
     //                     findState(tree, variableValuePath), // data to set
     //                     convertToRecord)
-    // console.log('converted', getVariableValueFromParent(parent, 'collectedString'))
+    // console.log('converted', getVariableValueFromParent2(parent, 'collectedString'))
 
     // convert tree variable
     // append
@@ -775,7 +795,7 @@ const collectChar = (parent, currentState) => {
     //                         path,  // path
     //                         findState(tree, path), // data to set
     //                         unsetFlags)
-    // console.log(tree)
+    console.log("done with collectChar", tree)
     // const resultChangedFlag = updateFlagsRecursive(newStuff, 'unset')
     // console.log(resultChangedFlag)
     // console.log('done')
