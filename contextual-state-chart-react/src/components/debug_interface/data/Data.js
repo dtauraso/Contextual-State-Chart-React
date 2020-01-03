@@ -195,15 +195,13 @@ const search = (array, value) => {
 }
 
 const collectMostShallowChange = (object) => {
+
     // the most shallow changes are collected
-    // the top flag returned is always 'unset'
-    // data, flag
-    // problems
-    // no change is resulting in undefined
-    // things beneth 'unset' are not getting recorded
     // object is the tracked object
     // need to return an array of tracked objects or a single tracked object
     // console.log(object)
+
+    // can't have an empty object as a value
     if(Array.isArray(object)) {
 
         let newArray = []
@@ -238,6 +236,7 @@ const collectMostShallowChange = (object) => {
 
                 let newObject = collectMostShallowChange(object['data'])
                 // console.log('object from data', newObject, newObject.length)
+                // edge cases
                 if(newObject !== null) {
                     if(Array.isArray(newObject)) {
                         if(newObject.length > 0) {
@@ -278,15 +277,13 @@ const collectMostShallowChange = (object) => {
                                                 [key]: newItem}
                         }
                     }
-                    else {
-                        // what are we going to keep?
-                        // {test: {…}}
-                        // test:
-                            // flag: "deleted"
-                            // data: 
-                                // key: (12) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]__proto__: Object__proto__: Object__proto__: Object 
+                    else if(typeof(newItem) === 'object') {
+                        if(Object.keys(newItem).length > 0) {
+
                             newObject = {   ...newObject,
                                             [key]: newItem}
+
+                        }
                     }
                 }
             })
@@ -1785,7 +1782,7 @@ class Data extends React.Component{
                 let changes = collectMostShallowChange(getVariableValueFromParent2(state, variableName))
                 // console.log('here are the changes collected for', variableName)
 
-                console.log(variableName, changes)
+                // console.log(variableName, changes)
                 // console.log(tree)
                 mapping = { ...mapping,
                             [variableName] : changes}
