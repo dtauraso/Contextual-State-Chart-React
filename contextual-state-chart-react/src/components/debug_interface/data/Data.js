@@ -244,6 +244,7 @@ const collectMostShallowChange = (object) => {
 
     
         if(object['flag'] === 'deleted' || object['flag'] === 'new') {
+            
             return object
         }
         // base case for {flag: "unset", data: "+"}
@@ -252,7 +253,7 @@ const collectMostShallowChange = (object) => {
                 return null
             }
             else {
-
+                // dig into the tree
                 let newObject = collectMostShallowChange(object['data'])
                 // console.log('object from data', newObject, newObject.length)
                 // edge cases
@@ -284,6 +285,9 @@ const collectMostShallowChange = (object) => {
             // data inside the object the 'data' key points to
             let newObject = {}
             let keys = Object.keys(object)
+            // special case
+            // assume there are object that only have the keys of type and value
+            // and for those cases we only want the changed value not ('value' -> changed value)
             keys.forEach(key => {
                 let newItem = collectMostShallowChange(object[key])
 
@@ -291,16 +295,31 @@ const collectMostShallowChange = (object) => {
                 if(newItem !== null) {
                     if(Array.isArray(newItem)) {
                         if(newItem.length > 0) {
+                            // console.log('array', newItem)
 
-                            newObject = {   ...newObject,
-                                                [key]: newItem}
+                            if(key === 'value') {
+                                newObject = newItem
+                            }
+                            else {
+                                newObject = {   ...newObject,
+                                    [key]: newItem}
+
+                            }
                         }
                     }
                     else if(typeof(newItem) === 'object') {
                         if(Object.keys(newItem).length > 0) {
+                            // console.log('object', newItem)
 
-                            newObject = {   ...newObject,
-                                            [key]: newItem}
+                            // need to know what type the value is to only return the value and not the key 'value' value pair
+                            if(key === 'value') {
+                                newObject = newItem
+                            }
+                            else {
+                                newObject = {   ...newObject,
+                                    [key]: newItem}
+
+                            }
 
                         }
                     }
