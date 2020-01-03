@@ -256,28 +256,7 @@ const collectMostShallowChange = (object) => {
                 // dig into the tree
                 let newObject = collectMostShallowChange(object['data'])
                 // console.log('object from data', newObject, newObject.length)
-                // edge cases
-                if(newObject !== null) {
-                    if(Array.isArray(newObject)) {
-                        if(newObject.length > 0) {
-                            return newObject
-                        }
-                        else if(newObject.length === 0) {
-                            return []
-                        }
-                    }
-                    else if(typeof(newObject) === 'object') {
-                        if(Object.keys(newObject).length > 0) {
-                            return newObject
-                        }
-                        if(Object.keys(newObject).length === 0) {
-                            return {}
-                        }
-                    }
-                }
-                else {
-                    return null
-                }
+                return newObject
                 
             }
         }
@@ -302,7 +281,7 @@ const collectMostShallowChange = (object) => {
                             }
                             else {
                                 newObject = {   ...newObject,
-                                    [key]: newItem}
+                                                [key]: newItem}
 
                             }
                         }
@@ -317,7 +296,7 @@ const collectMostShallowChange = (object) => {
                             }
                             else {
                                 newObject = {   ...newObject,
-                                    [key]: newItem}
+                                                [key]: newItem}
 
                             }
 
