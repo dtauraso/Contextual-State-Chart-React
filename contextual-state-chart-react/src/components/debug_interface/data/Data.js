@@ -32,23 +32,23 @@ const convertString = (string, cb) => {
 }
 const convertArray = (array, cb) => {
     let newArray = []
-        // O(n^2) but no mutation
+    // O(n^2) but no mutation
 
-        array.forEach(element => {
-            newArray = [    ...newArray,
-                            cb(element)]
-        })
-        return newArray
+    array.forEach(element => {
+        newArray = [    ...newArray,
+                        cb(element)]
+    })
+    return newArray
 }
 const convertArrayRecursive = (array, recurse, cb) => {
     let newArray = []
 
-        // O(n^2) but no mutation
-        array.forEach(element => {
-            newArray = [    ...newArray,
-                            recurse(element, cb)]
-        })
-        return newArray
+    // O(n^2) but no mutation
+    array.forEach(element => {
+        newArray = [    ...newArray,
+                        recurse(element, cb)]
+    })
+    return newArray
 }
 
 // there is a difference between putting data in my format and marking the users level of changes
@@ -118,7 +118,7 @@ const updateFlagsRecursive = (object, newFlagValue) => {
             let newArray = []
             object.forEach(element => {
                 newArray = [    ...newArray,
-                    updateFlagsRecursive(element, newFlagValue) ]
+                                updateFlagsRecursive(element, newFlagValue) ]
 
             })
             return newArray
@@ -1848,7 +1848,7 @@ class Data extends React.Component{
         // try all the states
         // replace with a forEach
         let stateChangesCurrentLevel = []
-        // while nextStates.length > 0 do below
+
         while(nextStates.length > 0) {
             if(stateCount === 5) {
                 console.log('done with states')
