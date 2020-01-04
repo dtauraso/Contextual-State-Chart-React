@@ -20,42 +20,62 @@ const unsetNode = (value) => {
     return {...value, flag: 'unset'}
 }
 
+const convertString = (string, cb) => {
+    let newArray = []
+    for(var i in string) {
+
+        // O(n^2) but no mutation
+        newArray = [    ...newArray,
+                        cb(string[i])]
+    }        
+    return newArray
+}
+const convertArray = (array, cb) => {
+    let newArray = []
+        // O(n^2) but no mutation
+
+        array.forEach(element => {
+            newArray = [    ...newArray,
+                            cb(element)]
+        })
+        return newArray
+}
+const convertArrayRecursive = (array, recurse, cb) => {
+    let newArray = []
+
+        // O(n^2) but no mutation
+        array.forEach(element => {
+            newArray = [    ...newArray,
+                            recurse(element, cb)]
+        })
+        return newArray
+}
+
 // there is a difference between putting data in my format and marking the users level of changes
 const convertToRecordingForm = (object) => {
 
     // console.log('convertToRecordingForm', object, typeof(object))
     
     if(typeof(object) === 'string') {
-        let newArray = []
-        for(let i = 0; i < object.length; i++) {
-            // O(n^2) but no mutation
-            newArray = [    ...newArray,
-                            makeNode(object[i])]
-        }        
+        let newArray = convertString(object, makeNode)
         return newArray
     }
     if(Array.isArray(object)) {
-        let newArray = []
-        for(let i = 0; i < object.length; i++) {
-            // O(n^2) but no mutation
-            newArray = [    ...newArray,
-                            makeNode(object[i])]
-        }        
+        let newArray = convertArray(object, makeNode)
         return newArray
 
     }
     if(typeof(object) === 'object') {
         // key -> value
         let keys = Object.keys(object)
-        // merge {...stuff} with keys.map while making sure the iteration doesn't become n^2
-        // as things would be duplicated
+
+        // n^2
         let newObject = {}
-        for(var i in keys) {
-            let ithKey = keys[i]
+        keys.forEach(key => {
             newObject = {   ...newObject,
-                            [ithKey]: makeNode(object[ithKey])}
-        }
-        // console.log(newObject)
+                [key]: makeNode(object[key])}
+
+        })
         return newObject
     }
 }
@@ -64,38 +84,26 @@ const convertToCallBackRecursive = (object, cb) => {
 
     // console.log(object)
     if(typeof(object) === 'string') {
-        let newArray = []
-        for(let i = 0; i < object.length; i++) {
-            // O(n^2) but no mutation
-            newArray = [    ...newArray,
-                            cb(object[i])]
-        }        
+        let newArray = convertString(object, cb)
         return newArray
-    }
-    else if(Array.isArray(object)) {
+    } else if(Array.isArray(object)) {
 
-        let newArray = []
-        for(let i = 0; i < object.length; i++) {
-            // O(n^2) but no mutation
-            newArray = [    ...newArray,
-                convertToCallBackRecursive(object[i], cb) ]
-        }
+        let newArray = convertArrayRecursive(object, convertToCallBackRecursive, makeNode)
+
         return newArray
 
-    }
-    else if(typeof(object) === 'object') {
+    } else if(typeof(object) === 'object') {
         // console.log("object", object)
         // key -> value
         let keys = Object.keys(object)
 
         // n^2
         let newObject = {}
-        for(var i in keys) {
-            let ithKey = keys[i]
+        keys.forEach(key => {
             newObject = {   ...newObject,
-                            [ithKey]: convertToCallBackRecursive(object[ithKey], cb)}
-        }
-        // console.log(newObject)
+                [key]: convertToCallBackRecursive(object[key], cb)}
+
+        })
         return cb(newObject)
     }
 }
@@ -108,15 +116,14 @@ const updateFlagsRecursive = (object, newFlagValue) => {
         if(Array.isArray(object)) {
     
             let newArray = []
-            for(let i = 0; i < object.length; i++) {
-                // O(n^2) but no mutation
+            object.forEach(element => {
                 newArray = [    ...newArray,
-                                updateFlagsRecursive(object[i], newFlagValue) ]
-            }        
+                    updateFlagsRecursive(element, newFlagValue) ]
+
+            })
             return newArray
     
-        }
-        else if(typeof(object) === 'object') {
+        } else if(typeof(object) === 'object') {
             // console.log("object", object)
             // key -> value
             let keys = Object.keys(object)
@@ -132,12 +139,10 @@ const updateFlagsRecursive = (object, newFlagValue) => {
             })
             // console.log(newObject)
             return newObject
-        }
-        else {
+        } else {
             // object should be a single string now
             return object
         }
-    
 }
 
 // these functions are meant to operate on variable data deep inside the state chart
@@ -156,7 +161,6 @@ const pushBack = (packageArray) => {
             value: [...trackedObject['data']['value'], makeNode(newItem)]
         }
     }
-    // return [...array, makeNode(value)]
 }
 const popBack = (array) => {
     // console.log('pop')
@@ -169,7 +173,6 @@ const popBack = (array) => {
             value: [...array['data']['value'].map((item, i) => (i === array['data']['value'].length - 1) ? deleteNode(item) : item)]
         }
     }
-    // return array.map((item, i) => (i === array.length - 1) ? deleteNode(item) : item)
 }
 
 const insertItem = (array, i, value) => {
@@ -206,7 +209,21 @@ const search = (array, value) => {
         }
     })
 }
+const nonEmptyArray = (object) => {
+    if(object === null)         return false
+    if(!Array.isArray(object))  return false
+    if(object.length === 0)     return false
+    return true
+}
 
+const nonEmptyObject = (object) => {
+
+    if(object === null)                     return false
+    if(typeof(object) !== 'object')         return false
+    if(Object.keys(object).length === 0)    return false
+    return true
+
+}
 const collectMostShallowChange = (object) => {
 
     // the most shallow changes are collected(they bring all the deep changes with them)
@@ -221,11 +238,13 @@ const collectMostShallowChange = (object) => {
         // O(n^2) but no mutation
         object.forEach(element => {
             let newElement = collectMostShallowChange(element)
-            if(newElement !== null) {
-                newArray = [    ...newArray,
-                                newElement
-                ]
+            if(newElement === null) {
+                return
             }
+            newArray = [    ...newArray,
+                            newElement
+            ]
+            
         })
         return newArray
 
@@ -234,24 +253,23 @@ const collectMostShallowChange = (object) => {
         // console.log("object", object)
         // key -> value
 
-    
-        if(object['flag'] === 'deleted' || object['flag'] === 'new') {
+        const flag = object['flag']
+        if( flag === 'deleted' ||
+            flag === 'new') {
             
             return object
         }
         // base case for {flag: "unset", data: "+"}
-        else if(object['flag'] === 'unset') {
+        else if(flag === 'unset') {
             if(typeof(object['data']) === 'string') {
                 return null
             }
-            else {
-                // dig into the tree
-                let newObject = collectMostShallowChange(object['data'])
-                // console.log('object from data', newObject, newObject.length)
-                return newObject
-            }
-        }
-        else {
+            // dig into the tree
+            let newObject = collectMostShallowChange(object['data'])
+            // console.log('object from data', newObject, newObject.length)
+            return newObject
+            
+        } else {
             // data inside the object the 'data' key points to
             let newObject = {}
             let keys = Object.keys(object)
@@ -262,40 +280,21 @@ const collectMostShallowChange = (object) => {
                 let newItem = collectMostShallowChange(object[key])
 
                 // edge cases of the base cases being returned
-                if(newItem !== null) {
-                    if(Array.isArray(newItem)) {
-                        if(newItem.length > 0) {
-                            // console.log('array', newItem)
-
-                            if(key === 'value') {
-                                newObject = newItem
-                            }
-                            else {
-                                newObject = {   ...newObject,
-                                                [key]: newItem}
-                            }
-                        }
-                    }
-                    else if(typeof(newItem) === 'object') {
-                        if(Object.keys(newItem).length > 0) {
-                            // console.log('object', newItem)
-
-                            // need to know what type the value is to only return the value and not the key 'value' value pair
-                            if(key === 'value') {
-                                newObject = newItem
-                            }
-                            else {
-                                newObject = {   ...newObject,
-                                                [key]: newItem}
-                            }
-                        }
-                    }
+                // need to know what type the value is to only return the value and not the key 'value' value pair
+                if(!(nonEmptyArray(newItem) ||
+                    nonEmptyObject(newItem))) {
+                        return
+                }
+                if(key === 'value') {
+                    newObject = newItem
+                } else {
+                    newObject = {   ...newObject,
+                                    [key]: newItem}
                 }
             })
             return newObject
         }
-    }
-    else {
+    } else {
         // object should be a single string now
         return object
     }
@@ -344,9 +343,7 @@ const cleanRecordsMostShallow = (object) => {
         // what happens when we are in the keys of the data part of record?
         if(object['flag'] === 'deleted') {
             return null
-        }
-        // all the data was nuked
-        else if(object['flag'] === 'new') {
+        } else if(object['flag'] === 'new') {
             // reset this one to unset and call the remaining items
             let newObject1 = cleanRecordsMostShallow(object['data'])
             // not sure if this works
@@ -356,16 +353,14 @@ const cleanRecordsMostShallow = (object) => {
                     'data' : newObject1
                 }
             )
-        }
-        else if(object['flag'] === 'unset') {
+        } else if(object['flag'] === 'unset') {
             let newObject = cleanRecordsMostShallow(object['data'])
             // not sure if this works
             return {
                 'flag' : object['flag'],
                 'data' : newObject
             }
-        }
-        else {
+        } else {
             let keys = Object.keys(object)
     
             // n^2
@@ -376,13 +371,10 @@ const cleanRecordsMostShallow = (object) => {
                     newObject = {   ...newObject,
                                     [key]: newItem}
                 }
-
             })
-            // console.log(newObject)
             return newObject
         }
-    }
-    else {
+    } else {
         // object should be a single string now
         return object
     }
@@ -489,8 +481,6 @@ const deepAssign = (state, path, value, cb) => {
             }
         }
     }
-     
-    
 }
 
 // for converting only the value in {type: string, value: '543242} to record from
@@ -574,7 +564,6 @@ const cleanRecords = (tree, parent, variableName) => {
         findState(tree, variableValuePath), // data to set
         cleanArray)
     return tree
-
 }
 const cleanRecordsDeep = (tree, parent, variableName) => {
 
@@ -630,8 +619,6 @@ const splitState = (parent, currentState) => {
     // storeIntoDownStreamEnd(currentState, 'input')
     // console.log(tree)
     return true
-
-
 }
 
 const collectChar = (parent, currentState) => {
@@ -1638,7 +1625,6 @@ class Data extends React.Component{
     isParent = (state) => {
         // return state.con
         return Object.keys(state).includes('children')
-        // console.log(Object.keys(state).includes('function'))
     }
     /// stream functions
     isDownStream = (state) => {
@@ -1657,23 +1643,15 @@ class Data extends React.Component{
         if(this.isDownStream(state)) {
             return this.getDownStreamStart(tree['stateTrie'], state) !== null
         }
-
     }
     getDownStreamStart = (tree, currentState) => {
     
         return findState(tree, [...currentState, 'downstream', 'start'])
-    
     }
     getDownStreamEnd = (tree, currentState) => {
     
         return findState(tree, [...currentState, 'downstream', 'end'])
-    
     }
-
-    // how they are used
-    // storeIntoDownStreamStart(currentState, 'input')
-
-    // storeIntoDownStreamEnd(currentState, 'input')
 
     stringifyState = (state) => {
         return state.join('~')
@@ -1707,9 +1685,7 @@ class Data extends React.Component{
                             
                                                     
                         }
-            // console.log('downstream', downstream)
-        })
-        
+        })        
         return downstream
     }
 
@@ -1886,124 +1862,102 @@ class Data extends React.Component{
             // console.log(nextStates, ranTrueFunction)
             nextStates.forEach(state => {
 
-                if(!ranTrueFunction) {
+                // the callback function is just run so this will quit it early for the current round
+                // of forEach
+                if(ranTrueFunction) {
+                    return
+                }
     
-                    // don't want to run the 2nd true function
-                    if(!resultOfFunction) {
-    
-                        let copiedDownStream = false
-                        let downStreamHopperStateNamesList = []
-                        if(this.isDownStreamEnd(state)) {
-                            tree = this.storeIntoDownStreamEndVariables(tree, state, downStream)
-                            copiedDownStream = true
-                        }
-                        if(copiedDownStream) {
-                            let stringifiedStateName = this.stringifyState(state)
-                            downStreamHopperStateNamesList = Object.keys(downStream[stringifiedStateName])
-                        }
-                        let currentState = findState(tree['stateTrie'], state)
-                                        // save the stream data here
-                        // the hopper data for this state should be deposited before the state is run(so the state can get it)
-                        // is this the child we actually need the stream data for?
-                        // the parent is used to access the data the state will use()
-                        resultOfFunction = currentState['function'](parent, state)
-                        // console.log(this.findState(tree['stateTrie'], nextStates[i]))
-                        // console.log(resultOfFunction)
-                        if(resultOfFunction) {
-                            ranTrueFunction = true
-                            // console.log(stateCount, state)
-                            stateCount += 1
-                            numberOfChildrenRun += 1
-                            let stateRecords = {    parentState: parent,
-                                                    stateName: state,
-                                                    firstParent: false,
-                                                    isParent: false,
-                                                    dataCopiedDown: copiedDownStream,
-                                                    downStreamHopperStateNames: downStreamHopperStateNamesList,
-                                                    variablesChanged: []
-                                                }
-                            if(this.isParent(currentState)) {
-                                if(numberOfChildrenRun === 1) {
-                                    
-                                    const mapping = this.collectChanges(tree, state)
-                                    // console.log('measuring changes to first parent', state, mapping)
-                                    tree = this.cleanChanges(tree, state)
-                                    stateRecords = {    ...stateRecords,
-                                                        firstParent: true,
-                                                        isParent: true,
-                                                        variablesChanged: mapping
-                                                    }
-                                    // console.log('after cleaning')
-                                    // console.log(tree)
-    
-                                }
-                                // the change logging must only be run one time per state
-                                else {
-                                    // stateRecords = { ...stateRecords,
-                                    //                 isParent: true   }
-                                    const mapping = this.collectChanges(tree, parent)
-                                    // console.log('measuring changes to nth state', state, parent, mapping)
-                                    tree = this.cleanChanges(tree, parent)
-                                    stateRecords = {    ...stateRecords,
-                                                        isParent: true,
-                                                        variablesChanged: mapping
-                                                    }
-                                    // console.log('after cleaning')
-                                    // console.log(tree)
-                                }
-                                if(this.isDownStreamStart(state)) {
-    
-                                    // we want to store the downstream data for each state that runs
-                                    downStream = this.getDownStreamStartVariables(tree, state, downStream)
-                                    // console.log(downStream)
-                                }
-                                // console.log(stateRecords)
-                                stateChangesCurrentLevel = [...stateChangesCurrentLevel, stateRecords]
-                                // get downstream data from parent and pass it down
-                                let currentLevelSaved = this.visit(     state,
-                                                                        currentState['children'],
-                                                                        recursiveId + 1,
-                                                                        downStream,
-                                                                        upStream)
-                                stateChangesAllLevels = [   currentLevelSaved,
-                                                            ...stateChangesAllLevels]
-    
-                                // stateChangesAllLevels
-                                // console.log(x)
-                                // console.log('recursion unwinding')
-                                // console.log([...currentState['children']])
-                            } else {
-                                // console.log("no children")
-                                newNextStates = currentState['next']
-                                const mapping = this.collectChanges(tree, parent)
-                                // console.log('measuring changes to nth state', state, parent, mapping)
-                                tree = this.cleanChanges(tree, parent)
-                                stateRecords = {    ...stateRecords,
-                                                    variablesChanged: mapping
-                                                }
-                                // console.log(stateRecords)
-                                // console.log(nextStates)
-                                stateChangesCurrentLevel = [...stateChangesCurrentLevel, stateRecords]
-                                // stateChangesAllLevels = [...stateChangesAllLevels]
-    
-                                // console.log('after cleaning')
-                                // console.log(tree)
-                                // console.log(nextStates, 'to try')
-                            }
-                            // break
-    
-                        }
-                    }
+                // don't want to run the 2nd true function
+                if(resultOfFunction) {
+                    return
+                }
+
+                let copiedDownStream = false
+                let downStreamHopperStateNamesList = []
+                if(this.isDownStreamEnd(state)) {
+                    tree = this.storeIntoDownStreamEndVariables(tree, state, downStream)
+                    copiedDownStream = true
                 }
                 
+                let currentState = findState(tree['stateTrie'], state)
+                resultOfFunction = currentState['function'](parent, state)
+                if(!resultOfFunction) {
+                    return
+                }
+                ranTrueFunction = true
+                stateCount += 1
+                numberOfChildrenRun += 1
+                if(copiedDownStream) {
+                    const stringifiedStateName = this.stringifyState(state)
+                    downStreamHopperStateNamesList = Object.keys(downStream[stringifiedStateName])
+                }
+                let stateRecords = {    parentState: parent,
+                                        stateName: state,
+                                        firstParent: false,
+                                        isParent: false,
+                                        dataCopiedDown: copiedDownStream,
+                                        downStreamHopperStateNames: downStreamHopperStateNamesList,
+                                        variablesChanged: []
+                                    }
+                if(this.isParent(currentState)) {
+                    if(numberOfChildrenRun === 1) {
+                        
+                        const mapping = this.collectChanges(tree, state)
+                        // console.log('measuring changes to first parent', state, mapping)
+                        tree = this.cleanChanges(tree, state)
+                        stateRecords = {    ...stateRecords,
+                                            firstParent: true,
+                                            isParent: true,
+                                            variablesChanged: mapping
+                                        }
+
+                    } else {
+                    // the change logging must only be run one time per state
+
+                        const mapping = this.collectChanges(tree, parent)
+                        // console.log('measuring changes to nth state', state, parent, mapping)
+                        tree = this.cleanChanges(tree, parent)
+                        stateRecords = {    ...stateRecords,
+                                            isParent: true,
+                                            variablesChanged: mapping
+                                        }
+                    }
+                    if(this.isDownStreamStart(state)) {
+
+                        // we want to store the downstream data for each state that runs
+                        // and send it down
+                        downStream = this.getDownStreamStartVariables(tree, state, downStream)
+
+                    }
+
+                    stateChangesCurrentLevel = [...stateChangesCurrentLevel, stateRecords]
+
+                    let currentLevelSaved = this.visit(     state,
+                                                            currentState['children'],
+                                                            recursiveId + 1,
+                                                            downStream,
+                                                            upStream)
+                    stateChangesAllLevels = [   currentLevelSaved,
+                                                ...stateChangesAllLevels]
+
+                } else {
+
+                    newNextStates = currentState['next']
+                    const mapping = this.collectChanges(tree, parent)
+                    // console.log('measuring changes to nth state', state, parent, mapping)
+                    tree = this.cleanChanges(tree, parent)
+                    stateRecords = {    ...stateRecords,
+                                        variablesChanged: mapping
+                                    }
+
+                    stateChangesCurrentLevel = [...stateChangesCurrentLevel, stateRecords]
+                }
             })
             nextStates = newNextStates
-        }
-       
+        }       
         return stateChangesCurrentLevel
 
-        // console.log(this.traverseTrie(tree['stateTrie'], currentState))
-        // console.log(tree['stateTrie'][currentState[0]])
     }
     render() {
         return (
