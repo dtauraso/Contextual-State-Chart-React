@@ -1886,11 +1886,15 @@ class Data extends React.Component{
                 if(!resultOfFunction) {
 
                     let copiedDownStream = false
+                    let downStreamHopperStateNamesList = []
                     if(this.isDownStreamEnd(state)) {
                         tree = this.storeIntoDownStreamEndVariables(tree, state, downStream)
                         copiedDownStream = true
                     }
-
+                    if(copiedDownStream) {
+                        let stringifiedStateName = this.stringifyState(state)
+                        downStreamHopperStateNamesList = Object.keys(downStream[stringifiedStateName])
+                    }
                     let currentState = findState(tree['stateTrie'], state)
                                     // save the stream data here
                     // the hopper data for this state should be deposited before the state is run(so the state can get it)
@@ -1903,12 +1907,13 @@ class Data extends React.Component{
                         ranTrueFunction = true
                         stateCount += 1
                         numberOfChildrenRun += 1
-                        let stateRecords = {    stateName: state,
-                                                parentState: parent,
+                        let stateRecords = {    parentState: parent,
+                                                stateName: state,
                                                 firstParent: false,
                                                 isParent: false,
                                                 dataCopiedDown: copiedDownStream,
-                                                variablesChanged: null
+                                                downStreamHopperStateNames: downStreamHopperStateNamesList,
+                                                variablesChanged: []
                                             }
                         if(this.isParent(currentState)) {
                             if(numberOfChildrenRun === 1) {
