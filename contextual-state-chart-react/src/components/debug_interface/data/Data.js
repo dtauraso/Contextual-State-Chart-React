@@ -891,7 +891,7 @@ var tree = {
                     // split
                     'char' : {
                         'function'   : collectChar,
-                        'next'       : [['last_to_save'], ['char'], ['save']],
+                        'next'       : [/*['last_to_save'], */['char']/*, ['save']*/],
                         'parents'    : [['split']] // actually needs parents because it's the first state checked from split
                     },
 
@@ -1142,6 +1142,7 @@ var tree = {
 }
 
 var stateChangesAllLevels = []
+var stateCount = 0
 
 class Data extends React.Component{
     constructor() {
@@ -1815,12 +1816,12 @@ class Data extends React.Component{
         }
     }
     setupMachine = () => {
-        let lastOne = this.visit(['start', '0'], [['start', '0']], 0, null, null)
+        let lastOne = this.visit(['start', '0'], [['start', '0']], null, null)
         stateChangesAllLevels = [lastOne, ...stateChangesAllLevels]
         console.log(stateChangesAllLevels)
     }
     // each level calls this function 1 time
-    visit = (parent, nextStates, recursiveId, stateCount, downStream, upStream) => {
+    visit = (parent, nextStates, recursiveId, downStream, upStream) => {
         // runs each runable state in the contextual state chart
         // time complexity
         // n * n
@@ -1867,130 +1868,138 @@ class Data extends React.Component{
         let numberOfChildrenRun = 0
         // console.log("visit", recursiveId, parent, nextStates, numberOfChildrenRun)
         // console.log(Object.keys(tree['stateTrie']))
-        if(stateCount === 4) {
-            console.log('done with states')
-            console.log()
-            return
-        }
+       
         // try all the states
         // replace with a forEach
-        let resultOfFunction = false
-        let ranTrueFunction = false
         let stateChangesCurrentLevel = []
         // while nextStates.length > 0 do below
-        nextStates.forEach(state => {
+        while(nextStates.length > 0) {
+            if(stateCount === 5) {
+                console.log('done with states')
+                console.log()
+                break
+            }
+            let newNextStates = []
+            let ranTrueFunction = false
+            let resultOfFunction = false
 
-            if(!ranTrueFunction) {
+            // console.log(nextStates, ranTrueFunction)
+            nextStates.forEach(state => {
 
-                // don't want to run the 2nd true function
-                if(!resultOfFunction) {
-
-                    let copiedDownStream = false
-                    let downStreamHopperStateNamesList = []
-                    if(this.isDownStreamEnd(state)) {
-                        tree = this.storeIntoDownStreamEndVariables(tree, state, downStream)
-                        copiedDownStream = true
-                    }
-                    if(copiedDownStream) {
-                        let stringifiedStateName = this.stringifyState(state)
-                        downStreamHopperStateNamesList = Object.keys(downStream[stringifiedStateName])
-                    }
-                    let currentState = findState(tree['stateTrie'], state)
-                                    // save the stream data here
-                    // the hopper data for this state should be deposited before the state is run(so the state can get it)
-                    // is this the child we actually need the stream data for?
-                    // the parent is used to access the data the state will use()
-                    resultOfFunction = currentState['function'](parent, state)
-                    // console.log(this.findState(tree['stateTrie'], nextStates[i]))
-                    // console.log(resultOfFunction)
-                    if(resultOfFunction) {
-                        ranTrueFunction = true
-                        stateCount += 1
-                        numberOfChildrenRun += 1
-                        let stateRecords = {    parentState: parent,
-                                                stateName: state,
-                                                firstParent: false,
-                                                isParent: false,
-                                                dataCopiedDown: copiedDownStream,
-                                                downStreamHopperStateNames: downStreamHopperStateNamesList,
-                                                variablesChanged: []
-                                            }
-                        if(this.isParent(currentState)) {
-                            if(numberOfChildrenRun === 1) {
-                                
-                                const mapping = this.collectChanges(tree, state)
-                                // console.log('measuring changes to first parent', state, mapping)
-                                tree = this.cleanChanges(tree, state)
-                                stateRecords = {    ...stateRecords,
-                                                    firstParent: true,
-                                                    isParent: true,
-                                                    variablesChanged: mapping
+                if(!ranTrueFunction) {
+    
+                    // don't want to run the 2nd true function
+                    if(!resultOfFunction) {
+    
+                        let copiedDownStream = false
+                        let downStreamHopperStateNamesList = []
+                        if(this.isDownStreamEnd(state)) {
+                            tree = this.storeIntoDownStreamEndVariables(tree, state, downStream)
+                            copiedDownStream = true
+                        }
+                        if(copiedDownStream) {
+                            let stringifiedStateName = this.stringifyState(state)
+                            downStreamHopperStateNamesList = Object.keys(downStream[stringifiedStateName])
+                        }
+                        let currentState = findState(tree['stateTrie'], state)
+                                        // save the stream data here
+                        // the hopper data for this state should be deposited before the state is run(so the state can get it)
+                        // is this the child we actually need the stream data for?
+                        // the parent is used to access the data the state will use()
+                        resultOfFunction = currentState['function'](parent, state)
+                        // console.log(this.findState(tree['stateTrie'], nextStates[i]))
+                        // console.log(resultOfFunction)
+                        if(resultOfFunction) {
+                            ranTrueFunction = true
+                            // console.log(stateCount, state)
+                            stateCount += 1
+                            numberOfChildrenRun += 1
+                            let stateRecords = {    parentState: parent,
+                                                    stateName: state,
+                                                    firstParent: false,
+                                                    isParent: false,
+                                                    dataCopiedDown: copiedDownStream,
+                                                    downStreamHopperStateNames: downStreamHopperStateNamesList,
+                                                    variablesChanged: []
                                                 }
-                                // console.log('after cleaning')
-                                // console.log(tree)
-
-                            }
-                            // the change logging must only be run one time per state
-                            else {
-                                // stateRecords = { ...stateRecords,
-                                //                 isParent: true   }
+                            if(this.isParent(currentState)) {
+                                if(numberOfChildrenRun === 1) {
+                                    
+                                    const mapping = this.collectChanges(tree, state)
+                                    // console.log('measuring changes to first parent', state, mapping)
+                                    tree = this.cleanChanges(tree, state)
+                                    stateRecords = {    ...stateRecords,
+                                                        firstParent: true,
+                                                        isParent: true,
+                                                        variablesChanged: mapping
+                                                    }
+                                    // console.log('after cleaning')
+                                    // console.log(tree)
+    
+                                }
+                                // the change logging must only be run one time per state
+                                else {
+                                    // stateRecords = { ...stateRecords,
+                                    //                 isParent: true   }
+                                    const mapping = this.collectChanges(tree, parent)
+                                    // console.log('measuring changes to nth state', state, parent, mapping)
+                                    tree = this.cleanChanges(tree, parent)
+                                    stateRecords = {    ...stateRecords,
+                                                        isParent: true,
+                                                        variablesChanged: mapping
+                                                    }
+                                    // console.log('after cleaning')
+                                    // console.log(tree)
+                                }
+                                if(this.isDownStreamStart(state)) {
+    
+                                    // we want to store the downstream data for each state that runs
+                                    downStream = this.getDownStreamStartVariables(tree, state, downStream)
+                                    // console.log(downStream)
+                                }
+                                // console.log(stateRecords)
+                                stateChangesCurrentLevel = [...stateChangesCurrentLevel, stateRecords]
+                                // get downstream data from parent and pass it down
+                                let currentLevelSaved = this.visit(     state,
+                                                                        currentState['children'],
+                                                                        recursiveId + 1,
+                                                                        downStream,
+                                                                        upStream)
+                                stateChangesAllLevels = [   currentLevelSaved,
+                                                            ...stateChangesAllLevels]
+    
+                                // stateChangesAllLevels
+                                // console.log(x)
+                                // console.log('recursion unwinding')
+                                // console.log([...currentState['children']])
+                            } else {
+                                // console.log("no children")
+                                newNextStates = currentState['next']
                                 const mapping = this.collectChanges(tree, parent)
                                 // console.log('measuring changes to nth state', state, parent, mapping)
                                 tree = this.cleanChanges(tree, parent)
                                 stateRecords = {    ...stateRecords,
-                                                    isParent: true,
                                                     variablesChanged: mapping
                                                 }
+                                // console.log(stateRecords)
+                                // console.log(nextStates)
+                                stateChangesCurrentLevel = [...stateChangesCurrentLevel, stateRecords]
+                                // stateChangesAllLevels = [...stateChangesAllLevels]
+    
                                 // console.log('after cleaning')
                                 // console.log(tree)
+                                // console.log(nextStates, 'to try')
                             }
-                            if(this.isDownStreamStart(state)) {
-
-                                // we want to store the downstream data for each state that runs
-                                downStream = this.getDownStreamStartVariables(tree, state, downStream)
-                                // console.log(downStream)
-                            }
-                            // console.log(stateRecords)
-                            stateChangesCurrentLevel = [...stateChangesCurrentLevel, stateRecords]
-                            // get downstream data from parent and pass it down
-                            
-
-                            stateChangesAllLevels = [   this.visit( state,
-                                                                    currentState['children'],
-                                                                    recursiveId + 1,
-                                                                    stateCount,
-                                                                    downStream,
-                                                                    upStream),
-                                                        ...stateChangesAllLevels]
-
-                            // stateChangesAllLevels
-                            // console.log(x)
-                            // console.log('recursion unwinding')
-                            // console.log([...currentState['children']])
-                        } else {
-                            // console.log("no children")
-                            nextStates = currentState['next']
-                            const mapping = this.collectChanges(tree, parent)
-                            // console.log('measuring changes to nth state', state, parent, mapping)
-                            tree = this.cleanChanges(tree, parent)
-                            stateRecords = {    ...stateRecords,
-                                                variablesChanged: mapping
-                                            }
-                            // console.log(stateRecords)
-                            stateChangesCurrentLevel = [...stateChangesCurrentLevel, stateRecords]
-                            // stateChangesAllLevels = [...stateChangesAllLevels]
-
-                            // console.log('after cleaning')
-                            // console.log(tree)
-                            // console.log(nextStates, 'to try')
+                            // break
+    
                         }
-                        // break
-
                     }
                 }
-            }
-            
-        })
+                
+            })
+            nextStates = newNextStates
+        }
+       
         return stateChangesCurrentLevel
 
         // console.log(this.traverseTrie(tree['stateTrie'], currentState))
