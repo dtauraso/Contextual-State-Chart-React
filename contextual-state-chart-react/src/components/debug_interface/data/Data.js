@@ -232,7 +232,6 @@ const collectMostShallowChange = (object) => {
                 newArray = [    ...newArray,
                                 newElement
                 ]
-
             }
         })
         return newArray
@@ -257,7 +256,6 @@ const collectMostShallowChange = (object) => {
                 let newObject = collectMostShallowChange(object['data'])
                 // console.log('object from data', newObject, newObject.length)
                 return newObject
-                
             }
         }
         else {
@@ -282,7 +280,6 @@ const collectMostShallowChange = (object) => {
                             else {
                                 newObject = {   ...newObject,
                                                 [key]: newItem}
-
                             }
                         }
                     }
@@ -297,24 +294,18 @@ const collectMostShallowChange = (object) => {
                             else {
                                 newObject = {   ...newObject,
                                                 [key]: newItem}
-
                             }
-
                         }
                     }
                 }
             })
-
             return newObject
         }
-        
-        
     }
     else {
         // object should be a single string now
         return object
     }
-
 }
 
 const collectFlagedItems = (tree, parentState) => {
@@ -374,11 +365,9 @@ const cleanRecordsMostShallow = (object) => {
                 newArray = [    ...newArray,
                                 newItem
                     ]
-
             }
         })
         return newArray
-
     }
     else if(typeof(object) === 'object') {
         // console.log("object", object)
@@ -418,21 +407,17 @@ const cleanRecordsMostShallow = (object) => {
                 if(newItem !== null) {
                     newObject = {   ...newObject,
                                     [key]: newItem}
-
                 }
 
             })
             // console.log(newObject)
             return newObject
         }
-        
-        
     }
     else {
         // object should be a single string now
         return object
     }
-
 }
 
 const findState = (tree, path) => {
@@ -494,6 +479,7 @@ const convertToRecord = (conainer, value) => {
 }
 
 ////////
+/// deepAssign routing functions
 
 const setToValue = (container, value) => {
     return value
@@ -502,7 +488,7 @@ const append = (container, value) => {
 
     return [...container, value]
 }
-
+////////
 const deepAssign = (state, path, value, cb) => {
     // state is an object
     // console.log("deep copy", path)
@@ -539,51 +525,6 @@ const deepAssign = (state, path, value, cb) => {
     
 }
 
-
-
-// I'm aware all states and vars are accessible using tree(It's a convenience for now),
-// but the idea is for the child states to only use data from the parent
-// This is not only about making a calculator app.
-// It's about making a flexible program representation and the calculator app
-// is just a test input.
-const returnTrue = (tree, parent, currentState) => {
-    return true
-}
-const returnFalse = (tree, parent, currentState) => {
-    return false
-}
-
-
-
-// const makePath = (currentState, variableNameList) => {
-//     // variable name is not a list anymore
-//     return ['stateTrie', ...currentState, 'variables', ...variableNameList]
-// }
-
-// can the tracking system be done without the user writing any tracking code?
-// yes if the tracking code is made before or after the state function code gets run
-const startState = (parent, currentState) => {
-    // parent is currently root which is a non-existtant dummy state
-    // load up the downstream
-    // ['stateTrie']
-    console.log("start state", currentState)
-    // storeIntoDownStreamStart(currentState, 'input')
-
-    console.log("my tree", tree)
-
-    return true
-}
-
-
-const splitState = (parent, currentState) => {
-    console.log('in split', parent, currentState)
-    console.log("my tree", tree)
-    // storeIntoDownStreamEnd(currentState, 'input')
-    console.log(tree)
-    return true
-
-
-}
 // for converting only the value in {type: string, value: '543242} to record from
 const getVariableValuePath = (parent, variableName) => {
     // console.log(['stateTrie', ...parent, 'variables', variableName, 'variable', 'value'])
@@ -656,6 +597,7 @@ const userDeepDeleteKeyValue = (tree, parent, variableName, pathToKey) => {
     return tree
 }
 /////
+
 const cleanRecords = (tree, parent, variableName) => {
     const variableValuePath = getVariableValuePath(parent, variableName)
 
@@ -679,6 +621,51 @@ const cleanRecordsDeep = (tree, parent, variableName) => {
     return tree
 }
 
+
+// I'm aware all states and vars are accessible using tree(It's a convenience for now),
+// but the idea is for the child states to only use data from the parent
+// This is not only about making a calculator app.
+// It's about making a flexible program representation and the calculator app
+// is just a test input.
+const returnTrue = (tree, parent, currentState) => {
+    return true
+}
+const returnFalse = (tree, parent, currentState) => {
+    return false
+}
+
+
+
+// const makePath = (currentState, variableNameList) => {
+//     // variable name is not a list anymore
+//     return ['stateTrie', ...currentState, 'variables', ...variableNameList]
+// }
+
+// can the tracking system be done without the user writing any tracking code?
+// yes if the tracking code is made before or after the state function code gets run
+const startState = (parent, currentState) => {
+    // parent is currently root which is a non-existtant dummy state
+    // load up the downstream
+    // ['stateTrie']
+    console.log("start state", currentState)
+    // storeIntoDownStreamStart(currentState, 'input')
+
+    // console.log("my tree", tree)
+
+    return true
+}
+
+
+const splitState = (parent, currentState) => {
+    console.log('in split', parent, currentState)
+    // console.log("my tree", tree)
+    // storeIntoDownStreamEnd(currentState, 'input')
+    console.log(tree)
+    return true
+
+
+}
+
 const collectChar = (parent, currentState) => {
     
 
@@ -693,8 +680,9 @@ const collectChar = (parent, currentState) => {
 
     // }
     // return false
-    console.log(tree)
     console.log("collectChar")
+    console.log(tree)
+
     console.log(parent)
     // let variableName = 'input'
     // console.log(getVariableValuePath2(parent, 'input'))
@@ -1681,6 +1669,7 @@ class Data extends React.Component{
         return Object.keys(state).includes('children')
         // console.log(Object.keys(state).includes('function'))
     }
+    /// stream functions
     isDownStream = (state) => {
         let y = findState(tree['stateTrie'], state)
 
@@ -1747,7 +1736,7 @@ class Data extends React.Component{
                             
                                                     
                         }
-            console.log('downstream', downstream)
+            // console.log('downstream', downstream)
         })
         
         return downstream
@@ -1774,6 +1763,13 @@ class Data extends React.Component{
                                 downStream[stringifiedStateName][variableName],
                                 setToValue
             )
+            // set the copied data in variable to 'new'
+            tree = deepAssign(
+                                tree,
+                                fullVariablePath,
+                                findState(tree, fullVariablePath),
+                                newFlags
+            )
         })
         // console.log('did it work?', tree)
         return tree
@@ -1782,6 +1778,8 @@ class Data extends React.Component{
         // make sure they match before saving them
 
     }
+    //////
+    ///// functions for collecting changes and cleaning changes in data
     collectChanges = (tree, state) => {
         const variableStateLevel = findState(tree, ['stateTrie', ...state, 'variables'])
         if(variableStateLevel !== null) {
@@ -1847,6 +1845,7 @@ class Data extends React.Component{
         }
     }
     
+    // each level calls this function 1 time
     visit = (parent, nextStates, recursiveId, stateCount, downStream, upStream) => {
         // runs each runable state in the contextual state chart
         // time complexity
@@ -1878,17 +1877,21 @@ class Data extends React.Component{
 
         // hopper table: destinationState -> {varName: varData}
         // the destination state will know the source so if the hooper data isn't there there than we know what A and B are
-        // detecting the error of A -> B` -> B where B` is B but comes earlier
+        // detecting the error of A -> B` -> B where B` is B but comes earlier(not currently implemented)
         // don't know how to detect other kinds of errors so the user can track them down quicker
         // generalized fully automated transport system for the user and detects 1 kind of error
 
+        // record system
+        // recording all changes the user mades to data
+        // collect it after the state runs and after the hopper drops data to a parent state
+        // this way we can track their changes from state to state
         // We can't run more than 1 state at a time becuase tracking and transporting data require all the data in our graph to be
         // copied.
 
         // if the user feels like it's cumbersome then the solution has failed
         // ['start', '0'] will be the parent 2 times in a row
         let numberOfChildrenRun = 0
-        console.log("visit", recursiveId, parent, nextStates, numberOfChildrenRun)
+        // console.log("visit", recursiveId, parent, nextStates, numberOfChildrenRun)
         // console.log(Object.keys(tree['stateTrie']))
         if(stateCount === 4) {
             console.log('done with states')
@@ -1908,9 +1911,14 @@ class Data extends React.Component{
                 // don't want to run the 2nd true function
                 if(!resultOfFunction) {
 
+                    let copiedDownStream = false
                     if(this.isDownStreamEnd(state)) {
                         tree = this.storeIntoDownStreamEndVariables(tree, state, downStream)
-
+                        copiedDownStream = true
+                    }
+                    if(copiedDownStream) {
+                        const stringifiedStateName = this.stringifyState(state)
+                        console.log('variables copied down', Object.keys(downStream[stringifiedStateName]))
                     }
                     let currentState = findState(tree['stateTrie'], state)
                                     // save the stream data here
@@ -1924,36 +1932,6 @@ class Data extends React.Component{
                         ranTrueFunction = true
                         stateCount += 1
                         numberOfChildrenRun += 1
-                        // next thing to do:
-                        // console.log('variables', findState(tree, ['stateTrie', ...parent, 'variables']))
-                        // console.log('variables for this level', Object.keys(findState(tree, ['stateTrie', ...parent, 'variables'])))
-                        // collect branches of the most shallow change of each variable stored in the parent state
-                        // varName : all most shallow branches of change
-                        // clean all flags in variables(change to unset or erase entire object)
-                        // make sure the above works before working on the dom
-                        // console.log(this.isParent(currentState), numberOfChildrenRun)
-                        // if(numberOfChildrenRun === 1) {
-                        //     // right
-                        //     if(this.isParent(currentState)) {
-                        //         const mapping = this.collectChanges(tree, state)
-                        //         console.log('measuring changes to first parent', state, mapping)
-    
-                        //     }
-                        //     else {
-                        //         const mapping = this.collectChanges(tree, parent)
-                        //         console.log('measuring changes to nth state', parent, mapping)
-                        //     }
-                        // }
-                        // // right
-                        // else {
-                        //     const mapping = this.collectChanges(tree, parent)
-                        //     console.log('measuring changes to nth state', parent, mapping)
-
-                        // }
-                        // collect records of changes made in the parent's variables
-                        // reset records of changes made in the parent's variables
-                        // is the current state a parent?
-                        // is the current state the first state run for this level?
                         if(this.isParent(currentState)) {
                             if(numberOfChildrenRun === 1) {
                                 const mapping = this.collectChanges(tree, state)
@@ -1971,23 +1949,6 @@ class Data extends React.Component{
                                 // console.log('after cleaning')
                                 // console.log(tree)
                             }
-                            // console.log("after function", tree)
-                            // console.log("stat ran", state)
-                            // stringify state
-                            // use the string as a key maping to the hopper value(so hopper can be used
-                            // with many different transporting states at once)
-                            // hopper value is expressed as a node with modification flags
-                            // the flags show what was changed for the diffing algorithm to record after each state is run
-                            // this way the user can directly change the machine variables(no local varaibles will be tracked)
-                            // and have their changes get logged automatcally 
-                            // have the transport system transport the variable and value because
-                            // the machine's variables will be cleared before the machine travels up the hierarchy
-                            // that means the last state has to put the variable data into the hopper to transport it up()
-                            // let downStreamStateStart = getDownStreamStart(tree['stateTrie'], state) //makeDownStreamContext(currentState)
-                            // console.log("data from downstream start hopper", downStreamStateStart)
-
-                            // console.log("has children", currentState['children'])
-                            // can only do this to pickup data
                             if(this.isDownStreamStart(state)) {
 
                                 // we want to store the downstream data for each state that runs
@@ -2004,8 +1965,8 @@ class Data extends React.Component{
                             const mapping = this.collectChanges(tree, parent)
                             console.log('measuring changes to nth state', state, parent, mapping)
                             tree = this.cleanChanges(tree, parent)
-                            console.log('after cleaning')
-                            console.log(tree)
+                            // console.log('after cleaning')
+                            // console.log(tree)
                             // console.log(nextStates, 'to try')
                         }
                         // break
