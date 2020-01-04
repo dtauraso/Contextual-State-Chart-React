@@ -7,6 +7,8 @@ import React from "react"
 // alter records shallow and deep
 // collect records shallow and deep
 // user interface for adjusting records
+// collecting records
+// cleaning records
 const makeNode = (value) => {
 
     return {data: value, flag: 'new' }
@@ -97,10 +99,7 @@ const convertToCallBackRecursive = (object, cb) => {
         return cb(newObject)
     }
 }
-// const undoRecordingFormatRecursive = (object) => {
-//     // takes an object with records set and undoes it
 
-// }
 const updateFlagsRecursive = (object, newFlagValue) => {
         // data, flag
         // object is the tracked object
@@ -172,9 +171,7 @@ const popBack = (array) => {
     }
     // return array.map((item, i) => (i === array.length - 1) ? deleteNode(item) : item)
 }
-const insertObject = (object) => {
-    // recursively recreate the object and set all it's values's flag to 'added'
-}
+
 const insertItem = (array, i, value) => {
 
     // assumes the array has been converted to the recording form
@@ -189,10 +186,6 @@ const insertItem = (array, i, value) => {
             makeNode(value),
             ...array.slice(i + 1)
         ]
-
-}
-const deleteItem = (array, i) => {
-
 
 }
 
@@ -216,7 +209,7 @@ const search = (array, value) => {
 
 const collectMostShallowChange = (object) => {
 
-    // the most shallow changes are collected
+    // the most shallow changes are collected(they bring all the deep changes with them)
     // object is the tracked object
     // need to return an array of tracked objects or a single tracked object
     // console.log(object)
@@ -308,36 +301,12 @@ const collectMostShallowChange = (object) => {
     }
 }
 
-const collectFlagedItems = (tree, parentState) => {
 
-    // dft
-    // return the top level items that have a node recorded
-    // return a tree of the var names and objects holding the recorded nodes
-    // get all the variable names
-    const variableNames = Object.keys(findState(tree, ['stateTrie', ...parentState, 'variables']))
-    let changeMap = {}
-    variableNames.forEach(variableName => {
-        // changeMap = { ...changeMap
-            // [variableName] : f(findState(tree, ['stateTrie', ...parentState, 'variables'])[variableName])}
-        // what is f(object)?
-        // run dft here to get items
-    })
-}
 const collectFlaggedElements = (array) => {
 
     return array.filter(item => item.flag !== 'unset')
 }
 
-const cleanUp = (stateChartTree) => {
-
-    // delete all items flaged for removal and unset the flags of remaining items
-    // dft
-    // if node is recorded
-        // if node is 'deleted'
-            // delete it
-        // else
-            // set the flag to 'unset'
-}
 
 const cleanFlaggedElements = (array) => {
 
@@ -350,7 +319,6 @@ const cleanRecordsMostShallow = (object) => {
     // delete the most shallow objects
     // change 'new' flags to 'unset' on the most shallow items
 
-    // data, flag
     // object is the tracked object
     // need to return an array of tracked objects or a single tracked object
     // console.log(object)
@@ -647,7 +615,7 @@ const startState = (parent, currentState) => {
     // parent is currently root which is a non-existtant dummy state
     // load up the downstream
     // ['stateTrie']
-    console.log("start state", currentState)
+    // console.log("start state", currentState)
     // storeIntoDownStreamStart(currentState, 'input')
 
     // console.log("my tree", tree)
@@ -657,10 +625,10 @@ const startState = (parent, currentState) => {
 
 
 const splitState = (parent, currentState) => {
-    console.log('in split', parent, currentState)
+    // console.log('in split', parent, currentState)
     // console.log("my tree", tree)
     // storeIntoDownStreamEnd(currentState, 'input')
-    console.log(tree)
+    // console.log(tree)
     return true
 
 
@@ -680,10 +648,10 @@ const collectChar = (parent, currentState) => {
 
     // }
     // return false
-    console.log("collectChar")
-    console.log(tree)
+    // console.log("collectChar")
+    // console.log(tree)
 
-    console.log(parent)
+    // console.log(parent)
     // let variableName = 'input'
     // console.log(getVariableValuePath2(parent, 'input'))
     // console.log(findState(tree, getVariableValuePath2(parent, 'input')))
@@ -781,7 +749,7 @@ const collectChar = (parent, currentState) => {
     //                         path,  // path
     //                         findState(tree, path), // data to set
     //                         unsetFlags)
-    console.log("done with collectChar", tree)
+    // console.log("done with collectChar", tree)
     // const resultChangedFlag = updateFlagsRecursive(newStuff, 'unset')
     // console.log(resultChangedFlag)
     // console.log('done')
@@ -1172,7 +1140,9 @@ var tree = {
                 }
     }
 }
-var stateCount = 0
+
+var stateChangesAllLevels = []
+
 class Data extends React.Component{
     constructor() {
         super();
@@ -1844,7 +1814,11 @@ class Data extends React.Component{
             return tree
         }
     }
-    
+    setupMachine = () => {
+        let lastOne = this.visit(['start', '0'], [['start', '0']], 0, null, null)
+        stateChangesAllLevels = [lastOne, ...stateChangesAllLevels]
+        console.log(stateChangesAllLevels)
+    }
     // each level calls this function 1 time
     visit = (parent, nextStates, recursiveId, stateCount, downStream, upStream) => {
         // runs each runable state in the contextual state chart
@@ -1902,11 +1876,11 @@ class Data extends React.Component{
         // replace with a forEach
         let resultOfFunction = false
         let ranTrueFunction = false
+        let stateChangesCurrentLevel = []
         // while nextStates.length > 0 do below
         nextStates.forEach(state => {
 
             if(!ranTrueFunction) {
-
 
                 // don't want to run the 2nd true function
                 if(!resultOfFunction) {
@@ -1916,10 +1890,7 @@ class Data extends React.Component{
                         tree = this.storeIntoDownStreamEndVariables(tree, state, downStream)
                         copiedDownStream = true
                     }
-                    if(copiedDownStream) {
-                        const stringifiedStateName = this.stringifyState(state)
-                        console.log('variables copied down', Object.keys(downStream[stringifiedStateName]))
-                    }
+
                     let currentState = findState(tree['stateTrie'], state)
                                     // save the stream data here
                     // the hopper data for this state should be deposited before the state is run(so the state can get it)
@@ -1932,20 +1903,39 @@ class Data extends React.Component{
                         ranTrueFunction = true
                         stateCount += 1
                         numberOfChildrenRun += 1
+                        let stateRecords = {    stateName: state,
+                                                parentState: parent,
+                                                firstParent: false,
+                                                isParent: false,
+                                                dataCopiedDown: copiedDownStream,
+                                                variablesChanged: null
+                                            }
                         if(this.isParent(currentState)) {
                             if(numberOfChildrenRun === 1) {
+                                
                                 const mapping = this.collectChanges(tree, state)
-                                console.log('measuring changes to first parent', state, mapping)
+                                // console.log('measuring changes to first parent', state, mapping)
                                 tree = this.cleanChanges(tree, state)
+                                stateRecords = {    ...stateRecords,
+                                                    firstParent: true,
+                                                    isParent: true,
+                                                    variablesChanged: mapping
+                                                }
                                 // console.log('after cleaning')
                                 // console.log(tree)
 
                             }
                             // the change logging must only be run one time per state
                             else {
+                                // stateRecords = { ...stateRecords,
+                                //                 isParent: true   }
                                 const mapping = this.collectChanges(tree, parent)
-                                console.log('measuring changes to nth state', state, parent, mapping)
+                                // console.log('measuring changes to nth state', state, parent, mapping)
                                 tree = this.cleanChanges(tree, parent)
+                                stateRecords = {    ...stateRecords,
+                                                    isParent: true,
+                                                    variablesChanged: mapping
+                                                }
                                 // console.log('after cleaning')
                                 // console.log(tree)
                             }
@@ -1955,16 +1945,36 @@ class Data extends React.Component{
                                 downStream = this.getDownStreamStartVariables(tree, state, downStream)
                                 // console.log(downStream)
                             }
+                            // console.log(stateRecords)
+                            stateChangesCurrentLevel = [...stateChangesCurrentLevel, stateRecords]
                             // get downstream data from parent and pass it down
-                            this.visit(state, currentState['children'], recursiveId + 1, stateCount, downStream, upStream)
+                            
+
+                            stateChangesAllLevels = [   this.visit( state,
+                                                                    currentState['children'],
+                                                                    recursiveId + 1,
+                                                                    stateCount,
+                                                                    downStream,
+                                                                    upStream),
+                                                        ...stateChangesAllLevels]
+
+                            // stateChangesAllLevels
+                            // console.log(x)
                             // console.log('recursion unwinding')
                             // console.log([...currentState['children']])
                         } else {
                             // console.log("no children")
                             nextStates = currentState['next']
                             const mapping = this.collectChanges(tree, parent)
-                            console.log('measuring changes to nth state', state, parent, mapping)
+                            // console.log('measuring changes to nth state', state, parent, mapping)
                             tree = this.cleanChanges(tree, parent)
+                            stateRecords = {    ...stateRecords,
+                                                variablesChanged: mapping
+                                            }
+                            // console.log(stateRecords)
+                            stateChangesCurrentLevel = [...stateChangesCurrentLevel, stateRecords]
+                            // stateChangesAllLevels = [...stateChangesAllLevels]
+
                             // console.log('after cleaning')
                             // console.log(tree)
                             // console.log(nextStates, 'to try')
@@ -1976,6 +1986,7 @@ class Data extends React.Component{
             }
             
         })
+        return stateChangesCurrentLevel
 
         // console.log(this.traverseTrie(tree['stateTrie'], currentState))
         // console.log(tree['stateTrie'][currentState[0]])
@@ -1985,7 +1996,7 @@ class Data extends React.Component{
             <div >
                 {/* {console.log('happening')} */}
                 {/* the parent and the first state to run need to be the same for the first call */}
-                <button onClick={() => this.visit(['start', '0'], [['start', '0']], 0, null, null)}>start</button>
+                <button onClick={() => this.setupMachine()}>start</button>
             </div>
         )
     }
