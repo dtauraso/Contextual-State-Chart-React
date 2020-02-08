@@ -18,43 +18,7 @@ seq1 | n cols seq0 to sequences table
 do this in js. Its very complex and has alot of imperative parts I'm not sure how to convert to sql
 
 */
-const makeSequences0 = (sequence, seq0, seq1) => {
 
-    const length = sequence.length
-    // make a set of rows
-    const newSetOfRows = sequence.map((letter, i) => {
-        return {
-            'flag': 'new', 
-            'position': i,
-            'i': length + i,
-            'character': letter,
-            'seq0': seq0,
-            'seq1': seq1,
-
-        }
-    })
-    return newSetOfRows
-    // add them to the table
-}
-
-const makeSequences1 = (sequenceOfSequences, ithSequenceCollection, sequenceTable) => {
-
-    const length = sequenceTable.length
-    let seq1 = 0
-    if(length > 0) {
-        const lastRow = sequenceTable[sequenceTable.length - 1]
-        seq1 = lastRow.seq1
-    }
-
-    sequenceOfSequences.map((sequence, sequenceId) => {
-
-        sequence.map()
-        // need seq0 to go from 0 to |sequence| - 1 for each round
-        // return makeSequences0(sequence, 9, i)
-    })
-
-
-}
 const getDefaultValue = (sequenceTable, attribute) => {
     const length = sequenceTable.length
     let defaultValue = 0
@@ -103,41 +67,70 @@ const makeWord = (sequenceTable, low, high) => {
     return sequenceTable.slice(low, high).map(row => row.letter).join('')
 }
 const collectwords = (sequenceTable, wordsIdToSequenceTable) => {
+
+    let collectionOfWords = []
+    // cutting off a necessary item for the slice to be full
+    // omitting the overbound
     Object.keys(wordsIdToSequenceTable).forEach(wordId => {
         // console.log(wordId, wordsIdToSequenceTable[wordId])
         // wordsIdToSequenceTable[wordId].forEach(id => {
         //     console.log(sequenceTable[id])
         // })
-        // It's not picking where the other round left off
+
         let low = wordsIdToSequenceTable[wordId][0]
-        let high = wordsIdToSequenceTable[wordId][0]
-        let i = wordsIdToSequenceTable[wordId][0]
+        let high = low
+        let i = low
         const length = wordsIdToSequenceTable[wordId].length
-        // console.log(length,
-        //             wordsIdToSequenceTable[wordId][length - 1],
-        //             wordsIdToSequenceTable[wordId][length - 1] - 1)
-        const lastPosition = wordsIdToSequenceTable[wordId][length - 1] - 1
+        let words = []
+
+        
+        const lastPosition = wordsIdToSequenceTable[wordId][length - 1]
         for(; low <= high &&
               high < lastPosition &&
-              i < lastPosition; i += 1) {
-            // console.log(i, low, high, wordsIdToSequenceTable[wordId][length - 1])
-            high += 1
+              i < lastPosition;
+              i += 1) {
+            
+            // console.log(sequenceTable[i])
+            // console.log(i, low, high, lastPosition)
 
-            if(sequenceTable[high].word !== sequenceTable[high - 1].word) {
-                console.log(makeWord(sequenceTable, low, high))
+            high += 1
+            // stop counting, collect and shrink the window
+            if(sequenceTable[high].word > sequenceTable[high - 1].word) {
+                // console.log(i, low, high)
+
+                // console.log(makeWord(sequenceTable, low, high))
+                words = [...words, makeWord(sequenceTable, low, high)]
+
                 low = high
+            }
+             else if(sequenceTable[high].word < sequenceTable[high - 1].word) {
+                // direction has been flipped
+                collectionOfWords = [   ...collectionOfWords,
+                                        [   ...words,
+                                            makeWord(sequenceTable, low, high)]]
+                words = []
+
+                low = high
+
             } else if(high === lastPosition) {
-                console.log(makeWord(sequenceTable, low, high))
+                // at last position but treat as if direction has been flipped at the end
+                collectionOfWords = [   ...collectionOfWords,
+                                        [   ...words,
+                                            makeWord(sequenceTable, low, high + 1)]]
+                words = []
+
+
 
             }
-            
-            
+            // console.log(i, low, high)
+            // console.log('------------\n')
+
         }
-        // wordsIdToSequenceTable[wordId].forEach(id => {
-        //     console.log(sequenceTable[id])
-        // })
-        console.log('\n')
+        // console.log(words)
+
+        // console.log('\n')
     })
+    return collectionOfWords
 }
 
 const setupAddToStates = () => {
@@ -178,7 +171,44 @@ const setupAddToStates = () => {
     //     console.log(id, wordsIdToSequenceTable[id])
     // })
     // console.log(wordsIdToSequenceTable)
-    collectwords(sequenceTable, wordsIdToSequenceTable)
+    let collectedWords  = collectwords(sequenceTable, wordsIdToSequenceTable)
+    console.log(collectedWords)
+    // let x = 34
+    // for(; x < 126 ; x++) {
+    //     // console.log(String(x))
+    //     console.log(String.fromCharCode(x))
+    // }
+    // put in a checking algorithm for each part
+    letterRows()
+    // insert sequences to states table
+
+}
+
+const letterRows = () => {
+    let letters = {}
+    let number = 34
+    for(; number < 127 ; number++) {
+        // console.log(String(x))
+        const asciiCharacter = String.fromCharCode(number)
+        // console.log(String.fromCharCode(x))
+        letters = {...letters, [asciiCharacter]: -1}
+    }
+    console.log(letters)
+}
+const makeStateRows = (stateName, stateTable) => {
+
+    let row = {
+        'id': getDefaultValue(stateTable, 'id'),
+        'word': -1,
+        'letter': '0',
+        ...letterRows(),
+        'downStreamEndWord': 0,
+        'upStreamendWord': 1,
+        'nextStates': 2,
+        'parents': 3,
+        'children': 4,
+        'variableData': 5
+    }
 }
 // 'added'
 // 'deleted'
