@@ -1,5 +1,185 @@
 import React from "react"
+import State from './State';
+/*
+sequences table
+mod flags | i | 1 character | seq1 | seq2
 
+state table
+id | -1 or single word | 1 chacter | next_states(foreign keys to seq_1) | parents(seq_1) | childen(seq_1) | variable name(seq_0)
+
+
+state name lookup table
+1 character | n cols for numeric edges(id in state table)
+
+
+state attribute col to data in sequences lookup table
+seq1 | n cols seq0 to sequences table
+
+do this in js. Its very complex and has alot of imperative parts I'm not sure how to convert to sql
+
+*/
+const makeSequences0 = (sequence, seq0, seq1) => {
+
+    const length = sequence.length
+    // make a set of rows
+    const newSetOfRows = sequence.map((letter, i) => {
+        return {
+            'flag': 'new', 
+            'position': i,
+            'i': length + i,
+            'character': letter,
+            'seq0': seq0,
+            'seq1': seq1,
+
+        }
+    })
+    return newSetOfRows
+    // add them to the table
+}
+
+const makeSequences1 = (sequenceOfSequences, ithSequenceCollection, sequenceTable) => {
+
+    const length = sequenceTable.length
+    let seq1 = 0
+    if(length > 0) {
+        const lastRow = sequenceTable[sequenceTable.length - 1]
+        seq1 = lastRow.seq1
+    }
+
+    sequenceOfSequences.map((sequence, sequenceId) => {
+
+        sequence.map()
+        // need seq0 to go from 0 to |sequence| - 1 for each round
+        // return makeSequences0(sequence, 9, i)
+    })
+
+
+}
+const getDefaultValue = (sequenceTable, attribute) => {
+    const length = sequenceTable.length
+    let defaultValue = 0
+    if(length > 0) {
+        const lastRow = sequenceTable[sequenceTable.length - 1]
+        defaultValue = lastRow[attribute] + 1
+    }
+    return defaultValue
+}
+const makeSequenceRows = (nextStates, sequenceTable) => {
+
+    let rows = []
+    let words = getDefaultValue(sequenceTable, 'words')
+
+    let i = getDefaultValue(sequenceTable, 'id')
+
+    let offset = 0
+    nextStates.forEach((stateName, j) => {
+
+        stateName.forEach((letters, k) => {
+
+            for(var m in letters) {
+                // k is id
+                // seq1 is for an entire collection of whole names
+                rows = [...rows, {
+
+                    'id': i + offset,
+                    'letter': letters[m],
+                    'position': parseInt(m),
+                    // 'modifiedFlag': "new",
+                    'word': k,
+                    'words': words,
+                    }
+                ]
+                offset += 1
+            }
+        })
+    })
+
+    return rows
+
+    
+    
+}
+const makeWord = (sequenceTable, low, high) => {
+    return sequenceTable.slice(low, high).map(row => row.letter).join('')
+}
+const collectwords = (sequenceTable, wordsIdToSequenceTable) => {
+    Object.keys(wordsIdToSequenceTable).forEach(wordId => {
+        // console.log(wordId, wordsIdToSequenceTable[wordId])
+        // wordsIdToSequenceTable[wordId].forEach(id => {
+        //     console.log(sequenceTable[id])
+        // })
+        // It's not picking where the other round left off
+        let low = wordsIdToSequenceTable[wordId][0]
+        let high = wordsIdToSequenceTable[wordId][0]
+        let i = wordsIdToSequenceTable[wordId][0]
+        const length = wordsIdToSequenceTable[wordId].length
+        // console.log(length,
+        //             wordsIdToSequenceTable[wordId][length - 1],
+        //             wordsIdToSequenceTable[wordId][length - 1] - 1)
+        const lastPosition = wordsIdToSequenceTable[wordId][length - 1] - 1
+        for(; low <= high &&
+              high < lastPosition &&
+              i < lastPosition; i += 1) {
+            // console.log(i, low, high, wordsIdToSequenceTable[wordId][length - 1])
+            high += 1
+
+            if(sequenceTable[high].word !== sequenceTable[high - 1].word) {
+                console.log(makeWord(sequenceTable, low, high))
+                low = high
+            } else if(high === lastPosition) {
+                console.log(makeWord(sequenceTable, low, high))
+
+            }
+            
+            
+        }
+        // wordsIdToSequenceTable[wordId].forEach(id => {
+        //     console.log(sequenceTable[id])
+        // })
+        console.log('\n')
+    })
+}
+
+const setupAddToStates = () => {
+    let sequenceTable = []
+    let rows1 = makeSequenceRows([['aaa', 'bbb', 'c'], ['d', 'ee', 'fff']], sequenceTable)
+    // console.log(rows1)
+    sequenceTable = [...sequenceTable, ...rows1]
+    // sequenceTable.forEach(y => [
+    //     console.log(y)
+    // ])
+
+    
+    let wordsId = sequenceTable[sequenceTable.length - 1].words
+
+    let wordsIdToSequenceTable = {}
+
+    const ids = rows1.map(row => row.id)
+    wordsIdToSequenceTable = {...wordsIdToSequenceTable, [wordsId]: ids}
+    // Object.keys(wordsIdToSequenceTable).forEach(id => {
+    //     console.log(id, wordsIdToSequenceTable[id])
+    // })
+
+
+
+
+    let rows2 = makeSequenceRows([['a nother word', '5555', 'g'], ['a first word', '888', 'ggggg']], sequenceTable)
+    sequenceTable = [...sequenceTable, ...rows2]
+    
+    // console.log(rows2)
+    sequenceTable.forEach(y => [
+        console.log(y)
+    ])
+    let wordsId2 = sequenceTable[sequenceTable.length - 1].words
+
+    const ids2 = rows2.map(row => row.id)
+    wordsIdToSequenceTable = {...wordsIdToSequenceTable, [wordsId2]: ids2}
+    // Object.keys(wordsIdToSequenceTable).forEach(id => {
+    //     console.log(id, wordsIdToSequenceTable[id])
+    // })
+    // console.log(wordsIdToSequenceTable)
+    collectwords(sequenceTable, wordsIdToSequenceTable)
+}
 // 'added'
 // 'deleted'
 // 'unset'
@@ -9,11 +189,41 @@ import React from "react"
 // user interface for adjusting records
 // collecting records
 // cleaning records
+// no nested objects/arrays allowed, because it's too many details to track
+// assume there are no nested objects to be tracked(not to be confused with how the tracking system is structured)
+// assume all the data is an object
+
+// value = {v: single_character, isModified: flagName, position: value, parentKeyChange: true}
+// no nesting of any kind
+// use tables for all things
+// single object with key, values
+/*
+{
+    0: {v: single_character, isModified: flagName, position: value, parentKeyChange: false},
+    1: {v: single_character, isModified: flagName, position: value, parentKeyChange: false},
+    2: {v: single_character, isModified: flagName, position: value, parentKeyChange: false},
+    isModified: flagName,
+    position: value,
+    parentKeyChange: false
+}
+
+{
+    one: {v: single_character, isModified: flagName, position: value, parentKeyChange: true},
+    two: {v: single_character, isModified: flagName, position: value, parentKeyChange: true},
+    three: {v: single_character, isModified: flagName, position: value, parentKeyChange: true},
+    isModified: flagName,
+    position: value,
+    parentKeyChange: false
+}
+isModified represents the array as a whole.  It doesn't represent the individual items
+flag values: unset, added, deleted
+*/
 const makeNode = (value) => {
 
     return {data: value, flag: 'new' }
 }
 const deleteNode = (value) => {
+    console.log('deleted', value)
     return {...value, flag: 'deleted'}
 }
 const unsetNode = (value) => {
@@ -54,8 +264,18 @@ const convertArrayRecursive = (array, recurse, cb) => {
 // there is a difference between putting data in my format and marking the users level of changes
 const convertToRecordingForm = (object) => {
 
+    // instead of 1 element, 1 array, 1 key vlue pair per recusive call, have 1 structure to handle
+    // an array of objects or 1 object
+
+    // if an object
+    // theierData -> their data
+    // type -> object
+    // have a auxiliary object holding the flags for items
+    // convert the string to an array of chars and have 1 flag for each char
+    // the only 'nesting' allowed is turning a strng to an array of chars
+    // 1 copy of their data structure but only keeping the shape and keys
     // console.log('convertToRecordingForm', object, typeof(object))
-    
+    // treat all items as objects
     if(typeof(object) === 'string') {
         let newArray = convertString(object, makeNode)
         return newArray
@@ -72,6 +292,9 @@ const convertToRecordingForm = (object) => {
         // n^2
         let newObject = {}
         keys.forEach(key => {
+            // if(Array.isArray(object[key])) {
+
+            // }
             newObject = {   ...newObject,
                 [key]: makeNode(object[key])}
 
@@ -82,7 +305,9 @@ const convertToRecordingForm = (object) => {
 
 const convertToCallBackRecursive = (object, cb) => {
 
-    // console.log(object)
+    // console.log('convert', object)
+        // treat all items as objects
+
     if(typeof(object) === 'string') {
         let newArray = convertString(object, cb)
         return newArray
@@ -93,13 +318,14 @@ const convertToCallBackRecursive = (object, cb) => {
         return newArray
 
     } else if(typeof(object) === 'object') {
-        // console.log("object", object)
+        console.log("object", object)
         // key -> value
         let keys = Object.keys(object)
 
         // n^2
         let newObject = {}
         keys.forEach(key => {
+            
             newObject = {   ...newObject,
                 [key]: convertToCallBackRecursive(object[key], cb)}
 
@@ -112,7 +338,7 @@ const updateFlagsRecursive = (object, newFlagValue) => {
         // data, flag
         // object is the tracked object
         // newFlagValue is a string
-        // console.log(object)
+        // console.log('change flag', object)
         if(Array.isArray(object)) {
     
             let newArray = []
@@ -229,7 +455,11 @@ const collectMostShallowChange = (object) => {
     // the most shallow changes are collected(they bring all the deep changes with them)
     // object is the tracked object
     // need to return an array of tracked objects or a single tracked object
-    // console.log(object)
+    // assume there are no nested objects to be tracked(not to be confused with how the tracking system is structured)
+    // console.log('start here', object)
+
+    // there is no way to know how deep or the path to the recorded key is to put the change
+    // in context of the tree as a whole
 
     if(Array.isArray(object)) {
 
@@ -241,6 +471,8 @@ const collectMostShallowChange = (object) => {
             if(newElement === null) {
                 return
             }
+            // console.log('new element', newElement)
+
             newArray = [    ...newArray,
                             newElement
             ]
@@ -259,17 +491,28 @@ const collectMostShallowChange = (object) => {
             
             return object
         }
+        // else {
+        //     return object
+        // }
         // base case for {flag: "unset", data: "+"}
         else if(flag === 'unset') {
             if(typeof(object['data']) === 'string') {
                 return null
             }
+            // console.log(object)
             // dig into the tree
             let newObject = collectMostShallowChange(object['data'])
             // console.log('object from data', newObject, newObject.length)
-            return newObject
-            
+            return {
+                'flag' : object['flag'],
+                'data' : newObject
+            }
+        // } else {
+        //     console.log(object)
+        //     return object
+        // }
         } else {
+            // not working right
             // data inside the object the 'data' key points to
             let newObject = {}
             let keys = Object.keys(object)
@@ -285,12 +528,19 @@ const collectMostShallowChange = (object) => {
                     nonEmptyObject(newItem))) {
                         return
                 }
-                if(key === 'value') {
-                    newObject = newItem
-                } else {
-                    newObject = {   ...newObject,
-                                    [key]: newItem}
+                console.log('new item', newItem)
+                if(Object.keys(newItem).includes('data')) {
+                    if(Object.keys(newItem['data']).length === 0) {
+                        return {}
+                    }
+    
                 }
+                // if(key === 'value') {
+                //     newObject = newItem
+                // } else {
+                    // newObject = {   ...newObject,
+                    //                 [key]: newItem}
+                // }
             })
             return newObject
         }
@@ -394,7 +644,148 @@ const findState = (tree, path) => {
     return findState(tree[firstNode], path.filter((node, i) => i > 0))
 
 }
+/*
 
+
+user data
+{key: [chars]}
+{key: number}
+[{key: [chars]}]
+[{key: number}]
+[[chars]]
+[numbers]
+[chars]
+number
+
+[chars] or [numbers] or number
+
+a char or a number is atomic
+
+aux
+{key: baseObject}
+[{'objectFlag': flagValue, 'position': id, object: {key: baseObject}} ]
+[baseObject]
+
+baseObject
+{'entryFlag': flagValue, 'position': id, 'container': [flags]}
+{'entryFlag': flagValue, 'container': flag}
+
+container, key, value pair, value container
+
+
+test input data
+
+user:
+[ 'one', 2, three', 4]
+
+machine:
+{
+    userData: [ ['o', 'n', 'e'], [2], ['t', 'h', 'r', 'e', 'e'], [4]]
+
+    flags: [[{flag: 'flagData', position: 0}, 'flagData', 'flagData'],
+            ['flagData'],
+            ['flagData', 'flagData', 'flagData', 'flagData', 'flagData'],
+            ['flagData']]
+}
+
+user:
+
+{
+    'key_1' : 'one',
+    'key_2' : 2,
+    'key_3' : 'three',
+    'key_4' : 4
+
+}
+ machine:
+
+ {
+     ueserData: {
+            'key_1' : ['o', 'n', 'e'],
+            'key_2' : [2],
+            'key_3' : ['t', 'h', 'r', 'e', 'e'],
+            'key_4' : [4]
+     },
+     flags: {
+            'key_1' : {
+                'entryFlag': flagValue,
+                'container': [{flag: 'flagData', position: 0}, 'flagData', 'flagData']
+            },
+            'key_2': {
+                'entryFlag': flagValue,
+                'container': ['flagData']
+            },
+            'key_3' : {
+                'entryFlag': flagValue,
+                'container': ['flagData', 'flagData', 'flagData', 'flagData', 'flagData']
+            },
+            'key_4' : {
+                'entryFlag': flagValue,
+                'container': ['flagData']
+            }
+        }
+     
+ }
+
+ user:
+{
+    'key_1' : ['one'],
+    'key_2' : [2],
+    'key_3' : ['three'],
+    'key_4' : [4]
+
+}
+
+[
+    {
+        'key_1' : 'one',
+        'key_2' : 'two',
+        'key_3' : 'three'
+    },
+
+    {
+        'key_1' : 1,
+        'key_2' : 2,
+        'key_3' : 3
+    },
+    {
+        'key_1' : 'one',
+        'key_2' : 2,
+        'key_3' : 'three'
+        'key_4' : 4
+
+    }
+]
+
+[
+    {
+        'key_1' : ['one'],
+        'key_2' : ['two'],
+        'key_3' : ['three']
+    },
+
+    {
+        'key_1' : [1],
+        'key_2' : [2],
+        'key_3' : [3]
+    },
+    {
+        'key_1' : ['one'],
+        'key_2' : [2],
+        'key_3' : ['three']
+        'key_4' : [4]
+
+    }
+]
+
+modify user info
+need path to user data
+need to interpret the structure of data to get through the path
+
+test each case as a state using crud operations
+show all the results in the webpage
+then make new trie tree in c style in a new component using the js system functions made here
+*/
 //////
 // deepAssign rerouting functions from user functions
 
@@ -535,23 +926,30 @@ const userConvertToRecord = (tree, parent, variableName) => {
                         convertToRecord)
     return tree
 }
+// not correct path construction
+// only works for a path of 1 key
 const addDatasToPath = (path) => {
     // path is a list of strings
     let newPath = []
     path.forEach(item => {
-        newPath = [...newPath, 'data', item]
+        newPath = [...newPath, 'data', 'value', 'data', item]
     })
     return newPath
 }
+/// data, value
 const userDeepDeleteKeyValue = (tree, parent, variableName, pathToKey) => {
     //have to put data between each item in pathToKey
     const fullPath = [...getVariableValuePath2(parent, variableName), ...addDatasToPath(pathToKey)]
-    // console.log(fullPath)
-    // console.log('data found', findState(tree, fullPath))
+    console.log(fullPath)
+    console.log('data found', findState(tree, fullPath))
+    // passed entire array into the delete flag function
+    // need to come up with a different function than deletedFlag
+    // used to treat arrays like they were objects
     tree = deepAssign(  tree,
                         fullPath,  // path
                         findState(tree, fullPath), // data to set
                         deletedFlag) // only delete the level the user specifies
+    // console.log('deleted from tree', tree)
     return tree
 }
 /////
@@ -740,6 +1138,9 @@ const collectChar = (parent, currentState) => {
     // const resultChangedFlag = updateFlagsRecursive(newStuff, 'unset')
     // console.log(resultChangedFlag)
     // console.log('done')
+    // console.log(tree)
+    // let ggg  = convertToCallBackRecursive({'type': 'object', 'value': {'test': 'nested value'}}, makeNode)
+    // console.log('testing', ggg)
     return true
 }
 var tree = {
@@ -788,13 +1189,16 @@ var tree = {
                     // var names only have to be unique within the scope of a unique state
                     'variables' : {
                         'input' : {
-                            'variable'  : convertToCallBackRecursive({'type': 'string', 'value': '1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12'}, makeNode),
+                            // {i: {v: char}}
+                            // 'variable'  : newFunction('1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12', makeNode),
                             'parents'   : [['start', '0']]
                         },
                         'testData' : {
-                            'variable'  : convertToCallBackRecursive({'type': 'string', 'value': '1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12', 'test' : {'key': 'nested value'}}, makeNode),
+                            // { 'test' : {i: {v: char}}  }
+                            // 'variable'  : newFunction({'test': 'nested value'}, makeNode),
                             'parents'   : [['start', '0']]
-                        }                    
+                        }
+                        /// [0], []
                     },
                     'downstream' : {
                         'start' : { 'input': ['split', '0'],
@@ -1134,7 +1538,7 @@ var stateCount = 0
 class Data extends React.Component{
     constructor() {
         super();
-        this.state = {}
+        this.state = {stateChanges: []}
     }
 
     // for now let all functions access all variables using a path of length 1
@@ -1792,10 +2196,16 @@ class Data extends React.Component{
         }
     }
     setupMachine = () => {
-        let lastOne = this.visit(['start', '0'], [['start', '0']], null, null)
+        let lastOne = this.visit(['start', '0'], [['start', '0']], 0, null, null)
         stateChangesAllLevels = [lastOne, ...stateChangesAllLevels]
-        console.log(stateChangesAllLevels)
+        // run deepAssign for entire forest
+        this.setState({stateChanges: stateChangesAllLevels})
+        // console.log(this.state.stateChanges)
+        // console.log(stateChangesAllLevels)
     }
+    // showStates = () => {
+    //     console.log(this.state.stateChanges)
+    // }
     // each level calls this function 1 time
     visit = (parent, nextStates, recursiveId, downStream, upStream) => {
         // runs each runable state in the contextual state chart
@@ -1842,13 +2252,13 @@ class Data extends React.Component{
         // if the user feels like it's cumbersome then the solution has failed
         // ['start', '0'] will be the parent 2 times in a row
         let numberOfChildrenRun = 0
-        // console.log("visit", recursiveId, parent, nextStates, numberOfChildrenRun)
+        console.log("visit", recursiveId, parent, nextStates, numberOfChildrenRun)
         // console.log(Object.keys(tree['stateTrie']))
        
         // try all the states
         // replace with a forEach
         let stateChangesCurrentLevel = []
-
+        let firstTimeRecursiveVisitWasRun = false
         while(nextStates.length > 0) {
             if(stateCount === 5) {
                 console.log('done with states')
@@ -1938,6 +2348,18 @@ class Data extends React.Component{
                                                             recursiveId + 1,
                                                             downStream,
                                                             upStream)
+                    // can't test this untill we have another path to test with
+                    if(!firstTimeRecursiveVisitWasRun) {
+                        firstTimeRecursiveVisitWasRun = true
+
+                    }
+                    if(firstTimeRecursiveVisitWasRun) {
+
+                    } else {
+                    // splice stateChangesAllLevels if it is not the last one
+                    // use the current recursion depth [n, end) to splice it
+
+                    }
                     stateChangesAllLevels = [   currentLevelSaved,
                                                 ...stateChangesAllLevels]
 
@@ -1964,7 +2386,14 @@ class Data extends React.Component{
             <div >
                 {/* {console.log('happening')} */}
                 {/* the parent and the first state to run need to be the same for the first call */}
-                <button onClick={() => this.setupMachine()}>start</button>
+                <button onClick={() => setupAddToStates()}>start</button>
+                {/* <button onClick={() => this.showStates()}>show states</button> */}
+
+                {/* {this.state.stateChanges.length > 0 && this.state.stateChanges.map(level => (
+                    level.map((state, i) => (
+                        <State key={i} changes={state} />
+                    ))
+                ))} */}
             </div>
         )
     }
