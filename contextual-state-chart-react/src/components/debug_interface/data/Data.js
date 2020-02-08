@@ -90,21 +90,18 @@ const collectwords = (sequenceTable, wordsIdToSequenceTable) => {
               i < lastPosition;
               i += 1) {
             
-            // console.log(sequenceTable[i])
-            // console.log(i, low, high, lastPosition)
-
             high += 1
+
             // stop counting, collect and shrink the window
             if(sequenceTable[high].word > sequenceTable[high - 1].word) {
-                // console.log(i, low, high)
 
-                // console.log(makeWord(sequenceTable, low, high))
                 words = [...words, makeWord(sequenceTable, low, high)]
 
                 low = high
-            }
-             else if(sequenceTable[high].word < sequenceTable[high - 1].word) {
-                // direction has been flipped
+
+            // direction has been flipped
+            } else if(sequenceTable[high].word < sequenceTable[high - 1].word) {
+
                 collectionOfWords = [   ...collectionOfWords,
                                         [   ...words,
                                             makeWord(sequenceTable, low, high)]]
@@ -112,23 +109,14 @@ const collectwords = (sequenceTable, wordsIdToSequenceTable) => {
 
                 low = high
 
+            // at last position but treat as if direction has been flipped at the end
             } else if(high === lastPosition) {
-                // at last position but treat as if direction has been flipped at the end
                 collectionOfWords = [   ...collectionOfWords,
                                         [   ...words,
                                             makeWord(sequenceTable, low, high + 1)]]
                 words = []
-
-
-
             }
-            // console.log(i, low, high)
-            // console.log('------------\n')
-
         }
-        // console.log(words)
-
-        // console.log('\n')
     })
     return collectionOfWords
 }
