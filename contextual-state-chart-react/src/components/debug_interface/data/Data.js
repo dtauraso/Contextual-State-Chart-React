@@ -28,6 +28,8 @@ const getDefaultValue = (sequenceTable, attribute) => {
     }
     return defaultValue
 }
+
+
 const makeSequenceRows = (nextStates, sequenceTable) => {
 
     let rows = []
@@ -66,7 +68,7 @@ const makeSequenceRows = (nextStates, sequenceTable) => {
 const makeWord = (sequenceTable, low, high) => {
     return sequenceTable.slice(low, high).map(row => row.letter).join('')
 }
-const collectwords = (sequenceTable, wordsIdToSequenceTable) => {
+const collectWords = (sequenceTable, wordsIdToSequenceTable) => {
 
     let collectionOfWords = []
     // cutting off a necessary item for the slice to be full
@@ -83,13 +85,13 @@ const collectwords = (sequenceTable, wordsIdToSequenceTable) => {
         const length = wordsIdToSequenceTable[wordId].length
         let words = []
 
-        
+
         const lastPosition = wordsIdToSequenceTable[wordId][length - 1]
         for(; low <= high &&
               high < lastPosition &&
               i < lastPosition;
               i += 1) {
-            
+
             high += 1
 
             // stop counting, collect and shrink the window
@@ -102,18 +104,18 @@ const collectwords = (sequenceTable, wordsIdToSequenceTable) => {
             // direction has been flipped
             } else if(sequenceTable[high].word < sequenceTable[high - 1].word) {
 
-                collectionOfWords = [   ...collectionOfWords,
-                                        [   ...words,
-                                            makeWord(sequenceTable, low, high)]]
+                collectionOfWords = [...collectionOfWords,
+                                        [...words,
+                                        makeWord(sequenceTable, low, high)]]
                 words = []
 
                 low = high
 
             // at last position but treat as if direction has been flipped at the end
             } else if(high === lastPosition) {
-                collectionOfWords = [   ...collectionOfWords,
-                                        [   ...words,
-                                            makeWord(sequenceTable, low, high + 1)]]
+                collectionOfWords = [...collectionOfWords,
+                                        [...words,
+                                        makeWord(sequenceTable, low, high + 1)]]
                 words = []
             }
         }
@@ -123,7 +125,8 @@ const collectwords = (sequenceTable, wordsIdToSequenceTable) => {
 
 const setupAddToStates = () => {
     let sequenceTable = []
-    let rows1 = makeSequenceRows([['aaa', 'bbb', 'c'], ['d', 'ee', 'fff']], sequenceTable)
+    const inputData = [['aaa', 'bbb', 'c'], ['d', 'ee', 'fff'], ['a nother word', '5555', 'g'], ['a first word', '888', 'ggggg']]
+    let rows1 = makeSequenceRows([inputData[0], inputData[1]], sequenceTable)
     // console.log(rows1)
     sequenceTable = [...sequenceTable, ...rows1]
     // sequenceTable.forEach(y => [
@@ -144,13 +147,13 @@ const setupAddToStates = () => {
 
 
 
-    let rows2 = makeSequenceRows([['a nother word', '5555', 'g'], ['a first word', '888', 'ggggg']], sequenceTable)
+    let rows2 = makeSequenceRows([inputData[2], inputData[3]], sequenceTable)
     sequenceTable = [...sequenceTable, ...rows2]
     
     // console.log(rows2)
-    sequenceTable.forEach(y => [
-        console.log(y)
-    ])
+    // sequenceTable.forEach(y => [
+    //     console.log(y)
+    // ])
     let wordsId2 = sequenceTable[sequenceTable.length - 1].words
 
     const ids2 = rows2.map(row => row.id)
@@ -159,44 +162,236 @@ const setupAddToStates = () => {
     //     console.log(id, wordsIdToSequenceTable[id])
     // })
     // console.log(wordsIdToSequenceTable)
-    let collectedWords  = collectwords(sequenceTable, wordsIdToSequenceTable)
-    console.log(collectedWords)
+    let collectedWords  = collectWords(sequenceTable, wordsIdToSequenceTable)
+    // console.log(collectedWords)
+    let failedFlag = false
+    inputData.forEach((listItem, i) => {
+        listItem.forEach((word, j) => {
+            for(var k in word) {
+                if(word[k] !== collectedWords[i][j][k]) {
+                    // console.log(error)
+                    failedFlag = true
+                }
+            }
+        })
+    })
+    if(failedFlag) {
+        console.log('collectWords')
+
+    }
     // let x = 34
     // for(; x < 126 ; x++) {
     //     // console.log(String(x))
     //     console.log(String.fromCharCode(x))
     // }
     // put in a checking algorithm for each part
-    letterRows()
+    // letterRows()
+
     // insert sequences to states table
-
+    insertStateRows(['a', 'n', 'c'], [])
 }
+const getLetterEdges = (row) => {
 
-const letterRows = () => {
+    // the ascii edges are the only keys with length === 1
+    let letters = Object.keys(row)
+        .filter(key => key.length === 1)
+
+    let letterEdges = {}
+    letters.forEach(letter => {
+        letterEdges = {...letterEdges, [letter]: row[letter]}
+    })
+    return letterEdges
+}
+const letterRows = (letter, id, row) => {
     let letters = {}
-    let number = 34
+    let number = 33
     for(; number < 127 ; number++) {
         // console.log(String(x))
         const asciiCharacter = String.fromCharCode(number)
         // console.log(String.fromCharCode(x))
         letters = {...letters, [asciiCharacter]: -1}
     }
-    console.log(letters)
-}
-const makeStateRows = (stateName, stateTable) => {
+    // put in alot of old links {[letter]: id} if they exist
+    if(letter !== -1 && id !== -1) {
+        const oldEdges = getLetterEdges(row)
+        letters = { ...letters,
+                    ...oldEdges,  // will be no addition if there are no old edges
+                    [letter]: id}
 
-    let row = {
-        'id': getDefaultValue(stateTable, 'id'),
-        'word': -1,
-        'letter': '0',
-        ...letterRows(),
-        'downStreamEndWord': 0,
-        'upStreamendWord': 1,
-        'nextStates': 2,
-        'parents': 3,
-        'children': 4,
-        'variableData': 5
     }
+    return letters
+    // console.log(letters)
+}
+
+
+const makeNewRow = (id) => {
+    return {
+        'id': id,
+        'word': -1,
+        'letter': -1,
+        ...letterRows(-1, -1, []), // needs to hold the next letter
+        'downStreamEndWord': -1,
+        'upStreamendWord': -1,
+        'nextStates': -1,
+        'parents': -1,
+        'children': -1,
+        'variableData': -1
+    }
+}
+const addNewRow = (stateTable, currentId, letter) => {
+
+    let newCurrentRow = {
+        ...stateTable[currentId],
+        'letter' : letter,
+        // stateTable[currentId] is the old row. It may hold links
+        ...letterRows(letter, stateTable.length, stateTable[currentId]), // needs to hold the next letter
+    }
+    stateTable = [
+        ...stateTable.slice(0, currentId),
+        newCurrentRow,
+        ...stateTable.slice(currentId + 1, stateTable.length)
+    ]
+
+    return [...stateTable, makeNewRow(stateTable.length)]
+}
+const insertStateRows = (stateName, stateTable) => {
+
+    console.log('insert rows')
+    if(stateTable.length === 0) {
+        // add root row
+        stateTable = [makeNewRow(0)]
+
+    }
+    // console.log(stateTable)
+    // let letterEdges = getLetterEdges(stateTable[0])
+
+    // the following rules are for the stateName as a sequence of strings
+    // consisting of a total of n characters
+    // first 0 to n - 1 rows must have the following structure
+    // 'id': getDefaultValue(stateTable, 'id'),
+    // 'word' === -1,
+    // 'letter' is a letter
+    //  letterRows has exactly 1 column holding an id value > -1
+    // the following columns must have a value === -1
+    // 'downStreamEndWord'
+    // 'upStreamendWord'
+    // 'nextStates'
+    // 'parents',
+    // 'children',
+    // 'variableData'
+
+    // the nth row must have the following structure
+    // 'id': getDefaultValue(stateTable, 'id'),
+    // 'word' === the full word,
+    // 'letter' is a letter
+    //  letterRows has every column holding an id value === -1
+    // the following columns must have a value > -1 and increasing by 1 value
+    // from the first column to the next
+    // 'downStreamEndWord'
+    // 'upStreamendWord'
+    // 'nextStates'
+    // 'parents',
+    // 'children',
+    // 'variableData'
+
+    // for the n + 1 columns(to make a unique path)
+    // how to mention the letterRows will have the next value set, so on subsequent adds
+    // the set value will "rotate" through the columns
+    // 'id': getDefaultValue(stateTable, 'id'),
+    // 'word' === the full word,
+    // 'letter' is a letter
+    //  letterRows has every column holding an id value === -1
+    // the following columns must have a value > -1 and increasing by 1 value
+    // from the first column to the next
+    // 'downStreamEndWord'
+    // 'upStreamendWord'
+    // 'nextStates'
+    // 'parents',
+    // 'children',
+    // 'variableData'
+    let addedIds = [] // so we can find the [0, n - 1], n, and n + k elements for the sequence of length n + k(extra dimentions)
+    let currentId = 0
+    stateName.forEach((word, i) => {
+        for(var j in word) {
+            console.log(word[j], currentId)
+            // console.log(getLetterEdges(stateTable[nextId]))
+            // getLetterEdges(stateTable[nextId])
+            // currentId should point to the last item matched or added
+            let nextLetterEdge = getLetterEdges(stateTable[currentId])[ word[j] ]
+            console.log(nextLetterEdge)
+            // new letter
+            if(nextLetterEdge === -1) {
+                stateTable = addNewRow(stateTable, currentId, word[j])
+                currentId = stateTable.length - 1
+                addedIds = [...addedIds, currentId]
+
+                // need to add the link to the new one to 
+
+            } else if(nextLetterEdge > -1) {
+                // So we have an edge.  Is it a match to word[j]?
+                const currentLetter = stateTable[nextLetterEdge]['letter']
+                if(currentLetter !== word[j]) {
+                    // not a match so need to add a new edge to stateTable[currentId]
+                    // and append a new row to the end of the array
+
+                } else {
+                    // We do have a match, so keep going
+
+                    // currentId = nextLetterEdge
+                }
+
+            }
+            // if we are at the last one(added or just a match)
+                // is the row data already set?
+                    // yes, then we have to generate a unique dimention path to ensure this state is unique
+                        // 
+                // else
+                    // fill out the row
+            console.log(stateTable)
+            // 
+            // letter = word[j]
+
+            // nth letter
+            // j === word.length - 1 &&
+            // i === stateName.length - 1
+
+            // [0, n - 1] letters
+            // else
+
+
+            // n + 1 case(auto dimension generation)
+            // get to end of branch and use this formula to make the last link
+            // to the final row
+            // letterRows(String.fromCharCode((asciiColumnId + 1) % 93), id)
+            // if(i < stateName.length - 1 ) {
+            //     let row = {
+            //         'id': getDefaultValue(stateTable, 'id'),
+            //         'word': -1,
+            //         'letter': word[j],
+            //         ...letterRows(), // needs to hold the next letter
+            //         'downStreamEndWord': 0,
+            //         'upStreamendWord': 1,
+            //         'nextStates': 2,
+            //         'parents': 3,
+            //         'children': 4,
+            //         'variableData': 5
+            //     }
+    
+            // }
+        }
+    })
+    // let row = {
+    //     'id': getDefaultValue(stateTable, 'id'),
+    //     'word': -1,
+    //     'letter': '0',
+    //     ...letterRows(),
+    //     'downStreamEndWord': 0,
+    //     'upStreamendWord': 1,
+    //     'nextStates': 2,
+    //     'parents': 3,
+    //     'children': 4,
+    //     'variableData': 5
+    // }
 }
 // 'added'
 // 'deleted'
