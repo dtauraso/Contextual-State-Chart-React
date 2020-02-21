@@ -1,6 +1,53 @@
 import React from "react"
 import State from './State';
 /*
+My programmer stories for the contextual state chart
+As a programmer,
+I want a transport system,
+so that any variable can be transported up or down the hierarchy to where it needs to be used
+
+As a programmer,
+I want a record system,
+so that all changes to the variables can be tracked in constant time
+
+As a programmer,
+I want a erasing system for variables,
+so that the sub state machine will delete all variables used at the nth level
+
+I want it as a replacement to the grapage collection used in programming
+so that this can be done in C and act like a long list of free memory commands right before we move out of the submachine
+
+This is also biolgically inspred, as microtubles don't last very long(10 minutes I think)
+so the job to be done must be small and very efficient(It will be unable to do anything infinite)
+
+As a programmer,
+I want infinite granulary for a state,
+so that I can map my throughts more accurately to the computer and not rely so much on
+the traditional techniques
+
+As a programmer,
+I want a hierarchy of graphs,
+so the tasks can be broken down into smaller parts
+
+
+The below stories may need some work as these are assume to be impossible
+As a programmer,
+I want a paralllel processing system,
+such that It's universal and natually resists deadlock and livelock
+I think our body does this natually resists such problems with parallel processing
+
+As a programer,
+I want all tasks to have a fixed time limit,
+so all tasks to be treated fairly always
+
+As a programmer,
+I want a priority queue,
+so that the tasks related to the subtasks will be done first?
+How can this be done when all tasks in queue are the same size?
+
+
+
+
 sequences table
 mod flags | i | 1 character | seq1 | seq2
 
@@ -188,19 +235,27 @@ const setupAddToStates = () => {
     // letterRows()
 
     // insert sequences to states table
-    insertStateRows(['a', 'n', 'c'], [])
-}
-const getLetterEdges = (row) => {
+    let stateTable = insertStateRows(['a', 'n', 'cd'], [])
+    console.log(stateTable)
+    // stateTable = insertStateRows(['a', 'n', 'c'], [])
 
+}
+const getLetterColumns = (row) => {
+
+    // this may be a security glitch to be fixed in the future
     // the ascii edges are the only keys with length === 1
     let letters = Object.keys(row)
         .filter(key => key.length === 1)
 
-    let letterEdges = {}
+    let letterColumns = {}
     letters.forEach(letter => {
-        letterEdges = {...letterEdges, [letter]: row[letter]}
+        letterColumns = {...letterColumns, [letter]: row[letter]}
     })
-    return letterEdges
+    return letterColumns
+}
+const getLetterEdgeColumns = (row) => {
+
+    return Object.keys(getLetterColumns(row)).filter(column => row[column] > 0)
 }
 const letterRows = (letter, id, row) => {
     let letters = {}
@@ -213,7 +268,7 @@ const letterRows = (letter, id, row) => {
     }
     // put in alot of old links {[letter]: id} if they exist
     if(letter !== -1 && id !== -1) {
-        const oldEdges = getLetterEdges(row)
+        const oldEdges = getLetterColumns(row)
         letters = { ...letters,
                     ...oldEdges,  // will be no addition if there are no old edges
                     [letter]: id}
@@ -227,8 +282,8 @@ const letterRows = (letter, id, row) => {
 const makeNewRow = (id) => {
     return {
         'id': id,
-        'word': -1,
-        'letter': -1,
+        'word': String.fromCharCode(31),
+        'letter': String.fromCharCode(31),
         ...letterRows(-1, -1, []), // needs to hold the next letter
         'downStreamEndWord': -1,
         'upStreamendWord': -1,
@@ -236,13 +291,77 @@ const makeNewRow = (id) => {
         'parents': -1,
         'children': -1,
         'variableData': -1
+        // ith level in hierarchy
+        // variable in state has been modified flag
     }
 }
-const addNewRow = (stateTable, currentId, letter) => {
+const isNMinusOneLetterRows = (row) => {
+
+    // will only return true if there is at least 1 row with a link
+    let letterRows = Object.keys(getLetterColumns(row))
+    // console.log(letterRows)
+    let linkRows = 0
+    letterRows.forEach(letter => {
+        // return false if there are no links and there is at least 1 row with the value
+        // 0 or <= 2
+        if( ! (  row[letter] >     -1 ||
+                 row[letter] ===   -1      )) {
+            return false
+
+        } else if(row[letter] > 0) {
+            linkRows += 1
+        }
+    })
+    if(linkRows > 0) {
+        return true
+    }
+
+    // 1 or more rows > -1
+    // all remaining rows (could be 0 rows) === -1
+}
+const inLetterRange = (letter) => {
+    // console.log('checking leeter range', "|" + letter + "|")
+    // console.log(letter.charCodeAt(0))
+    const number = letter.charCodeAt(0)
+    return number >= 33 && number < 127
+}
+// will fail the moment we have 1 string the same as another but longer
+// doesn't take the previous overlapping of strings as above
+const isNMinusOneRow = (row) => {
+    // console.log('here')
+    return  row.id > -1 &&
+            row.word.charCodeAt(0) === 31 &&
+            inLetterRange(row.letter) &&
+            isNMinusOneLetterRows(row) &&
+            row.downStreamEndWord === -1 &&
+            row.upStreamendWord === -1 &&
+            row.nextStates === -1 &&
+            row.parents === -1 &&
+            row.children === -1 &&
+            row.variableData === -1
+}
+const rowHasData = (row) => {
+    // the nth row must have the following structure
+    // 'id': getDefaultValue(stateTable, 'id'),
+    // 'word' === the full word,
+    // 'letter' is a letter
+    //  letterRows has every column holding an id value === -1
+    // the following columns must have a value > -1 and increasing by 1 value
+    // from the first column to the next
+    // 'downStreamEndWord'
+    // 'upStreamendWord'
+    // 'nextStates'
+    // 'parents',
+    // 'children',
+    // 'variableData'
+
+}
+const addNewRow = (stateTable, currentId, letter, word) => {
 
     let newCurrentRow = {
         ...stateTable[currentId],
         'letter' : letter,
+        'word' : word,
         // stateTable[currentId] is the old row. It may hold links
         ...letterRows(letter, stateTable.length, stateTable[currentId]), // needs to hold the next letter
     }
@@ -254,8 +373,91 @@ const addNewRow = (stateTable, currentId, letter) => {
 
     return [...stateTable, makeNewRow(stateTable.length)]
 }
+const isValidEdge = (edge) => {
+    return edge > -1
+}
+const addRowsToStateTable = (idData, currentId, sequenceLength, stateName, stateTable) => {
+
+    stateName.forEach((word, i) => {
+
+        for(var j in word) {
+            // console.log(word[j], currentId)
+            // console.log(getLetterColumns(stateTable[nextId]))
+            // getLetterColumns(stateTable[nextId])
+            // currentId should point to the last item matched or added
+            let nextLetterEdge = getLetterColumns(stateTable[currentId])[ word[j] ]
+            // console.log(nextLetterEdge)
+            // new letter
+            // console.log(i, j)
+            const sequenceI = i + parseInt(j)
+            // tested and works
+            if(!isValidEdge(nextLetterEdge)) {
+                // console.log(sequenceI, sequenceLength - 1, sequenceI < sequenceLength - 1)
+                // if j === word.length - 1 then add in a word
+                if(sequenceI < sequenceLength - 1) {
+                    stateTable = addNewRow(stateTable, currentId, word[j], word)
+                    // wordIds = [...wordIds, currentId]
+                    idData = {...idData, [currentId] :
+                                    {   isCharacterOnlySlot: true,
+                                        character: word[j],
+                                        word: word[j],
+                                        // newNode is misleading
+                                        // isAStateObjectDataStoredHere
+                                        isAStateObjectDataStoredHere: true}}
+                } else {
+                    stateTable = addNewRow(stateTable, currentId, word[j], String.fromCharCode(31))
+                    idData = {...idData, [currentId] :
+                                    {   isCharacterOnlySlot: false,
+                                        character: word[j],
+                                        word: word,
+                                        isAStateObjectDataStoredHere: true}}
+
+                }
+                currentId = stateTable.length - 1
+                // addedIds = [...addedIds, currentId]
+
+                // need to add the link to the new one to 
+
+            // the letter was added from a previous call of insertStateRows
+            } else if(isValidEdge(nextLetterEdge)) {
+                // So we have an edge.  Is it a match to word[j]?
+                const currentLetter = stateTable[nextLetterEdge]['letter']
+                // not tested yet
+                if(currentLetter !== word[j]) {
+                    // not a match so need to add a new edge to stateTable[currentId]
+                    // and append a new row to the end of the array
+
+                // not tested yet
+                } else { // We do have a match
+
+                    // currently on last letter
+                    // it was already added from insertStateRows
+                    if(j === word.length - 1 && 
+                        i === stateName.length - 1) {
+                        
+                        // currentId = nextLetterEdge
+
+                            
+                    } else { // there are more letters to go through
+                    
+
+                        // keep going
+
+                        // currentId = nextLetterEdge
+                    }
+                }
+
+            }
+           
+            
+        }
+    })
+
+    return stateTable
+}
 const insertStateRows = (stateName, stateTable) => {
 
+    // will need the other 2 tables and the full info for a state to be complete
     console.log('insert rows')
     if(stateTable.length === 0) {
         // add root row
@@ -263,7 +465,7 @@ const insertStateRows = (stateName, stateTable) => {
 
     }
     // console.log(stateTable)
-    // let letterEdges = getLetterEdges(stateTable[0])
+    // let letterEdges = getLetterColumns(stateTable[0])
 
     // the following rules are for the stateName as a sequence of strings
     // consisting of a total of n characters
@@ -309,89 +511,85 @@ const insertStateRows = (stateName, stateTable) => {
     // 'parents',
     // 'children',
     // 'variableData'
-    let addedIds = [] // so we can find the [0, n - 1], n, and n + k elements for the sequence of length n + k(extra dimentions)
+    // let addedIds = [0] 
+    // let wordIds = []
+    // so we can find the [0, n - 1], n, and n + k elements for the sequence of length n + k(extra dimentions)
+    let idData = {
+        0 : {isCharacterOnlySlot: true, word: String.fromCharCode(31)}
+    }
     let currentId = 0
-    stateName.forEach((word, i) => {
-        for(var j in word) {
-            console.log(word[j], currentId)
-            // console.log(getLetterEdges(stateTable[nextId]))
-            // getLetterEdges(stateTable[nextId])
-            // currentId should point to the last item matched or added
-            let nextLetterEdge = getLetterEdges(stateTable[currentId])[ word[j] ]
-            console.log(nextLetterEdge)
-            // new letter
-            if(nextLetterEdge === -1) {
-                stateTable = addNewRow(stateTable, currentId, word[j])
-                currentId = stateTable.length - 1
-                addedIds = [...addedIds, currentId]
+    const sequenceLength = stateName.join('').length
+    stateTable = addRowsToStateTable(   idData,
+                                        currentId,
+                                        sequenceLength,
+                                        stateName,
+                                        stateTable)
 
-                // need to add the link to the new one to 
 
-            } else if(nextLetterEdge > -1) {
-                // So we have an edge.  Is it a match to word[j]?
-                const currentLetter = stateTable[nextLetterEdge]['letter']
-                if(currentLetter !== word[j]) {
-                    // not a match so need to add a new edge to stateTable[currentId]
-                    // and append a new row to the end of the array
 
+
+
+
+
+
+    // the validation should reflect the structual properties of the storage routine
+    // prove all entries have been added in correctly
+    let failed = false
+    // idData should eventually have all of the ids of the rows visited and added
+    Object.keys(idData).forEach(id => {
+        //  {isCharacterOnlySlot: true, character: "a", word: "a", isNewNode: true}
+        // [0, n - 1] nodes
+        if(id >= 0 && id < sequenceLength - 1) {
+            if(idData[id].isCharacterOnlySlot) {
+
+                // [0, n - 1]
+                if(!idData[id].isAStateObjectDataStoredHere) {
+                    // run isNMinusOneRow test(default test)
+                // [0, n -1] => n
                 } else {
-                    // We do have a match, so keep going
-
-                    // currentId = nextLetterEdge
+                    // run isNMinusOneRowOldNode(node data has been added to this one) test (has node data test)
                 }
-
+        }
+        // n
+        else if(id == sequenceLength - 1) {
+            // new item
+            if(!idData[id].isAStateObjectDataStoredHere) {
+                // run isNRow test(default test)
             }
-            // if we are at the last one(added or just a match)
-                // is the row data already set?
-                    // yes, then we have to generate a unique dimention path to ensure this state is unique
-                        // 
-                // else
-                    // fill out the row
-            console.log(stateTable)
-            // 
-            // letter = word[j]
-
-            // nth letter
-            // j === word.length - 1 &&
-            // i === stateName.length - 1
-
-            // [0, n - 1] letters
-            // else
-
-
-            // n + 1 case(auto dimension generation)
-            // get to end of branch and use this formula to make the last link
-            // to the final row
-            // letterRows(String.fromCharCode((asciiColumnId + 1) % 93), id)
-            // if(i < stateName.length - 1 ) {
-            //     let row = {
-            //         'id': getDefaultValue(stateTable, 'id'),
-            //         'word': -1,
-            //         'letter': word[j],
-            //         ...letterRows(), // needs to hold the next letter
-            //         'downStreamEndWord': 0,
-            //         'upStreamendWord': 1,
-            //         'nextStates': 2,
-            //         'parents': 3,
-            //         'children': 4,
-            //         'variableData': 5
-            //     }
-    
-            // }
+            // n => n U [n + 1, n + k] k is the number of extra strings added to the list of state names
+            // [n, n + k]
+            } else if(id >= sequenceLength - 1 && id < Object.keys(idData).length) {
+            
+            }
         }
     })
-    // let row = {
-    //     'id': getDefaultValue(stateTable, 'id'),
-    //     'word': -1,
-    //     'letter': '0',
-    //     ...letterRows(),
-    //     'downStreamEndWord': 0,
-    //     'upStreamendWord': 1,
-    //     'nextStates': 2,
-    //     'parents': 3,
-    //     'children': 4,
-    //     'variableData': 5
-    // }
+    // addedIds.forEach(id => {
+    //     // console.log(id)
+    //     // isNMinusOneRow(stateTable[id])
+    //     // why is it acting like this function was called only 1 time?
+    //     if(id < addedIds.length - 1 && !isNMinusOneRow(stateTable[id])) {
+    //         console.log('one of the rows has a problem')
+    //         failed = true
+    //     }
+    // })
+    console.log(idData)
+
+    // console.log("failed ===", failed)
+    // [0, n - 1] new rows have been validated
+    // currentId should be at the nth row now
+    // const currentRow = stateTable[ addedIds[addedIds.length - 2] ]
+    // console.log(currentRow)
+    //     // is the link from the last item the same number as currentId?
+    // let linkFromNMinusOneToNthItem = getLetterEdgeColumns(currentRow).filter(column => currentRow[column] === currentId)
+    // console.log(linkFromNMinusOneToNthItem)
+    // if we are at the last one(added or just a match)
+        // is the row data already set?
+            // yes, then we have to generate a unique dimention path to ensure this state is unique
+                // 
+        // else
+            // fill out the row
+            // console.log(stateTable)
+    return stateTable
 }
 // 'added'
 // 'deleted'
