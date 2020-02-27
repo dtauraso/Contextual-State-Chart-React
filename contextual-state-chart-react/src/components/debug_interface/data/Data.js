@@ -48,19 +48,48 @@ How can this be done when all tasks in queue are the same size?
 
 
 
-sequences table
-mod flags | i | 1 character | seq1 | seq2
+variable table 
+mod flags |
+i |
+1 character
 
+
+each edge is searchable through the table
+variables are assumed to be a single sequence
+all state data modifications are trackable
 state table
-id | -1 or single word | 1 chacter | next_states(foreign keys to seq_1) | parents(seq_1) | childen(seq_1) | variable name(seq_0)
+id |
+-1 or single word |
+1 chacter |
+next_states(link to state table) |
+parentsnext_states(link to state table) |
+childennext_states(link to state table) |
+variable name(seq_0)
+mod flags |
+seq1 |
+seq2
 
+
+strings are varaibles
+any list is a parent -> child state relationship where the child name starts at 0
+    local in the parent's children vs global in the state table
+    if the only way to find the child name is an index in the state table how can it be found?
+    need a uniqe way to map the child column to the child name(have to be able to store many different copies of "i"
+    uniquly but ollow the user to access them by the name used when inserting them)
+    is this violated if the same id is used on many different states("i"'s)?
+    if the "i"'s are of the form "i+" then we can use getChild(parent, "i") to get the unique "i" as long as
+    there is only 1 "i" as a child state of parent
+any dict is a parent -> child state relation where the child name is the key
+search is O(n) where n is the number of characters in the find(parent, string) input
 
 state name lookup table
-1 character | n cols for numeric edges(id in state table)
+1 character |
+n cols for numeric edges(id in state table)
 
 
 state attribute col to data in sequences lookup table
-seq1 | n cols seq0 to sequences table
+seq1 |
+n cols seq0 to sequences table
 
 do this in js. Its very complex and has alot of imperative parts I'm not sure how to convert to sql
 
@@ -76,7 +105,7 @@ const getDefaultValue = (sequenceTable, attribute) => {
     return defaultValue
 }
 
-
+// let [ table, addedIds, isSame ] = addToTrie(table, sequence)
 const makeSequenceRows = (nextStates, sequenceTable) => {
 
     let rows = []
@@ -85,19 +114,28 @@ const makeSequenceRows = (nextStates, sequenceTable) => {
     let i = getDefaultValue(sequenceTable, 'id')
 
     let offset = 0
+    // need edges and some trie tree logic
+    // the worst thing that can happen is this will take longer overall
+    // the benefit is we will have 1 id per sequence and will not have to store duplicate sequence
+    // the state machine structure will use the same sequence many times(parents, links to same state)
     nextStates.forEach((stateName, j) => {
 
         stateName.forEach((letters, k) => {
 
+            // need to update this for trie tree support
+            // that way we can reuse the same sequence for any non data attribute of a state(we want to allow the user
+            // to make copies of the same sequence in the variable attribute)
             for(var m in letters) {
                 // k is id
-                // seq1 is for an entire collection of whole names
+                // words is for an entire collection of whole names
                 rows = [...rows, {
-
+                    // this is only data for each item in the sequence
+                    // missing links to other nodes for trie tree
                     'id': i + offset,
                     'letter': letters[m],
                     'position': parseInt(m),
                     // 'modifiedFlag': "new",
+                    // integers for grouping the sequence into a list of strings
                     'word': k,
                     'words': words,
                     }
@@ -235,7 +273,7 @@ const setupAddToStates = () => {
     // letterRows()
 
     // insert sequences to states table
-    let stateTable = insertStateRows(['a', 'n', 'cd'], [])
+    let stateTable = insertStateRows(['ab', 'ns', 'cd'], [])
     console.log(stateTable)
     // stateTable = insertStateRows(['a', 'n', 'c'], [])
 
@@ -330,6 +368,19 @@ const inLetterRange = (letter) => {
 const isNMinusOneRow = (row) => {
     // console.log('here')
     return  row.id > -1 &&
+            row.word.charCodeAt(0) === 31 && // is this the default letter?
+            inLetterRange(row.letter) &&  // is there a letter
+            isNMinusOneLetterRows(row) &&  // is there a link?
+            row.downStreamEndWord === -1 &&
+            row.upStreamendWord === -1 &&
+            row.nextStates === -1 &&
+            row.parents === -1 &&
+            row.children === -1 &&
+            row.variableData === -1
+}
+const isNMinusOneRowHasObjectDataNode = (row) => {
+    // needs to have the modificatins 
+    return  row.id > -1 &&
             row.word.charCodeAt(0) === 31 &&
             inLetterRange(row.letter) &&
             isNMinusOneLetterRows(row) &&
@@ -340,7 +391,33 @@ const isNMinusOneRow = (row) => {
             row.children === -1 &&
             row.variableData === -1
 }
-const rowHasData = (row) => {
+// only going to work with the nth row if there is no n + kth row
+const rowHasDataNoNPlusKInSequence = (row) => {
+    // upStreamendWord and downStreamEndWord also might not have any data too
+    // row.downStreamEndWord    === -1  | -1 | a
+    // row.upStreamendWord      === -1  | a  | a + 1
+    // row.nextStates           === -1  | a + 1 | a + 2
+    // row.parents              === -1  | | a + 3
+    // row.children             === -1  | | a + 4
+    // row.variableData         === -1  | | a + 5
+    // all the different seqence formulas
+    // there is at least a -1 in 0 through n - 1 different attributes
+    // the general sequence of values > -1 must be assending by at least 1
+    // if the (+) function is always used to make new id's then as long as they increase
+    // it's valid
+    // just need -1 or any value > 0
+
+    return  row.id > -1 &&
+            row.word.charCodeAt(0) === 31 &&    // needs to be a string of length 1 or more
+            inLetterRange(row.letter) &&        // is there a letter?
+            isNMinusOneLetterRows(row) &&       
+            row.downStreamEndWord === -1 &&
+            row.upStreamendWord === -1 &&
+            row.nextStates === -1 &&
+            row.parents === -1 &&
+            row.children === -1 &&
+            row.variableData === -1
+
     // the nth row must have the following structure
     // 'id': getDefaultValue(stateTable, 'id'),
     // 'word' === the full word,
@@ -376,8 +453,13 @@ const addNewRow = (stateTable, currentId, letter, word) => {
 const isValidEdge = (edge) => {
     return edge > -1
 }
+// 1) need to group these functions by purpose
+
+// 2) need to make a generic trie tree functions first as it will be used in 2 locations
+
 const addRowsToStateTable = (idData, currentId, sequenceLength, stateName, stateTable) => {
 
+    // modify and return currentId
     stateName.forEach((word, i) => {
 
         for(var j in word) {
@@ -547,7 +629,7 @@ const insertStateRows = (stateName, stateTable) => {
                     // run isNMinusOneRow test(default test)
                 // [0, n -1] => n
                 } else {
-                    // run isNMinusOneRowOldNode(node data has been added to this one) test (has node data test)
+                    // run isNMinusOneRowHasObjectDataNode(node data has been added to this one) test (has node data test)
                 }
         }
         // n
@@ -563,6 +645,8 @@ const insertStateRows = (stateName, stateTable) => {
             }
         }
     })
+    // path test
+    // traverse through the rows and make sure the order of ids recorded match the path
     // addedIds.forEach(id => {
     //     // console.log(id)
     //     // isNMinusOneRow(stateTable[id])
