@@ -51,24 +51,28 @@ How can this be done when all tasks in queue are the same size?
 variable table 
 mod flags |
 i |
-1 character
+1 character |
+isEndOfSequence
 
 
 each edge is searchable through the table
 variables are assumed to be a single sequence
 all state data modifications are trackable
+(if this plan fails go back to a sequence table)
+(sticking to this plan while it works)
 state table
 id |
 -1 or single word |
 1 chacter |
-next_states(link to state table) |
-parentsnext_states(link to state table) |
-childennext_states(link to state table) |
-variable name(seq_0)
+next_states(link to state name lookup table at sequence2 level) |
+parentsnext_states(link to state name lookup table at sequence2 level) |
+childennext_states(link to state name lookup table at sequence2 level) |
+variable data sequence(variable table rows) (only sequences of chars/integers/floats allowed)
 mod flags |
 seq1 |
 seq2
 
+findNextStates(current_state) O(n) where n is the number of characters in all the next states linking from current_state
 
 strings are varaibles
 any list is a parent -> child state relationship where the child name starts at 0
@@ -79,10 +83,13 @@ any list is a parent -> child state relationship where the child name starts at 
     is this violated if the same id is used on many different states("i"'s)?
     if the "i"'s are of the form "i+" then we can use getChild(parent, "i") to get the unique "i" as long as
     there is only 1 "i" as a child state of parent
+
+    getArray(parent, child(array_var_name), i, j, k)
+    // array_var_name[i][j][k]
 any dict is a parent -> child state relation where the child name is the key
 search is O(n) where n is the number of characters in the find(parent, string) input
 
-state name lookup table
+state name lookup table mapping to the state table
 1 character |
 n cols for numeric edges(id in state table)
 
@@ -93,7 +100,89 @@ n cols seq0 to sequences table
 
 do this in js. Its very complex and has alot of imperative parts I'm not sure how to convert to sql
 
+start with a vanilla trie then add to what is returned 
 */
+const letterRows = () => {
+    let letters = {}
+    let number = 33
+    for(; number < 127 ; number++) {
+        // console.log(String(x))
+        const asciiCharacter = String.fromCharCode(number)
+        // console.log(String.fromCharCode(x))
+        letters = {...letters, [asciiCharacter]: -1}
+    }
+    
+    return letters
+    // console.log(letters)
+}
+const isValidEdge = (edge) => {
+    return edge > -1
+}
+
+const makeTrieNode = (letter) => {
+    return {
+        character: letter,
+        trieEdges: {...letterRows()}
+
+    }
+}
+const insertNewNode = (stateTable, addedIds, currentId) => {
+    stateTable = [...stateTable, makeTrieNode(letter)]
+    const newId = stateTable.length - 1
+    stateTable[currentId].trieEdges = {
+        ...stateTable[currentId].trieEdges,
+        [letter]: newId
+    }
+    addedIds = [...addedIds, newId]
+    currentId = newId
+    return [stateTable, addedIds, currentId]
+}
+const insert = (trieTable, sequence) => {
+
+    // adds nodes but doesn't connect any of them
+    let addedIds = []
+    let currentId = 0
+    sequence.forEach((letter, i) => {
+
+        // for(var j in word) {
+            // console.log(word[j], currentId)
+            // console.log(getLetterColumns(stateTable[nextId]))
+            // getLetterColumns(stateTable[nextId])
+            // currentId should point to the last item matched or added
+            let nextId = getLetterColumns(trieTable[currentId])[ word[j] ]
+            // console.log(nextLetterEdge)
+            // new letter
+            // console.log(i, j)
+            // const sequenceI = i + parseInt(j)
+            // tested and works
+            if(!isValidEdge(nextId)) {
+                [stateTable, addedIds, currentId] = insertNewNode(stateTable, addedIds, currentId)
+            // the letter was added from a previous call of insertStateRows
+            } else if(isValidEdge(nextId)) {
+                // So we have an edge.  Is it a match to word[j]?
+                const currentLetter = stateTable[nextId].character
+                // not tested yet
+                if(currentLetter !== letter) {
+                    // not a match so need to add a new edge to stateTable[currentId]
+                    // and append a new row to the end of the array
+                    [stateTable, addedIds, currentId] = insertNewNode(stateTable, addedIds, currentId)
+                    // not tested yet
+                } else { // We do have a match
+
+                    addedIds = [...addedIds, nextId]
+                    currentId = nextId
+                }
+
+            }
+           
+            
+        // }
+    })
+    // have a state path test that only tests information unique to that state name insertion(no checking for overlap with other state names)
+    return [stateTable, addedIds]
+
+
+}
 
 const getDefaultValue = (sequenceTable, attribute) => {
     const length = sequenceTable.length
@@ -106,6 +195,7 @@ const getDefaultValue = (sequenceTable, attribute) => {
 }
 
 // let [ table, addedIds, isSame ] = addToTrie(table, sequence)
+// change this one
 const makeSequenceRows = (nextStates, sequenceTable) => {
 
     let rows = []
@@ -449,9 +539,6 @@ const addNewRow = (stateTable, currentId, letter, word) => {
     ]
 
     return [...stateTable, makeNewRow(stateTable.length)]
-}
-const isValidEdge = (edge) => {
-    return edge > -1
 }
 // 1) need to group these functions by purpose
 
