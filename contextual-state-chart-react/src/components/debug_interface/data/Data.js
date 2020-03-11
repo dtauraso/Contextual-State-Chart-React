@@ -127,25 +127,36 @@ const makeTrieNode = (letter) => {
     }
 }
 const insertNewNode = (stateTable, addedIds, currentId, letter) => {
+
+    // console.log(stateTable, addedIds, currentId, letter)
     stateTable = [...stateTable, makeTrieNode(letter)]
+    
     const newId = stateTable.length - 1
     stateTable[currentId].trieEdges = {
         ...stateTable[currentId].trieEdges,
         [letter]: newId
     }
+    
     addedIds = [...addedIds, newId]
     currentId = newId
-    return [stateTable, addedIds, currentId]
+    // console.log(stateTable, addedIds, currentId)
+    let returnItem = [stateTable, addedIds, currentId]
+    return returnItem
 }
 const getNextId = (letter, row) => {
-    return row[letter]
+    // console.log(letter, row.trieEdges, row.trieEdges[letter])
+    return row.trieEdges[letter]
 }
 const insert = (trieTable, sequence, currentId) => {
 
     // adds nodes but doesn't connect any of them
+    console.log(sequence)
     let addedIds = []
+    // how do we have an already existing edge
+    // when each letter is supposed to come after the other?
     sequence.forEach((letter, i) => {
 
+            console.log(letter, i)
         // for(var j in word) {
             // console.log(word[j], currentId)
             // console.log(getLetterColumns(stateTable[nextId]))
@@ -157,23 +168,27 @@ const insert = (trieTable, sequence, currentId) => {
             // console.log(i, j)
             // const sequenceI = i + parseInt(j)
             // tested and works
+            console.log(nextId)
+            // once this is hit all the remaining rounds will be this
+            // can make this it's own loop coming after we run of the graph
             if(!isValidEdge(nextId)) {
-                [trieTable, addedIds, currentId] = insertNewNode(trieTable, addedIds, currentId, letter)
+                console.log("there is no edge")
+                let returnItem = []
+                returnItem = insertNewNode(trieTable, addedIds, currentId, letter)
+                // [trieTable, addedIds, currentId] = returnItem
+                trieTable = returnItem[0]
+                addedIds = returnItem[1]
+                currentId = returnItem[2]
+
+                console.log("added", currentId)
+                // console.log(trieTable, addedIds, currentId)
             // the letter was added from a previous call of insertStateRows
             } else if(isValidEdge(nextId)) {
+                console.log("we have an edge", trieTable, nextId)
                 // So we have an edge.  Is it a match to word[j]?
-                const currentLetter = trieTable[nextId].character
-                // not tested yet
-                if(currentLetter !== letter) {
-                    // not a match so need to add a new edge to stateTable[currentId]
-                    // and append a new row to the end of the array
-                    [trieTable, addedIds, currentId] = insertNewNode(trieTable, addedIds, currentId, letter)
-                    // not tested yet
-                } else { // We do have a match
-
-                    addedIds = [...addedIds, nextId]
-                    currentId = nextId
-                }
+                // console.log(trieTable, nextId, trieTable[nextId])
+                addedIds = [...addedIds, nextId]
+                currentId = nextId
 
             }
            
@@ -181,42 +196,86 @@ const insert = (trieTable, sequence, currentId) => {
         // }
     })
     // have a state path test that only tests information unique to that state name insertion(no checking for overlap with other state names)
-    return [trieTable, addedIds]
+    let returnArray = [trieTable, addedIds]
+    return returnArray
 
 
 }
-const testInsert = () => {
-
-    let nestedList = [['addddd'], ['byhtgrf'], ['casretr']]
-    let flattenedList = [].concat.apply([], nestedList).join('')
-    console.log([].concat.apply([], nestedList).join(''))
+const combineSequences = (flattenedList) => {
+    // flattenedList is a list of string
+    // console.log(flattenedList)
     let sequence = []
     for(var i in flattenedList) {
         sequence = [...sequence, flattenedList[i]]
     }
-    console.log(sequence)
-    let [stateTable,addedIds] = insert([
-        {
-            character: 'root',
-            trieEdges: {...letterRows()}
+    return sequence
+
+}
+const testInsert = () => {
+    // no deconstruction
+
+    // test on a few different and similar sequences
+    let sequences = [   ['addddd', 'byhtgrf', 'casretr'],
+                        ['addddd', 'b', 'casretr'],
+                        ['casretr', 'byhtgrf', 'addddd']]
     
-        }
-    ], sequence, 0)
-    console.log(stateTable, addedIds)
-    addedIds.forEach(id => {
-        let key = Object.keys(stateTable[id].trieEdges).filter(edge => stateTable[id].trieEdges[edge] > 0)
-        console.log(id, stateTable[id].character, "next letter", key, "next id", stateTable[id].trieEdges[key])
+    // let nestedList = [['addddd'], ['byhtgrf'], ['casretr']]
+    // let flattenedList = [].concat.apply([], nestedList).join('')
+    // console.log([].concat.apply([], nestedList).join(''))
+    // let sequence = []
+    // for(var i in flattenedList) {
+    //     sequence = [...sequence, flattenedList[i]]
+    // }
+
+    let stateTable = [{
+                character: 'root',
+                trieEdges: {...letterRows()}
+        }]
+    let addedIds = [0]
+
+    console.log("before insert", stateTable)
+    let currentId = 0
+    // console.log(combineSequences([].concat.apply([], sequences).join('')))
+    sequences.forEach((sequence, i) => {
+        // console.log(combineSequences([].concat.apply([], sequence).join('')))
+        // combineSequences
+        let sequenceOfChars = []
+        sequenceOfChars = combineSequences([].concat.apply([], sequence).join(''))
+        // the sequence doesn't print out after it's passed in
+        // when it prints the whole sequence prints but program crashes with can't asscess 0 of undefined
+        console.log(i)
+        // console.log(sequenceOfChars)
+        let insertResults = []
+        insertResults = insert(stateTable, sequenceOfChars, currentId)
+        // [stateTable, addedIds] = insertResults
+        stateTable = insertResults[0]
+        addedIds = insertResults[1]
+        console.log(stateTable, addedIds)
+
+
     })
-    let count = 0
-    nestedList.forEach(innerList => {
-        innerList.forEach((string) => {
-            for(var i in string) {
-                console.log(string[i], addedIds[count])
-                count ++
-            }
-        })
-        console.log('\n')
-    })
+    // [stateTable,addedIds] = insert([
+    //     {
+    //         character: 'root',
+    //         trieEdges: {...letterRows()}
+    
+    //     }
+    // ], sequence, 0)
+    // console.log(stateTable, addedIds)
+    // addedIds.forEach(id => {
+    //     let key = Object.keys(stateTable[id].trieEdges).filter(edge => stateTable[id].trieEdges[edge] > 0)
+    //     console.log(id, stateTable[id].character, "next letter", key, "next id", stateTable[id].trieEdges[key])
+    // })
+    // let count = 0
+    // nestedList.forEach(innerList => {
+    //     innerList.forEach((string) => {
+    //         for(var i in string) {
+    //             console.log(string[i], addedIds[count])
+    //             count ++
+    //         }
+    //     })
+    //     console.log('\n')
+    // })
 }
 
 const getDefaultValue = (sequenceTable, attribute) => {
