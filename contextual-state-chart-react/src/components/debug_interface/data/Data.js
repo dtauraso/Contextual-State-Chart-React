@@ -128,18 +128,37 @@ const makeTrieNode = (letter) => {
 }
 const insertNewNode = (stateTable, addedIds, currentId, letter) => {
 
-    // console.log(stateTable, addedIds, currentId, letter)
+    // redesign using the object append logic from the filters in sauti
+    console.log(stateTable, addedIds, currentId, letter)
     stateTable = [...stateTable, makeTrieNode(letter)]
     
     const newId = stateTable.length - 1
-    stateTable[currentId].trieEdges = {
-        ...stateTable[currentId].trieEdges,
-        [letter]: newId
-    }
+    console.log("new id", letter, newId, currentId)
+    
+    // console.log("old object", stateTable[currentId].trieEdges, letter)
+    // what is producing the a: 21? [letter]: newId after clearly printing something different
+    stateTable = [
+        ...stateTable.slice(0, stateTable.length - 1),
+        {
+            character: letter,
+            trieEdges: {...stateTable[newId].trieEdges,
+                [letter]: newId}
+    
+        }
+        // ,
+        // ...stateTable.slice(currentId + 1, stateTable.length)
+    ]
+    //     [currentId] = {
+    //     character: letter,
+    //     trieEdges: {[letter]: newId}
+
+    // }
+    // .trieE[letter]: newId
     
     addedIds = [...addedIds, newId]
     currentId = newId
-    // console.log(stateTable, addedIds, currentId)
+    console.log(stateTable, addedIds, currentId)
+    console.log("done adding")
     let returnItem = [stateTable, addedIds, currentId]
     return returnItem
 }
@@ -147,13 +166,59 @@ const getNextId = (letter, row) => {
     // console.log(letter, row.trieEdges, row.trieEdges[letter])
     return row.trieEdges[letter]
 }
-const insert = (trieTable, sequence, currentId) => {
-
-    // adds nodes but doesn't connect any of them
-    console.log(sequence)
-    let addedIds = []
+const find = (trieTable, sequence) => {
+    // console.log(sequence)
+    let collectedIds = []
+    let currentId = 0
+    let isFound = 2
     // how do we have an already existing edge
     // when each letter is supposed to come after the other?
+    sequence.forEach((letter, i) => {
+
+            // console.log(letter, i)
+            // currentId should point to the last item matched or added
+            let nextId = getNextId(letter, trieTable[currentId])
+
+            // console.log(nextId)
+            if(!isValidEdge(nextId)) {
+
+                isFound = 0
+                return;
+
+            } else if(isValidEdge(nextId)) {
+                // console.log("we have an edge", trieTable, nextId)
+                // So we have an edge.  Is it a match to word[j]?
+                // console.log(trieTable, nextId, trieTable[nextId])
+                collectedIds = [...collectedIds, nextId]
+                currentId = nextId
+            }
+    })
+    // we have gone through the entire sequence and haven't set it to 0 yet
+    if(isFound === 2) {
+        isFound = 1
+
+    }
+    // have a state path test that only tests information unique to that state name insertion(no checking for overlap with other state names)
+    let returnArray = [trieTable, collectedIds, isFound]
+    return returnArray
+}
+const insert = (trieTable, sequence, currentId) => {
+
+    console.log("inserting", sequence)
+    let returnArray = find(trieTable, sequence, 0)
+
+    trieTable = returnArray[0]
+    let collectedIds = returnArray[1]
+    let isFound = returnArray[2]
+
+    if(collectedIds.length > 0) {
+        currentId = collectedIds[collectedIds.length - 1]
+
+    }
+    console.log('about to insert')
+    console.log(isFound, collectedIds, currentId, trieTable[currentId], sequence)
+    let addedIds = [...collectedIds]
+    // inserting is fucked up
     sequence.forEach((letter, i) => {
 
             console.log(letter, i)
@@ -162,42 +227,48 @@ const insert = (trieTable, sequence, currentId) => {
             // console.log(getLetterColumns(stateTable[nextId]))
             // getLetterColumns(stateTable[nextId])
             // currentId should point to the last item matched or added
-            let nextId = getNextId(letter, trieTable[currentId])
+            // let nextId = getNextId(letter, trieTable[currentId])
             // console.log(nextLetterEdge)
             // new letter
             // console.log(i, j)
             // const sequenceI = i + parseInt(j)
             // tested and works
-            console.log(nextId)
+            // console.log(nextId)
             // once this is hit all the remaining rounds will be this
             // can make this it's own loop coming after we run of the graph
-            if(!isValidEdge(nextId)) {
-                console.log("there is no edge")
-                let returnItem = []
-                returnItem = insertNewNode(trieTable, addedIds, currentId, letter)
-                // [trieTable, addedIds, currentId] = returnItem
-                trieTable = returnItem[0]
-                addedIds = returnItem[1]
-                currentId = returnItem[2]
+            // if(!isValidEdge(nextId)) {
+            //     console.log("there is no edge")
+            let returnItem = []
+            console.log('inserting new node')
+            // we want to get the previous node have an edge to the new node
+            // insertNewNode(trieTable, addedIds, previousId, letter)
 
-                console.log("added", currentId)
-                // console.log(trieTable, addedIds, currentId)
-            // the letter was added from a previous call of insertStateRows
-            } else if(isValidEdge(nextId)) {
-                console.log("we have an edge", trieTable, nextId)
-                // So we have an edge.  Is it a match to word[j]?
-                // console.log(trieTable, nextId, trieTable[nextId])
-                addedIds = [...addedIds, nextId]
-                currentId = nextId
+            returnItem = insertNewNode(trieTable, addedIds, currentId, letter)
+            // [trieTable, addedIds, currentId] = returnItem
+            trieTable = returnItem[0]
+            addedIds = returnItem[1]
+            currentId = returnItem[2]
+            // need to set the 
 
-            }
+            //     console.log("added", currentId)
+            //     // console.log(trieTable, addedIds, currentId)
+            // // the letter was added from a previous call of insertStateRows
+            // }
+            //  else if(isValidEdge(nextId)) {
+            //     console.log("we have an edge", trieTable, nextId)
+            //     // So we have an edge.  Is it a match to word[j]?
+            //     // console.log(trieTable, nextId, trieTable[nextId])
+            //     addedIds = [...addedIds, nextId]
+            //     currentId = nextId
+
+            // }
            
             
         // }
     })
     // have a state path test that only tests information unique to that state name insertion(no checking for overlap with other state names)
-    let returnArray = [trieTable, addedIds]
-    return returnArray
+    let returnArray1 = [trieTable, addedIds]
+    return returnArray1
 
 
 }
@@ -216,8 +287,10 @@ const testInsert = () => {
 
     // test on a few different and similar sequences
     let sequences = [   ['addddd', 'byhtgrf', 'casretr'],
-                        ['addddd', 'b', 'casretr'],
-                        ['casretr', 'byhtgrf', 'addddd']]
+                        ['addddd', 'b', 'casretr']
+                        // ,
+                        // ['casretr', 'byhtgrf', 'addddd']
+                    ]
     
     // let nestedList = [['addddd'], ['byhtgrf'], ['casretr']]
     // let flattenedList = [].concat.apply([], nestedList).join('')
@@ -227,10 +300,29 @@ const testInsert = () => {
     //     sequence = [...sequence, flattenedList[i]]
     // }
 
-    let stateTable = [{
+    // link table
+    //  id | state table id of last part of state name (spllitting the full state name stirng will fail)
+    //  wherer claus for next states neighbor set
+
+    // inverse link table to cache(only cach) the same links
+    //  full state name as a string -> id to link table
+
+    // the next states cell in a state table row holds the id(link table id)
+    // a where clause can collect all the rows in the link table to find the right path to the state cell
+    // inside the state table
+
+    // variable table
+    // id | slot
+    // where clause for arrays of primitives
+
+    // variableValue slot in state table can hold the id in the variable table
+
+    let stateTable = {
+        
+        0: {
                 character: 'root',
                 trieEdges: {...letterRows()}
-        }]
+        }}
     let addedIds = [0]
 
     console.log("before insert", stateTable)
