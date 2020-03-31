@@ -317,6 +317,13 @@ const testInsert = () => {
 
     // variableValue slot in state table can hold the id in the variable table
 
+
+    // the state/var maps to the parent state in the state table
+    // when we see the mapping make a copy of the state/var and store it inside the parent state as a child var
+            // make the copy of the state/var(state can be a var structure)
+            // after we run the parent state 
+    // upstream and downstream are flags
+
     let stateTable = {
         
         0: {
