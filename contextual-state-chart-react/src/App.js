@@ -5,6 +5,29 @@ import './App.css';
 import Header from "./components/debug_interface/Header";
 import Data from "./components/debug_interface/data/Data";
 import InsertWords from "./components/debug_interface/data/InsertWords";
+// basic contextual state chart editor
+// drag and drop states only
+// no fancy things
+let states = [
+  {
+    name: "test",
+    id: 0,
+    nextStates: [1, 2, 3],
+    children: [4, 5, 6],
+    variableNames: {i: 7, j: 8, myInput: 9},
+    value: 0
+  }
+]
+/*
+state id <- n next states
+state id <- children
+state id <- variableNamesTable
+
+variableNamesTable
+  variableName | value state id it's associated with | state id it's associated with
+
+  i | 7 | 0
+*/
 // import Variables from "./components/debug_interface/data/Variables";
 // I ported the trie tree representation from C to JavaScript so I could finish
 // the algorithm using react to assist debuggin(printing to a console is not
