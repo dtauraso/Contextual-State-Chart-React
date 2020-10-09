@@ -20,6 +20,10 @@ import InsertWords from "./components/debug_interface/data/InsertWords";
 https://fontawesome.com/icons/project-diagram?style=solid
 https://fontawesome.com/icons/share-alt?style=solid
 https://fontawesome.com/icons/sitemap?style=solid
+https://thenounproject.com/term/dumbbell/168470/
+https://thenounproject.com/term/dumbbell/795887/
+https://thenounproject.com/term/dumbbell/201907/
+https://thenounproject.com/term/binary-tree/582083/
 */
 let states = [
   {
