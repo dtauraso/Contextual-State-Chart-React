@@ -8,6 +8,19 @@ import InsertWords from "./components/debug_interface/data/InsertWords";
 // basic contextual state chart editor
 // drag and drop states only
 // no fancy things
+// don't use any of these
+// https://dev.to/vaibhavkhulbe/make-interactive-node-based-graphs-with-react-flow-102d
+// https://github.com/uber/react-digraph
+// https://codesandbox.io/s/github/hshoff/vx/tree/master/packages/vx-demo/src/sandboxes/vx-dendrogram?file=/Example.tsx:63-72
+// https://codesandbox.io/s/brave-cdn-oi45l?file=/Example.tsx
+// have clickable menue modals that appear and you pick where you want the new state to go in relation to the current state
+// or for swapping states
+/*
+
+https://fontawesome.com/icons/project-diagram?style=solid
+https://fontawesome.com/icons/share-alt?style=solid
+https://fontawesome.com/icons/sitemap?style=solid
+*/
 let states = [
   {
     name: "test",
