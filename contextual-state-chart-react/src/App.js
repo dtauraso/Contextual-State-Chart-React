@@ -53,7 +53,7 @@ variableNamesTable
 // user friendly and I don't want to loose what Lambda School taught me about react).
 // I expect it will take me many months to finish this project to a 1.0 version
 /*
-desigining the back edges
+desigining all edges
 
 grid
 	represent using a sparse matrix as an adjaciency list
