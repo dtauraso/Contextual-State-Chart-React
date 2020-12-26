@@ -24,6 +24,8 @@ https://thenounproject.com/term/dumbbell/168470/
 https://thenounproject.com/term/dumbbell/795887/
 https://thenounproject.com/term/dumbbell/201907/
 https://thenounproject.com/term/binary-tree/582083/
+https://fontawesome.com/icons/code?style=solid
+http://blog.sklambert.com/finding-the-control-points-of-a-bezier-curve/
 */
 let states = [
   {
@@ -50,6 +52,20 @@ variableNamesTable
 // the algorithm using react to assist debuggin(printing to a console is not
 // user friendly and I don't want to loose what Lambda School taught me about react).
 // I expect it will take me many months to finish this project to a 1.0 version
+/*
+desigining the back edges
+
+grid
+	represent using a sparse matrix as an adjaciency list
+	1 means we are using that point for an edge between 2 nodes
+	0 means the point is free
+
+	dft
+		try a path from the first node
+		make sure we know we will eventually reach the target node
+		backtrack if the path is taking us to the wrong node or a path that has already been traveled
+
+*/
 
 
 // part 1
