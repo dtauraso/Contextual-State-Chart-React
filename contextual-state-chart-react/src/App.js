@@ -64,6 +64,8 @@ grid
 	interpolate the points and only try x, y channels that haven't been used along the segment we are using
 
 	the max number of turns should be 4
+
+	track#, level#, position on track
 	
 */
 
