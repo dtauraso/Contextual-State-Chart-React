@@ -60,11 +60,11 @@ grid
 	1 means we are using that point for an edge between 2 nodes
 	0 means the point is free
 
-	dft
-		try a path from the first node
-		make sure we know we will eventually reach the target node
-		backtrack if the path is taking us to the wrong node or a path that has already been traveled
 
+	interpolate the points and only try x, y channels that haven't been used along the segment we are using
+
+	the max number of turns should be 4
+	
 */
 
 
