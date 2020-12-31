@@ -77,7 +77,7 @@ grid
 
     the order of the edges should reflect their order coming from the first node
       if the first edge starts at the top then when the course changes the edge
-      should still be at the top
+      should still be at the top.
   
   record all the lines used
   all existing edges need to be updated when we need room for a new channel
