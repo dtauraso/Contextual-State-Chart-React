@@ -69,11 +69,20 @@ grid
   
 
   each channel defined by (x = alpha, y = beta) can only be used 1 time
+  each edge can only go from 1 node to 1 other node
+
   
   how the edges are arranged as the path changes direction
     depends on what track the state is on
+
+    the order of the edges should reflect their order coming from the first node
+      if the first edge starts at the top then when the course changes the edge
+      should still be at the top
   
+  record all the lines used
   all existing edges need to be updated when we need room for a new channel
+
+  keep an array holding each level and the max and min y values of the boundary outer edges
 
 
 	
