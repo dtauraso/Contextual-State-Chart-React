@@ -65,7 +65,17 @@ grid
 
 	the max number of turns should be 4
 
-	track#, level#, position on track
+  track#, level#, position on track
+  
+
+  each channel defined by (x = alpha, y = beta) can only be used 1 time
+  
+  how the edges are arranged as the path changes direction
+    depends on what track the state is on
+  
+  all existing edges need to be updated when we need room for a new channel
+
+
 	
 */
 
