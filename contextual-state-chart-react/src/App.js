@@ -84,7 +84,10 @@ grid
 
   keep an array holding each level and the max and min y values of the boundary outer edges
 
+  https://github.com/konvajs/react-konva
 
+
+    link each pixel line to all the nodes and edges that touch it
 	
 */
 
