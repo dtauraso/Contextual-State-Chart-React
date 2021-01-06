@@ -88,7 +88,14 @@ grid
 
 
     link each pixel line to all the nodes and edges that touch it
-	
+  
+    hash table for all blocks
+
+      (x, y) -> 1
+
+     a small nxn square of pixels is 1 block
+
+    
 */
 
 
