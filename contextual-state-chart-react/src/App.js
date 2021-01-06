@@ -81,6 +81,7 @@ grid
   
   record all the lines used
   all existing edges need to be updated when we need room for a new channel
+    update by shifting a point horizontally or vertically
 
   keep an array holding each level and the max and min y values of the boundary outer edges
 
