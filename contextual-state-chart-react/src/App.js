@@ -90,10 +90,11 @@ grid
 
     link each pixel line to all the nodes and edges that touch it
   
-    hash table for all blocks
+    2 hash tables for each axis for measuring the location of each block
 
-      (x, y) -> 1
-
+      (x) -> 1
+      (y) -> 1
+    
      a small nxn square of pixels is 1 block
 
     
