@@ -107,6 +107,16 @@ grid
       use the old slope and 1 of the original points to delete the old points
     
     make sure these are very small functions so any of them can be reused for when the state name component changes in size
+
+
+    level order traversal
+    geography of the nodes on each level
+    array of the highest y value on each level
+
+    interval of levels from the level of the source to the level of the destination
+    node
+
+    
 */
 
 
