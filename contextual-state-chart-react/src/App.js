@@ -98,7 +98,7 @@ grid
      a small nxn square of pixels is 1 block
 
     need prefix sums for calculating the offset amount for when each slot turns up
-    update prefix sums when the branch nodes are moved up or down
+    update prefix sums when the branch nodes are moved down
 
     across all child nodes or branch nodes
     outgoing edges and incomming edges all map to positional ports on the branch nodes
