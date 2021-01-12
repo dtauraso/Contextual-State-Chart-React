@@ -97,6 +97,13 @@ grid
     
      a small nxn square of pixels is 1 block
 
+    need prefix sums for calculating the offset amount for when each slot turns up
+    across all child nodes or branch nodes
+    outgoing edges and incomming edges all map to positional ports on the branch nodes
+
+    when a node has too many ports the diagonal link to it from the prev node must be stretched(use the new slop and
+      the outgoing edge port from the prev node to generate the new points)
+      use the old slope and 1 of the original points to delete the old points
     
 */
 
