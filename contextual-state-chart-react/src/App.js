@@ -116,7 +116,9 @@ grid
     interval of levels from the level of the source to the level of the destination
     node
 
-    
+    How will updating affect how future calculations are made?
+
+
 */
 
 
