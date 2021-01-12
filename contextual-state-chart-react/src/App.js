@@ -106,6 +106,7 @@ grid
       the outgoing edge port from the prev node to generate the new points)
       use the old slope and 1 of the original points to delete the old points
     
+    make sure these are very small functions so the relevant ones can be reused for when the state name component changes in size
 */
 
 
