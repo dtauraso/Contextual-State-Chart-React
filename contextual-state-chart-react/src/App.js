@@ -133,7 +133,7 @@ grid
               distance between edges) +
               y0
 
-        x1= (total ports used *
+        x1= (total ports used from first node till node_i *
             distance between edges) +
             x0
 
