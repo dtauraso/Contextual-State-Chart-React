@@ -169,6 +169,7 @@ grid
     })
 
     
+    the verticle distance between nodes will change once enough edges are added
 
     How will updating affect how future calculations are made?
 
