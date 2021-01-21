@@ -139,7 +139,7 @@ grid
 
     
     holding the coordinates of the div blocks:
-    xAxis = {200: 1, 201: 1, ....}
+    xAxis = {200: [[2003, 2020]], 201: [[567]], ....}
     yAxis = {200: 1, 201: 1, ....}
 
     horizontal scan line(y):
@@ -151,10 +151,8 @@ grid
     yAxisLine[startY] = 1
 
 
-    scanning too much?
-    for(let x = alpha, x < beta; x++) {
 
-    }
+    how do I know all of those x lines will have a matching y on my startY?
     Object.keys(xAxis).forEach(xLine => {
         xAxisLine[xLine] = 1
 
