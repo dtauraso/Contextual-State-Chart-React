@@ -151,10 +151,11 @@ grid
     yAxisLine[startY] = 1
 
 
+    for each x mapping to startY:
+    
+    // Object.keys(xAxis).forEach(interval => {
 
-    Object.keys(xAxis).forEach(interval => {
-
-        interval.forEach(yLine => {
+        // interval.forEach(xLine => {
 
           if (x, y) is in the scan dicts
             check for verticle match (y matches)
