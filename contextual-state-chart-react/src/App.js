@@ -140,7 +140,7 @@ grid
     
     holding the coordinates of the div blocks:
     xAxis = {200: [[2003, 2020]], 201: [[567]], ....}
-    yAxis = {200: 1, 201: 1, ....}
+    yAxis = {200: [[2021, 2100], [5678]], 201: [[76543], [3456], [23419, 9876]], ....}
 
     horizontal scan line(y):
     
