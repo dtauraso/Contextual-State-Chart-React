@@ -123,24 +123,24 @@ grid
           top if it's a backlink
           bottom if it's a forward link
       port point:
-      new y(y0) for the next port = (total ports used + 1 *
+      new y(y0) for the next port = (total ports used *
                                 distance between edges) +
                                 y part of (x, y) of top left point of state
       new x(x0) for the next part = x part of (x, y) of top left point of state
 
       first edge point:
-        y1 = (total ports used + 1 *
+        y1 = (total ports used *
               distance between edges) +
               y0
 
-        x1= (total ports used + 1 *
+        x1= (total ports used *
             distance between edges) +
             x0
 
     
     holding the coordinates of the div blocks:
-    xAxis = {200: [[2003, 2020]], 201: [[567]], ....}
-    yAxis = {200: [[2021, 2100], [5678]], 201: [[76543], [3456], [23419, 9876]], ....}
+    xAxis = {200: {2003: 1, 2004 : 1, ...., 2020: 1}, 201: {567: 1}, ....}
+    yAxis = {200: {2021: 1, 2022: 1,...,  2100: 1}, [5678]], 201: [[76543], [3456], [23419, 9876]], ....}
 
     horizontal scan line(y):
     
@@ -152,11 +152,19 @@ grid
 
 
 
-    how do I know all of those x lines will have a matching y on my startY?
-    Object.keys(xAxis).forEach(xLine => {
-        xAxisLine[xLine] = 1
+    Object.keys(xAxis).forEach(interval => {
 
-        if(xLine in xAxis && startY in yAxis)
+        interval.forEach(yLine => {
+
+          if (x, y) is in the scan dicts
+            check for verticle match (y matches)
+            if match stretch vertically
+            else (x, y - 1) should be in the scan dicts and it is part of a 
+            horizontal line
+          else
+            add (x, y) to the scan dicts
+        })
+
     })
 
     
