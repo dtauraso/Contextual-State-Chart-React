@@ -122,12 +122,50 @@ grid
         only 1 possible incoming port
           top if it's a backlink
           bottom if it's a forward link
-      new y for the next port = (total ports used *
+      port point:
+      new y(y0) for the next port = (total ports used + 1 *
                                 distance between edges) +
                                 y part of (x, y) of top left point of state
+      new x(x0) for the next part = x part of (x, y) of top left point of state
 
+      first edge point:
+        y1 = (total ports used + 1 *
+              distance between edges) +
+              y0
+
+        x1= (total ports used + 1 *
+            distance between edges) +
+            x0
+
+    
+    holding the coordinates of the div blocks:
+    xAxis = {200: 1, 201: 1, ....}
+    yAxis = {200: 1, 201: 1, ....}
+
+    horizontal scan line(y):
+    
+    xAxisLine = {}
+    yAxisLine = {}
+
+    startY = 200
+    yAxisLine[startY] = 1
+
+
+    scanning too much?
+    for(let x = alpha, x < beta; x++) {
+
+    }
+    Object.keys(xAxis).forEach(xLine => {
+        xAxisLine[xLine] = 1
+
+        if(xLine in xAxis && startY in yAxis)
+    })
+
+    
 
     How will updating affect how future calculations are made?
+
+
 
   
 
