@@ -116,8 +116,20 @@ grid
     interval of levels from the level of the source to the level of the destination
     node
 
+
+    node:
+      n ports
+        only 1 possible incoming port
+          top if it's a backlink
+          bottom if it's a forward link
+      new y for the next port = (total ports used *
+                                distance between edges) +
+                                y part of (x, y) of top left point of state
+
+
     How will updating affect how future calculations are made?
 
+  
 
 */
 
