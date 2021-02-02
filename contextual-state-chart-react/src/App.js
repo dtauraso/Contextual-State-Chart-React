@@ -137,6 +137,18 @@ grid
             distance between edges) +
             x0
 
+
+      let max = 0
+      for(let i = center; i < end; i++) {
+          if(nodes[i].chilren.length > 1) {
+            // only add the 2nd to the nth node to the count
+            max += (nodes[i].chilren.length - 1)
+          }
+          else if(nodes[i].chilren.length === 0) {
+            max--
+          }
+      }
+
     
     holding the coordinates of the div blocks:
     xAxis = {200: {2003: 1, 2004 : 1, ...., 2020: 1}, 201: {567: 1}, ....}
