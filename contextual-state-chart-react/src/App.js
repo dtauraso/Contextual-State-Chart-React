@@ -148,6 +148,13 @@ grid
             max--
           }
       }
+      is this the right or preferred way to space horizonal timelines where we have a significan number
+      of multiple branches?
+      each group(not snecessarily sequential) of nodes that has multiple chilren where the child of one
+      node that takes up the horizontal timeline of another node will also need to have multiple branching
+      trees to keep the space
+      How many nodes drive the children overflow?
+
 
     
     holding the coordinates of the div blocks:
