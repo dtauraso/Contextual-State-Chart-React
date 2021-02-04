@@ -155,8 +155,17 @@ grid
       trees to keep the space
       How many nodes drive the children overflow?
 
+      dft:
 
+        levels[level_id] = Math.max(levels[level_id], node.childre.length / 2)
+
+    sum of all the left children for the path
+
+    f(child) =
+      0 if child is leaf
     
+      node.childre.length / 2 + f(last child) if child is not leaf
+
     holding the coordinates of the div blocks:
     xAxis = {200: {2003: 1, 2004 : 1, ...., 2020: 1}, 201: {567: 1}, ....}
     yAxis = {200: {2021: 1, 2022: 1,...,  2100: 1}, [5678]], 201: [[76543], [3456], [23419, 9876]], ....}
