@@ -166,6 +166,8 @@ grid
     
       node.childre.length / 2 + f(last child) if child is not leaf
 
+    max(sum of all positive and negative children counts at each level)
+    
     holding the coordinates of the div blocks:
     xAxis = {200: {2003: 1, 2004 : 1, ...., 2020: 1}, 201: {567: 1}, ....}
     yAxis = {200: {2021: 1, 2022: 1,...,  2100: 1}, [5678]], 201: [[76543], [3456], [23419, 9876]], ....}
