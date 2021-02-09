@@ -161,6 +161,18 @@ grid
 
     sum of all the left children for the path
 https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
+
+    f(node, x, y)
+      if node is null
+        return
+      else
+        f(node.right, x + 5)
+        y['val']++
+        node.location = (x, y)
+        f(node.left, x + 5)
+
+
+
     f(child) =
       0 if child is leaf
     
