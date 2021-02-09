@@ -160,13 +160,13 @@ grid
         levels[level_id] = Math.max(levels[level_id], node.childre.length / 2)
 
     sum of all the left children for the path
-
+https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
     f(child) =
       0 if child is leaf
     
       node.childre.length / 2 + f(last child) if child is not leaf
 
-    max(sum of all positive and negative children counts at each level(what does this mean))
+    max(sum of all positive and negative children counts) at each level(what does this mean)
     
     holding the coordinates of the div blocks:
     xAxis = {200: {2003: 1, 2004 : 1, ...., 2020: 1}, 201: {567: 1}, ....}
