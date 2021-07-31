@@ -1,5 +1,12 @@
 import React from "react";
-import update from "react-addons-update";
+import {
+  insertName,
+  setAttribute,
+  setupState,
+  getStateNames,
+  makeArrays,
+} from "./ContextualStateChart/ContextualStateChart";
+import { stateTree } from "./Calculator/CalculatorStateTree";
 
 import "./App.css";
 import Header from "./components/debug_interface/Header";
@@ -39,260 +46,8 @@ let states = [
 ];
 // f(json state tree) => trie array and state array
 // can only put in a little bit of code to handle the trie and state arrays
-let stateTree = {
-  calculator: {
-    functionCode: "returnTrue",
-    children: {
-      createExpression: {
-        functionCode: "returnTrue",
-        next: ["evaluateExpression"],
-        start: ["number"],
-        children: {
-          number: {
-            functionCode: "returnTrue",
-            next: ["is input valid", "operator"],
-            // children: ["number get digit"],
-
-            children: {
-              "number get digit": {
-                functionCode: "numberGetDigit",
-                next: ["number get digit", "save number"],
-              },
-              "save number": {
-                functionCode: "saveNumber",
-              },
-            },
-          },
-          "is input valid": {
-            functionCode: "isInputValid",
-            // returns true if we hit end of input and it's a valid expression
-          },
-          operator: {
-            functionCode: "returnTrue",
-            next: ["number"],
-            start: ["operator, get"],
-            // children: ["operator get operator"],
-            children: {
-              operator: {
-                get: {
-                  // getOperator
-                  functionCode: "operatorGetOperator",
-                  next: ["operator, save"],
-                },
-                save: {
-                  functionCode: "saveOperator",
-                },
-              },
-            },
-          },
-        },
-        variables: { token: { value: "" } },
-      },
-      evaluateExpression: {
-        functionCode: "returnTrue",
-        next: ["inputHas1Value" /*,'evaluateExpression'*/],
-        start: ["a0"],
-        children: {
-          // get, save, increment or update the array
-          a0: {
-            functionCode: "getA2", // increment
-            next: ["resetForNextRoundOfInput", "op", "opIgnore"],
-          },
-
-          op: {
-            functionCode: "isOp2", // increment
-            next: ["b evaluate"],
-          },
-          // add new step to save b?
-          // make a result variable to show the result?
-          // the item 'b evaluate' put in is the same item 'a0' starts on
-          "b evaluate": {
-            functionCode: "evaluate2", // updates the array
-            next: ["a0"],
-          },
-
-          opIgnore: {
-            functionCode: "ignoreOp2", // increment
-            next: ["a0"],
-          },
-
-          // some of this is wrong
-          resetForNextRoundOfInput: {
-            functionCode: "resetForNextRound2",
-            next: [/*'endOfEvaluating'*/ "inputHas1Value", "a0"],
-          },
-        },
-        variables: {
-          i2: {
-            value: 0,
-          },
-          a: {
-            value: 0,
-          },
-          b: {
-            value: 0,
-          },
-          operators: {
-            value: ["*", "/", "-", "+"],
-          },
-          j: {
-            value: 0,
-          },
-          operatorFunctions: {
-            value: { "*": "mult", "/": "divide", "+": "plus", "-": "minus" },
-          },
-        },
-      },
-      inputHas1Value: {
-        functionCode: "showAndExit2",
-      },
-    },
-    variables: {
-      i1: {
-        value: 0,
-      },
-      input: {
-        value: "1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12",
-      },
-      expression: {
-        value: [],
-      },
-
-      // read through the input and makes an expression if one can be made
-    },
-  },
-};
 // f(stateTree) => names and states arrays
-const insertName = (names, name, stateId) => {
-  // console.log({ names, name, stateId });
-  // save trie node as a state
-  if (name.length === 0) {
-    // console.log("base case");
-    return {
-      ...names,
-      id: stateId,
-    };
-  } else if (Object.keys(names).length === 0) {
-    // what if there is an "id" in names
-    // console.log("names is empty");
-    return {
-      ...names,
-      [name[0]]: insertName({}, name.slice(1, name.length), stateId),
-    };
-  } else if (name[0] in names) {
-    // console.log("first name is in names");
-    return {
-      ...names,
-      [name[0]]: insertName(
-        names[name[0]],
-        name.slice(1, name.length),
-        stateId
-      ),
-    };
-  } else {
-    // console.log("no name is in names");
-    // console.log({ x });
-    // first item in sequence is at same level
-    return {
-      ...names,
-      [name[0]]: insertName({}, name.slice(1, name.length), stateId),
-    };
-  }
-};
-const setAttribute = (object, newObject, key, value) => {
-  if (key in object) {
-    newObject[key] = value;
-  }
-};
-const setupState = (states, state) => {
-  // append state
-  const children = state?.children;
-  let newState = {};
-  // console.log({ before: newState });
 
-  setAttribute(state, newState, "functionCode", state?.functionCode);
-  setAttribute(state, newState, "next", state?.next);
-  setAttribute(state, newState, "start", state?.start);
-  setAttribute(state, newState, "value", state?.value);
-  setAttribute(state, newState, "children", children && Object.keys(children));
-  // console.log({ after: newState });
-  return newState;
-  // states.push(newState);
-  // console.log({ states });
-  // console.log(states[states.length - 1].value);
-
-  // return states.length;
-};
-const getStateNames = (stateTree, stateName, names, states) => {
-  const keys = Object.keys(stateTree);
-  const keyMapsToObject = keys.find(
-    (key) =>
-      Object.prototype.toString.call(stateTree[key]) === "[object Object]"
-  );
-  if (keys.includes("value")) {
-    names.push(stateName);
-    states.push(setupState(states, stateTree));
-    // console.log(stateTree);
-    // insertState(states, stateTree);
-    // not all the states are getting added
-    // names = insertName(names, stateName, insertState(states, stateTree));
-    // make a set associating each name array with a state id
-    // console.log({ names });
-    // return names;
-    return;
-  }
-  if (keys.includes("children")) {
-    // stateTree is an internal node
-    names.push(stateName);
-    states.push(setupState(states, stateTree));
-    // insertState(states, stateTree);
-    // names = insertName(names, stateName, insertState(states, stateTree));
-    // console.log({ names });
-    // console.log(stateTree);
-    Object.keys(stateTree.children).forEach((key) => {
-      getStateNames(stateTree.children[key], [key], names, states);
-    });
-    // return names;
-  }
-  if (keys.includes("variables")) {
-    Object.keys(stateTree.variables).forEach((key) => {
-      getStateNames(stateTree.variables[key], [key], names, states);
-    });
-  } else if (keyMapsToObject === undefined) {
-    // no key maps to an object
-    // stateTree is a leaf node
-    names.push(stateName);
-    states.push(setupState(states, stateTree));
-    // insertState(states, stateTree);
-    // insertName(names, stateName, insertState(states, stateTree));
-    // console.log({ names });
-    // return names;
-  } else if (
-    !keys.includes("function") &&
-    !keys.includes("next") &&
-    !keys.includes("start") &&
-    !keys.includes("children")
-  ) {
-    // stateTree is part of a state name
-
-    keys.forEach((key) => {
-      getStateNames(stateTree[key], [...stateName, key], names, states);
-    });
-  }
-};
-const makeArrays = (stateTree) => {
-  // get the state names
-  let names = [];
-  let states = [];
-  getStateNames(stateTree, [], names, states);
-  console.log({ names, states });
-  // console.log({ keys: Object.keys(names) });
-  let namesTrie = {};
-  names.forEach((nameArray, i) => {
-    namesTrie = insertName(namesTrie, nameArray, i);
-  });
-  console.log({ namesTrie, states });
-};
 // let stateTree = {
 //   names: [],
 //   states: [],
@@ -493,6 +248,8 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 // and language
 // use class based components
 const App = (props) => {
+  const { namesTrie, states } = makeArrays(stateTree);
+  console.log({ namesTrie, states });
   return (
     // constructor() {
     //   super();
