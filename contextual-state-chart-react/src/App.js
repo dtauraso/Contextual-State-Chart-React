@@ -1,9 +1,16 @@
-import React from 'react';
-import update from "react-addons-update";
+import React from "react";
+import {
+  insertName,
+  setAttribute,
+  setupState,
+  getStateNames,
+  makeArrays,
+} from "./ContextualStateChart/ContextualStateChart";
+import { stateTree } from "./Calculator/CalculatorStateTree";
 
-import './App.css';
+import "./App.css";
 import Header from "./components/debug_interface/Header";
-import Data from "./components/debug_interface/data/Data";
+// import Data from "./components/debug_interface/data/Data";
 import InsertWords from "./components/debug_interface/data/InsertWords";
 // basic contextual state chart editor
 // drag and drop states only
@@ -33,10 +40,19 @@ let states = [
     id: 0,
     nextStates: [1, 2, 3],
     children: [4, 5, 6],
-    variableNames: {i: 7, j: 8, myInput: 9},
-    value: 0
-  }
-]
+    variableNames: { i: 7, j: 8, myInput: 9 },
+    value: 0,
+  },
+];
+// f(json state tree) => trie array and state array
+// can only put in a little bit of code to handle the trie and state arrays
+// f(stateTree) => names and states arrays
+
+// let stateTree = {
+//   names: [],
+//   states: [],
+// };
+
 /*
 state id <- n next states
 state id <- children
@@ -221,7 +237,6 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 
 */
 
-
 // part 1
 // make an interface to represent debugging the data structure
 // put in the code for each trie tree operation subsection(delete has at least 4 or 5 subsections)
@@ -232,62 +247,47 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 // have something to put on my portfolio and practice react skills while I finish the state machine algorithm
 // and language
 // use class based components
-class App extends React.Component {
+const App = (props) => {
+  const { namesTrie, states } = makeArrays(stateTree);
+  console.log({ namesTrie, states });
+  return (
+    // constructor() {
+    //   super();
+    //   this.state = {
+    //     myObject: { nestedObject: 0 },
+    //     myOtherObject: { nestedObject2: 50 },
+    //     // white box training wheels to black box batch testing for trie
+    //     // put each old debugging version for the section into a modal when done
+    //     // need people to see the previous debugging systems while I make progress on the
+    //     // functions are the saem, but the props are different
+    //     // only let the function run when the button has activated
+    //   };
+    // }
 
-  constructor() {
-    super();
-    this.state = {
-      myObject: { nestedObject: 0},
-      myOtherObject: {nestedObject2: 50}
-      // white box training wheels to black box batch testing for trie
-      // put each old debugging version for the section into a modal when done
-      // need people to see the previous debugging systems while I make progress on the 
-      // functions are the saem, but the props are different
-      // only let the function run when the button has activated
-      
-      
-    }
-  }
+    <div className="App">
+      {/* {this.thisIsATest()} */}
+      {/* <Header /> */}
+      {/* <Data /> */}
+      <div>
+        {/* {console.log('happening')} */}
+        {/* the parent and the first state to run need to be the same for the first call */}
+        <button onClick={() => makeArrays(stateTree)}>start</button>
+        {/* <button onClick={() => this.showStates()}>show states</button> */}
 
-  thisIsATest = () => {
-
-    // const myState = {...this.state}
-    const newThing = {nestedObject: this.state.myObject.nestedObject + 1}
-    // console.log(myState)
-    // console.log(newThing)
-    // myState["myObject"] = newThing
-    // console.log(myState)
-    console.log(this.state)
-    this.state = {
-      // copy original
-      ...this.state,
-      // overwrite with what I want
-      myObject: newThing
-    }
-    // change it but don't rerender
-    // this.state["myObject"] = { myObject: newThing}
-
-    console.log(this.state)
-
-
-      
-  }
-  
-
-  render() {
-    return (
-      <div className="App">
-        {/* {this.thisIsATest()} */}
-        {/* <Header /> */}
-        <Data />
-        {/* the action of vars changing through time and passing to functions 
+        {/* {this.state.stateChanges.length > 0 && this.state.stateChanges.map(level => (
+                    level.map((state, i) => (
+                        <State key={i} changes={state} />
+                    ))
+                ))} */}
+      </div>
+      {/* the action of vars changing through time and passing to functions 
         function signature
         the expressions passed in
         the values passed in
         at same level at top timeline have the function variables(reiterate the function stuff)
         need the trie tree to be fixed and on the side so we can follow the changes with the var timelines
         */}
-        {/* trie tree as in https://en.wikipedia.org/wiki/Trie#/media/File:Trie_example.svg
+      {/* trie tree as in https://en.wikipedia.org/wiki/Trie#/media/File:Trie_example.svg
         each node has the string traveled thus far
 
 
@@ -382,11 +382,10 @@ class App extends React.Component {
             Press button
                 Wave activates the next code block
         */}
-        {/* <InsertWords props={this.state}/> */}
-        {/* <Variables /> */}
-      </div>
-    );
-  }
-}
+      {/* <InsertWords props={this.state}/> */}
+      {/* <Variables /> */}
+    </div>
+  );
+};
 
 export default App;
