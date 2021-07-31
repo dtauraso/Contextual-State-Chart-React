@@ -163,35 +163,32 @@ let stateTree = {
   },
 };
 // f(stateTree) => names and states arrays
-const insertName = (names, namesId, name, stateId, idName) => {
+const insertName = (names, name, stateId) => {
   // console.log({ names, name, stateId });
   // save trie node as a state
   if (name.length === 0) {
-    console.log("base case");
-    names.push({
+    // console.log("base case");
+    return {
+      ...names,
       id: stateId,
-    });
-    return names.length - 1;
-  } else if (!names[namesId].children[name[0]]) {
-    console.log("first name is in names");
-    names.push({
-      name: name[0],
-      children: {},
-    });
-    const currentNameId = names.length - 1;
-    console.log({ idName, name });
-    idName[currentNameId] = name[0];
-    console.log({ names, currentName: name[0] });
-    const idOfNextName = insertName(
-      names,
-      currentNameId,
-      name.slice(1, name.length),
-      stateId,
-      idName
-    );
-    console.log({ idOfNextName, namesId });
-    names[currentNameId].children[idOfNextName] = true;
-    return currentNameId;
+    };
+  } else if (Object.keys(names).length === 0) {
+    // what if there is an "id" in names
+    // console.log("names is empty");
+    return {
+      ...names,
+      [name[0]]: insertName({}, name.slice(1, name.length), stateId),
+    };
+  } else if (name[0] in names) {
+    // console.log("first name is in names");
+    return {
+      ...names,
+      [name[0]]: insertName(
+        names[name[0]],
+        name.slice(1, name.length),
+        stateId
+      ),
+    };
   } else {
     // console.log("no name is in names");
     // console.log({ x });
@@ -290,22 +287,11 @@ const makeArrays = (stateTree) => {
   getStateNames(stateTree, [], names, states);
   console.log({ names, states });
   // console.log({ keys: Object.keys(names) });
-  let namesTrie = [
-    {
-      name: "root",
-      children: {},
-    },
-  ];
-  let idName = {};
-  names = [["operator", "get", "get"]];
+  let namesTrie = {};
   names.forEach((nameArray, i) => {
-    if (i === 0) {
-      namesTrie[0].children[
-        insertName(namesTrie, 0, nameArray, i, idName)
-      ] = true;
-    }
+    namesTrie = insertName(namesTrie, nameArray, i);
   });
-  console.log({ namesTrie, idName });
+  console.log({ namesTrie, states });
 };
 // let stateTree = {
 //   names: [],
