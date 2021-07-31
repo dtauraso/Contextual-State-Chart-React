@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 import update from "react-addons-update";
 
-import './App.css';
+import "./App.css";
 import Header from "./components/debug_interface/Header";
-import Data from "./components/debug_interface/data/Data";
+// import Data from "./components/debug_interface/data/Data";
 import InsertWords from "./components/debug_interface/data/InsertWords";
 // basic contextual state chart editor
 // drag and drop states only
@@ -33,10 +33,285 @@ let states = [
     id: 0,
     nextStates: [1, 2, 3],
     children: [4, 5, 6],
-    variableNames: {i: 7, j: 8, myInput: 9},
-    value: 0
+    variableNames: { i: 7, j: 8, myInput: 9 },
+    value: 0,
+  },
+];
+// f(json state tree) => trie array and state array
+// can only put in a little bit of code to handle the trie and state arrays
+let stateTree = {
+  calculator: {
+    functionCode: "returnTrue",
+    children: {
+      createExpression: {
+        functionCode: "returnTrue",
+        next: ["evaluateExpression"],
+        start: ["number"],
+        children: {
+          number: {
+            functionCode: "returnTrue",
+            next: ["is input valid", "operator"],
+            // children: ["number get digit"],
+
+            children: {
+              "number get digit": {
+                functionCode: "numberGetDigit",
+                next: ["number get digit", "save number"],
+              },
+              "save number": {
+                functionCode: "saveNumber",
+              },
+            },
+          },
+          "is input valid": {
+            functionCode: "isInputValid",
+            // returns true if we hit end of input and it's a valid expression
+          },
+          operator: {
+            functionCode: "returnTrue",
+            next: ["number"],
+            start: ["operator, get"],
+            // children: ["operator get operator"],
+            children: {
+              operator: {
+                get: {
+                  // getOperator
+                  functionCode: "operatorGetOperator",
+                  next: ["operator, save"],
+                },
+                save: {
+                  functionCode: "saveOperator",
+                },
+              },
+            },
+          },
+        },
+        variables: { token: { value: "" } },
+      },
+      evaluateExpression: {
+        functionCode: "returnTrue",
+        next: ["inputHas1Value" /*,'evaluateExpression'*/],
+        start: ["a0"],
+        children: {
+          // get, save, increment or update the array
+          a0: {
+            functionCode: "getA2", // increment
+            next: ["resetForNextRoundOfInput", "op", "opIgnore"],
+          },
+
+          op: {
+            functionCode: "isOp2", // increment
+            next: ["b evaluate"],
+          },
+          // add new step to save b?
+          // make a result variable to show the result?
+          // the item 'b evaluate' put in is the same item 'a0' starts on
+          "b evaluate": {
+            functionCode: "evaluate2", // updates the array
+            next: ["a0"],
+          },
+
+          opIgnore: {
+            functionCode: "ignoreOp2", // increment
+            next: ["a0"],
+          },
+
+          // some of this is wrong
+          resetForNextRoundOfInput: {
+            functionCode: "resetForNextRound2",
+            next: [/*'endOfEvaluating'*/ "inputHas1Value", "a0"],
+          },
+        },
+        variables: {
+          i2: {
+            value: 0,
+          },
+          a: {
+            value: 0,
+          },
+          b: {
+            value: 0,
+          },
+          operators: {
+            value: ["*", "/", "-", "+"],
+          },
+          j: {
+            value: 0,
+          },
+          operatorFunctions: {
+            value: { "*": "mult", "/": "divide", "+": "plus", "-": "minus" },
+          },
+        },
+      },
+      inputHas1Value: {
+        functionCode: "showAndExit2",
+      },
+    },
+    variables: {
+      i1: {
+        value: 0,
+      },
+      input: {
+        value: "1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12",
+      },
+      expression: {
+        value: [],
+      },
+
+      // read through the input and makes an expression if one can be made
+    },
+  },
+};
+// f(stateTree) => names and states arrays
+const insertName = (names, namesId, name, stateId, idName) => {
+  // console.log({ names, name, stateId });
+  // save trie node as a state
+  if (name.length === 0) {
+    console.log("base case");
+    names.push({
+      id: stateId,
+    });
+    return names.length - 1;
+  } else if (!names[namesId].children[name[0]]) {
+    console.log("first name is in names");
+    names.push({
+      name: name[0],
+      children: {},
+    });
+    const currentNameId = names.length - 1;
+    console.log({ idName, name });
+    idName[currentNameId] = name[0];
+    console.log({ names, currentName: name[0] });
+    const idOfNextName = insertName(
+      names,
+      currentNameId,
+      name.slice(1, name.length),
+      stateId,
+      idName
+    );
+    console.log({ idOfNextName, namesId });
+    names[currentNameId].children[idOfNextName] = true;
+    return currentNameId;
+  } else {
+    // console.log("no name is in names");
+    // console.log({ x });
+    // first item in sequence is at same level
+    return {
+      ...names,
+      [name[0]]: insertName({}, name.slice(1, name.length), stateId),
+    };
   }
-]
+};
+const setAttribute = (object, newObject, key, value) => {
+  if (key in object) {
+    newObject[key] = value;
+  }
+};
+const setupState = (states, state) => {
+  // append state
+  const children = state?.children;
+  let newState = {};
+  // console.log({ before: newState });
+
+  setAttribute(state, newState, "functionCode", state?.functionCode);
+  setAttribute(state, newState, "next", state?.next);
+  setAttribute(state, newState, "start", state?.start);
+  setAttribute(state, newState, "value", state?.value);
+  setAttribute(state, newState, "children", children && Object.keys(children));
+  // console.log({ after: newState });
+  return newState;
+  // states.push(newState);
+  // console.log({ states });
+  // console.log(states[states.length - 1].value);
+
+  // return states.length;
+};
+const getStateNames = (stateTree, stateName, names, states) => {
+  const keys = Object.keys(stateTree);
+  const keyMapsToObject = keys.find(
+    (key) =>
+      Object.prototype.toString.call(stateTree[key]) === "[object Object]"
+  );
+  if (keys.includes("value")) {
+    names.push(stateName);
+    states.push(setupState(states, stateTree));
+    // console.log(stateTree);
+    // insertState(states, stateTree);
+    // not all the states are getting added
+    // names = insertName(names, stateName, insertState(states, stateTree));
+    // make a set associating each name array with a state id
+    // console.log({ names });
+    // return names;
+    return;
+  }
+  if (keys.includes("children")) {
+    // stateTree is an internal node
+    names.push(stateName);
+    states.push(setupState(states, stateTree));
+    // insertState(states, stateTree);
+    // names = insertName(names, stateName, insertState(states, stateTree));
+    // console.log({ names });
+    // console.log(stateTree);
+    Object.keys(stateTree.children).forEach((key) => {
+      getStateNames(stateTree.children[key], [key], names, states);
+    });
+    // return names;
+  }
+  if (keys.includes("variables")) {
+    Object.keys(stateTree.variables).forEach((key) => {
+      getStateNames(stateTree.variables[key], [key], names, states);
+    });
+  } else if (keyMapsToObject === undefined) {
+    // no key maps to an object
+    // stateTree is a leaf node
+    names.push(stateName);
+    states.push(setupState(states, stateTree));
+    // insertState(states, stateTree);
+    // insertName(names, stateName, insertState(states, stateTree));
+    // console.log({ names });
+    // return names;
+  } else if (
+    !keys.includes("function") &&
+    !keys.includes("next") &&
+    !keys.includes("start") &&
+    !keys.includes("children")
+  ) {
+    // stateTree is part of a state name
+
+    keys.forEach((key) => {
+      getStateNames(stateTree[key], [...stateName, key], names, states);
+    });
+  }
+};
+const makeArrays = (stateTree) => {
+  // get the state names
+  let names = [];
+  let states = [];
+  getStateNames(stateTree, [], names, states);
+  console.log({ names, states });
+  // console.log({ keys: Object.keys(names) });
+  let namesTrie = [
+    {
+      name: "root",
+      children: {},
+    },
+  ];
+  let idName = {};
+  names = [["operator", "get", "get"]];
+  names.forEach((nameArray, i) => {
+    if (i === 0) {
+      namesTrie[0].children[
+        insertName(namesTrie, 0, nameArray, i, idName)
+      ] = true;
+    }
+  });
+  console.log({ namesTrie, idName });
+};
+// let stateTree = {
+//   names: [],
+//   states: [],
+// };
+
 /*
 state id <- n next states
 state id <- children
@@ -221,7 +496,6 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 
 */
 
-
 // part 1
 // make an interface to represent debugging the data structure
 // put in the code for each trie tree operation subsection(delete has at least 4 or 5 subsections)
@@ -232,62 +506,45 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 // have something to put on my portfolio and practice react skills while I finish the state machine algorithm
 // and language
 // use class based components
-class App extends React.Component {
+const App = (props) => {
+  return (
+    // constructor() {
+    //   super();
+    //   this.state = {
+    //     myObject: { nestedObject: 0 },
+    //     myOtherObject: { nestedObject2: 50 },
+    //     // white box training wheels to black box batch testing for trie
+    //     // put each old debugging version for the section into a modal when done
+    //     // need people to see the previous debugging systems while I make progress on the
+    //     // functions are the saem, but the props are different
+    //     // only let the function run when the button has activated
+    //   };
+    // }
 
-  constructor() {
-    super();
-    this.state = {
-      myObject: { nestedObject: 0},
-      myOtherObject: {nestedObject2: 50}
-      // white box training wheels to black box batch testing for trie
-      // put each old debugging version for the section into a modal when done
-      // need people to see the previous debugging systems while I make progress on the 
-      // functions are the saem, but the props are different
-      // only let the function run when the button has activated
-      
-      
-    }
-  }
+    <div className="App">
+      {/* {this.thisIsATest()} */}
+      {/* <Header /> */}
+      {/* <Data /> */}
+      <div>
+        {/* {console.log('happening')} */}
+        {/* the parent and the first state to run need to be the same for the first call */}
+        <button onClick={() => makeArrays(stateTree)}>start</button>
+        {/* <button onClick={() => this.showStates()}>show states</button> */}
 
-  thisIsATest = () => {
-
-    // const myState = {...this.state}
-    const newThing = {nestedObject: this.state.myObject.nestedObject + 1}
-    // console.log(myState)
-    // console.log(newThing)
-    // myState["myObject"] = newThing
-    // console.log(myState)
-    console.log(this.state)
-    this.state = {
-      // copy original
-      ...this.state,
-      // overwrite with what I want
-      myObject: newThing
-    }
-    // change it but don't rerender
-    // this.state["myObject"] = { myObject: newThing}
-
-    console.log(this.state)
-
-
-      
-  }
-  
-
-  render() {
-    return (
-      <div className="App">
-        {/* {this.thisIsATest()} */}
-        {/* <Header /> */}
-        <Data />
-        {/* the action of vars changing through time and passing to functions 
+        {/* {this.state.stateChanges.length > 0 && this.state.stateChanges.map(level => (
+                    level.map((state, i) => (
+                        <State key={i} changes={state} />
+                    ))
+                ))} */}
+      </div>
+      {/* the action of vars changing through time and passing to functions 
         function signature
         the expressions passed in
         the values passed in
         at same level at top timeline have the function variables(reiterate the function stuff)
         need the trie tree to be fixed and on the side so we can follow the changes with the var timelines
         */}
-        {/* trie tree as in https://en.wikipedia.org/wiki/Trie#/media/File:Trie_example.svg
+      {/* trie tree as in https://en.wikipedia.org/wiki/Trie#/media/File:Trie_example.svg
         each node has the string traveled thus far
 
 
@@ -382,11 +639,10 @@ class App extends React.Component {
             Press button
                 Wave activates the next code block
         */}
-        {/* <InsertWords props={this.state}/> */}
-        {/* <Variables /> */}
-      </div>
-    );
-  }
-}
+      {/* <InsertWords props={this.state}/> */}
+      {/* <Variables /> */}
+    </div>
+  );
+};
 
 export default App;
