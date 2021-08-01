@@ -119,8 +119,9 @@ the trie tree
 the user must be able to access each node in the context tree of each state
 each state that has variables, can be n words but must have a unique path between all variables
 the states has. this lets the user use the first word only to refer to it in code.
+each state has children
 
-  variable names inside the state scope
+variable names inside the state scope
   not allowed
   a
     b
@@ -132,6 +133,26 @@ the states has. this lets the user use the first word only to refer to it in cod
    b
     d
   c
+
+role of variables
+primitives
+small data structures(js inbuilt data structures)
+  hash table
+  arrays, multidimential arrays
+  adjaciency list
+
+root state for the search tries(26 tries)
+    root
+        search
+            26 roots(a-z)
+        random
+            26 pivot states(a-z) for each trie
+                branch pivot states for each unique path in the trie
+    root/random/userLetter/a-z/[0, n]; for each branch pivot state
+        each branch pivot state is orgainized by letter
+    root/random/userLetter/a/[0, n]; all the nodes in the search
+
+    c/{randomNumber/, ....}/title -> [title/{randomNumber/, ....}, ]
 */
 
 export { insertName, setAttribute, setupState, getStateNames, makeArrays };

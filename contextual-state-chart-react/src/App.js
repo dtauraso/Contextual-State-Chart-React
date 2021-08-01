@@ -5,9 +5,9 @@ import {
   setupState,
   getStateNames,
   makeArrays,
-} from "./ContextualStateChart/ContextualStateChart";
+} from "./ContextualStateChart/ContextualStateChartInit";
 import { stateTree } from "./Calculator/CalculatorStateTree";
-
+import { visitor } from "./ContextualStateChart/Visitor/Visitor";
 import "./App.css";
 import Header from "./components/debug_interface/Header";
 // import Data from "./components/debug_interface/data/Data";
@@ -250,6 +250,7 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 const App = (props) => {
   const { namesTrie, states } = makeArrays(stateTree);
   console.log({ namesTrie, states });
+  visitor(["calculator"], namesTrie, states);
   return (
     // constructor() {
     //   super();
@@ -271,7 +272,7 @@ const App = (props) => {
       <div>
         {/* {console.log('happening')} */}
         {/* the parent and the first state to run need to be the same for the first call */}
-        <button onClick={() => makeArrays(stateTree)}>start</button>
+        {/* <button onClick={() => makeArrays(stateTree)}>start</button> */}
         {/* <button onClick={() => this.showStates()}>show states</button> */}
 
         {/* {this.state.stateChanges.length > 0 && this.state.stateChanges.map(level => (
