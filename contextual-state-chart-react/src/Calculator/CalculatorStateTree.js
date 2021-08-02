@@ -1,6 +1,7 @@
 export let stateTree = {
   calculator: {
     functionCode: "returnTrue",
+    start: ["createExpression"],
     children: {
       createExpression: {
         functionCode: "returnTrue",
