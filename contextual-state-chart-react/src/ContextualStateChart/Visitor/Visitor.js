@@ -64,7 +64,10 @@ export const visitor = (startStateName, namesTrie, states) => {
     timeLines.children.forEach((timeLine) => {
       let currentTimeLine = getState(namesTrie, states, timeLine);
       // add a next states contest to currentTimeLine
-      currentTimeLine["variables"] = { nextStates: currentTimeLine.next };
+      currentTimeLine["variables"] = {
+        nextStates: currentTimeLine.next,
+        winningState: "",
+      };
       console.log({ namesTrie, states, currentTimeLine });
       while (currentTimeLine.variables.nextStates.length > 0) {
         if (stateRunCount === 1) {
