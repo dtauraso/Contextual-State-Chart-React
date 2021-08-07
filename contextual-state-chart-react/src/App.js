@@ -250,7 +250,8 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 const App = (props) => {
   const { namesTrie, states } = makeArrays(stateTree);
   console.log({ namesTrie, states });
-  visitor(["calculator"], namesTrie, states);
+  let graph = { namesTrie, states };
+  visitor(["calculator"], graph);
   return (
     // constructor() {
     //   super();

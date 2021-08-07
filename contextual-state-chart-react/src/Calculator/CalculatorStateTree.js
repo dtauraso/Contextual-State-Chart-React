@@ -1,42 +1,42 @@
 import {
-  numberGetDigit,
-  saveNumber,
-  operatorGetOperator,
-  saveOperator,
-  isInputValid,
-  parseChar,
-  getA2,
-  getA,
-  getB2,
-  getB,
-  isOp2,
-  isOp,
-  evaluate2,
-  evaluate,
-  ignoreOp2,
-  ignoreOp,
-  endOfInput2,
-  endOfInput,
-  inputIsInvalid2,
-  inputIsInvalid,
-  noMoreInput2,
-  noMoreInput,
-  saveDigit,
-  isWhiteSpace,
-  mult,
-  divide,
-  plus,
-  minus,
-  returnTrue2,
+  // numberGetDigit,
+  // saveNumber,
+  // operatorGetOperator,
+  // saveOperator,
+  // isInputValid,
+  // parseChar,
+  // getA2,
+  // getA,
+  // getB2,
+  // getB,
+  // isOp2,
+  // isOp,
+  // evaluate2,
+  // evaluate,
+  // ignoreOp2,
+  // ignoreOp,
+  // endOfInput2,
+  // endOfInput,
+  // inputIsInvalid2,
+  // inputIsInvalid,
+  // noMoreInput2,
+  // noMoreInput,
+  // saveDigit,
+  // isWhiteSpace,
+  // mult,
+  // divide,
+  // plus,
+  // minus,
+  // returnTrue2,
   returnTrue,
-  returnFalse2,
-  returnFalse,
-  resetForNextRound2,
-  resetForNextRound,
-  showAndExit2,
-  showAndExit,
-  validOp2,
-  validOp,
+  // returnFalse2,
+  // returnFalse,
+  // resetForNextRound2,
+  // resetForNextRound,
+  // showAndExit2,
+  // showAndExit,
+  // validOp2,
+  // validOp,
 } from "../Calculator/CalculatorStateFunctions";
 
 export let stateTree = {
@@ -56,16 +56,16 @@ export let stateTree = {
             start: ["number get digit"],
             children: {
               "number get digit": {
-                functionCode: numberGetDigit,
+                functionCode: "numberGetDigit",
                 next: ["number get digit", "save number"],
               },
               "save number": {
-                functionCode: saveNumber,
+                functionCode: "saveNumber",
               },
             },
           },
           "is input valid": {
-            functionCode: isInputValid,
+            functionCode: "isInputValid",
             // returns true if we hit end of input and it's a valid expression
           },
           operator: {
@@ -77,11 +77,11 @@ export let stateTree = {
               operator: {
                 get: {
                   // getOperator
-                  functionCode: operatorGetOperator,
+                  functionCode: "operatorGetOperator",
                   next: ["operator, save"],
                 },
                 save: {
-                  functionCode: saveOperator,
+                  functionCode: "saveOperator",
                 },
               },
             },
@@ -96,30 +96,30 @@ export let stateTree = {
         children: {
           // get, save, increment or update the array
           a0: {
-            functionCode: getA2, // increment
+            functionCode: "getA2", // increment
             next: ["resetForNextRoundOfInput", "op", "opIgnore"],
           },
 
           op: {
-            functionCode: isOp2, // increment
+            functionCode: "isOp2", // increment
             next: ["b evaluate"],
           },
           // add new step to save b?
           // make a result variable to show the result?
           // the item 'b evaluate' put in is the same item 'a0' starts on
           "b evaluate": {
-            functionCode: evaluate2, // updates the array
+            functionCode: "evaluate2", // updates the array
             next: ["a0"],
           },
 
           opIgnore: {
-            functionCode: ignoreOp2, // increment
+            functionCode: "ignoreOp2", // increment
             next: ["a0"],
           },
 
           // some of this is wrong
           resetForNextRoundOfInput: {
-            functionCode: resetForNextRound2,
+            functionCode: "resetForNextRound2",
             next: [/*'endOfEvaluating'*/ "inputHas1Value", "a0"],
           },
         },
@@ -145,7 +145,7 @@ export let stateTree = {
         },
       },
       inputHas1Value: {
-        functionCode: showAndExit2,
+        functionCode: "showAndExit2",
       },
     },
     variables: {
