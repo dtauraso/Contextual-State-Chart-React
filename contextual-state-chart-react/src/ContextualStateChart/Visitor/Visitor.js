@@ -27,17 +27,33 @@ const getStateId = (namesTrie, stateName) => {
   }
   return stateId;
 };
-const getState = (namesTrie, states, stateName) => {
-  const stateId = getStateId(namesTrie, stateName);
-  return states[stateId];
+const getState = (graph, stateName) => {
+  const stateId = getStateId(graph.namesTrie, stateName);
+  return graph.states[stateId];
 };
-const insertState = (graph, state) => {
-  graph.namesTrie = insertName(
+const insertState = (graph, state, variables = {}) => {
+  // const name1 = state.name;
+  const { tree, updatedName } = insertName(
     graph.namesTrie,
     state.name,
     graph.states.length
   );
+  graph.namesTrie = tree;
+  // console.log({ updatedName });
+  //
+  // graph.namesTrie = insertName(
+  //   graph.namesTrie,
+  //   state.name,
+  //   graph.states.length
+  // );
+  // const name2 = state.name;
+  // if (name1.length < name2.length) {
+  // console.log({ name2 });
+  // }
   graph.states.push(state);
+  if (Object.keys(variables).length > 0) {
+    console.log("add variables");
+  }
 };
 export const visitor = (startStateName, graph) => {
   /*
@@ -67,16 +83,16 @@ export const visitor = (startStateName, graph) => {
     },
   });
   console.log({ graph });
-  let bottom = getState(graph.namesTrie, graph.states, bottomName);
+  let bottom = getState(graph, bottomName);
   let stateRunCount = 0;
   while (bottom.children.length > 0) {
     bottom.children.forEach((timeLine, i) => {
-      let currentTracker = getState(graph.namesTrie, graph.states, timeLine);
+      let currentTracker = getState(graph, timeLine);
       // add a next states contest to currentTimeLine
       console.log({ graph, currentTracker });
       while (currentTracker.variables.nextStates.length > 0) {
         console.log({ stateRunCount });
-        if (stateRunCount >= 2) {
+        if (stateRunCount >= 1) {
           console.log("state run count is too high");
           return false;
         }
@@ -85,7 +101,7 @@ export const visitor = (startStateName, graph) => {
             return;
           }
           console.log(stateToRunName);
-          const state = getState(graph.namesTrie, graph.states, stateToRunName);
+          const state = getState(graph, stateToRunName);
           console.log({ functionCode: state.functionCode });
           if (state.functionCode(graph)) {
             currentTracker.variables.winningStateName = stateToRunName;
@@ -96,8 +112,7 @@ export const visitor = (startStateName, graph) => {
           return false;
         }
         const winningState = getState(
-          graph.namesTrie,
-          graph.states,
+          graph,
           currentTracker.variables.winningStateName
         );
         if ("children" in winningState) {
@@ -108,61 +123,38 @@ export const visitor = (startStateName, graph) => {
           const newTrackerName = [`level ${levelId}, timeLine ${timeLineId}`];
           // make new level tracker node and doubly link it with the current level
           // tracker node
-          /* parent and child nodes are not getting setup properly */
-          insertState(graph, {
-            name: newTrackerName,
-            next: [...winningState.children],
-            parent: currentTracker.name,
-            children: [],
-            variables: {
+          insertState(
+            graph,
+            {
+              name: newTrackerName,
+              next: [...winningState.children],
+              parent: currentTracker.name,
+              children: [],
+              // unclear way variables are being used
+              variables: {
+                nextStates: [winningState.name],
+                winningStateName: null,
+              },
+            },
+            {
               nextStates: [winningState.name],
               winningStateName: null,
-            },
-          });
+            }
+          );
           currentTracker.children.push(newTrackerName);
 
           bottom.children[i] = newTrackerName;
-          currentTracker = getState(
-            graph.namesTrie,
-            graph.states,
-            newTrackerName
-          );
-          // let nextLevel = getState(
-          //   graph.namesTrie,
-          //   graph.states,
-          //   newTrackerName
-          // );
-          // set variables for newTracker name like this
-          // nextLevel["variables"] = {
-          //   nextStates: [winningState.start],
-          //   winningStateName: null,
-          // };
+          currentTracker = getState(graph, newTrackerName);
           console.log({ currentTracker });
-          // currentTimeLine.children.push(newTrackerName);
-          // move the bottom down
-          // let bottomLevelState = getState(
-          //   graph.namesTrie,
-          //   graph.states,
-          //   bottom
-          // );
-          // bottomLevelState.children[i] = currentTimeLine.children[0];
-
-          // works but don't know why(actually doesn't work)
-          // parentTrackerName = newTrackerName;
-
-          // currentTimeLine = getState(
-          //   graph.namesTrie,
-          //   graph.states,
-          //   newTrackerName
-          // );
           console.log({
-            name: graph.namesTrie,
-            graph: graph,
+            graph,
             bottom,
             currentTracker,
-            newLevel: graph.states[graph.states.length - 1],
           });
-          console.log({ currentTracker });
+          insertState(graph, {
+            name: ["calculator", "run state machine", "bottom"],
+          });
+          console.log({ graph });
         } else if ("next" in winningState) {
           if (winningState.next.length > 0) {
             // there are next states to run

@@ -4,34 +4,64 @@ const insertName = (names, name, stateId) => {
   // save trie node as a state
   if (name.length === 0) {
     // console.log("base case");
+    if ("id" in names) {
+      console.log(
+        Object.keys(names)
+          .filter((key) => key !== "id")
+          .sort()
+      );
+    }
     return {
-      ...names,
-      id: stateId,
+      tree: {
+        ...names,
+        id: stateId,
+      },
+      updatedName: [],
     };
   } else if (Object.keys(names).length === 0) {
     // what if there is an "id" in names
     // console.log("names is empty");
+    const { tree, updatedName } = insertName(
+      {},
+      name.slice(1, name.length),
+      stateId
+    );
     return {
-      ...names,
-      [name[0]]: insertName({}, name.slice(1, name.length), stateId),
+      tree: {
+        ...names,
+        [name[0]]: tree,
+      },
+      updatedName: [name[0], ...updatedName],
     };
   } else if (name[0] in names) {
     // console.log("first name is in names");
+    const { tree, updatedName } = insertName(
+      names[name[0]],
+      name.slice(1, name.length),
+      stateId
+    );
     return {
-      ...names,
-      [name[0]]: insertName(
-        names[name[0]],
-        name.slice(1, name.length),
-        stateId
-      ),
+      tree: {
+        ...names,
+        [name[0]]: tree,
+      },
+      updatedName: [name[0], ...updatedName],
     };
   } else {
     // console.log("no name is in names");
     // console.log({ x });
     // first item in sequence is at same level
+    const { tree, updatedName } = insertName(
+      {},
+      name.slice(1, name.length),
+      stateId
+    );
     return {
-      ...names,
-      [name[0]]: insertName({}, name.slice(1, name.length), stateId),
+      tree: {
+        ...names,
+        [name[0]]: tree,
+      },
+      updatedName: [name[0], ...updatedName],
     };
   }
 };
@@ -103,13 +133,16 @@ const makeArrays = (stateTree) => {
   let names = [];
   let states = [];
   getStateNames(stateTree, [], names, states);
-  console.log({ names, states });
+  // console.log({ names, states });
   // console.log({ keys: Object.keys(names) });
   let namesTrie = {};
   names.forEach((nameArray, i) => {
-    namesTrie = insertName(namesTrie, nameArray, i);
+    const { tree, updatedName } = insertName(namesTrie, nameArray, i);
+    // console.log({ updatedName });
+    // console.log({ tree, updatedName });
+    namesTrie = tree;
   });
-  console.log({ namesTrie, states });
+  // console.log({ namesTrie, states });
   return { namesTrie, states };
 };
 /*
