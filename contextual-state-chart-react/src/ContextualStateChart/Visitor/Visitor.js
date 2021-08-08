@@ -39,7 +39,8 @@ const insertState = (graph, state, variables = {}) => {
     graph.states.length
   );
   graph.namesTrie = tree;
-  // console.log({ updatedName });
+  console.log({ updatedName });
+  state.name = updatedName;
   //
   // graph.namesTrie = insertName(
   //   graph.namesTrie,
@@ -150,6 +151,21 @@ export const visitor = (startStateName, graph) => {
             graph,
             bottom,
             currentTracker,
+          });
+          insertState(graph, {
+            name: ["calculator", "run state machine", "bottom"],
+          });
+          insertState(graph, {
+            name: ["calculator", "run state machine", "bottom"],
+          });
+          insertState(graph, {
+            name: ["calculator", "run state machine", "bottom"],
+          });
+          insertState(graph, {
+            name: ["calculator", "run state machine", "bottom"],
+          });
+          insertState(graph, {
+            name: ["calculator", "run state machine", "bottom"],
           });
           insertState(graph, {
             name: ["calculator", "run state machine", "bottom"],
