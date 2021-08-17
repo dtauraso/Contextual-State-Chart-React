@@ -42,22 +42,22 @@ import {
 export let stateTree = {
   calculator: {
     functionCode: returnTrue,
-    start: ["createExpression"],
+    start: [["createExpression"]],
     children: {
       createExpression: {
         functionCode: returnTrue,
-        next: ["evaluateExpression"],
-        start: ["number"],
+        next: [["evaluateExpression"]],
+        start: [["number"]],
         children: {
           number: {
             functionCode: returnTrue,
-            next: ["is input valid", "operator"],
+            next: [["is input valid"], ["operator"]],
             // children: ["number get digit"],
-            start: ["number get digit"],
+            start: [["number get digit"]],
             children: {
               "number get digit": {
                 functionCode: "numberGetDigit",
-                next: ["number get digit", "save number"],
+                next: [["number get digit"], ["save number"]],
               },
               "save number": {
                 functionCode: "saveNumber",
@@ -70,15 +70,15 @@ export let stateTree = {
           },
           operator: {
             functionCode: returnTrue,
-            next: ["number"],
-            start: ["operator, get"],
+            next: [["number"]],
+            start: [["operator, get"]],
             // children: ["operator get operator"],
             children: {
               operator: {
                 get: {
                   // getOperator
                   functionCode: "operatorGetOperator",
-                  next: ["operator, save"],
+                  next: [["operator, save"]],
                 },
                 save: {
                   functionCode: "saveOperator",
@@ -91,36 +91,36 @@ export let stateTree = {
       },
       evaluateExpression: {
         functionCode: returnTrue,
-        next: ["inputHas1Value" /*,'evaluateExpression'*/],
-        start: ["a0"],
+        next: [["inputHas1Value"] /*,'evaluateExpression'*/],
+        start: [["a0"]],
         children: {
           // get, save, increment or update the array
           a0: {
             functionCode: "getA2", // increment
-            next: ["resetForNextRoundOfInput", "op", "opIgnore"],
+            next: [["resetForNextRoundOfInput"], ["op"], ["opIgnore"]],
           },
 
           op: {
             functionCode: "isOp2", // increment
-            next: ["b evaluate"],
+            next: [["b evaluate"]],
           },
           // add new step to save b?
           // make a result variable to show the result?
           // the item 'b evaluate' put in is the same item 'a0' starts on
           "b evaluate": {
             functionCode: "evaluate2", // updates the array
-            next: ["a0"],
+            next: [["a0"]],
           },
 
           opIgnore: {
             functionCode: "ignoreOp2", // increment
-            next: ["a0"],
+            next: [["a0"]],
           },
 
           // some of this is wrong
           resetForNextRoundOfInput: {
             functionCode: "resetForNextRound2",
-            next: [/*'endOfEvaluating'*/ "inputHas1Value", "a0"],
+            next: [/*'endOfEvaluating'*/ ["inputHas1Value"], ["a0"]],
           },
         },
         variables: {
