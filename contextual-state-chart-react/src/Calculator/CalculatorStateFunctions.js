@@ -1,22 +1,29 @@
-// const numberGetDigit = (graph, parentStateName, currentStateName) => {
-//   const input = hcssm.getVariable(graph, "root", "input").value;
-//   const i1 = hcssm.getVariable(graph, "parse to tokens", "i1").value;
-//   const token = hcssm.getVariable(graph, "create expression", "token").value;
+import {
+  getVariable,
+  setVariable,
+} from "../ContextualStateChart/Visitor/Visitor";
+const numberGetDigit = (graph, currentState) => {
+  console.log({ graph, currentState });
+  const x = getVariable(graph, ["calculator"], "input");
+  console.log({ x });
+  // const input = hcssm.getVariable(graph, "root", "input").value;
+  // const i1 = hcssm.getVariable(graph, "parse to tokens", "i1").value;
+  // const token = hcssm.getVariable(graph, "create expression", "token").value;
 
-//   // console.log(currentStateName)
-//   // console.log({input, i, token})
-//   if (i1 >= input.length) {
-//     return false;
-//   }
-//   if (!(input[i1] >= "0" && input[i1] <= "9")) {
-//     return false;
-//   }
+  // console.log(currentStateName)
+  // console.log({input, i, token})
+  // if (i1 >= input.length) {
+  //   return false;
+  // }
+  // if (!(input[i1] >= "0" && input[i1] <= "9")) {
+  //   return false;
+  // }
 
-//   hcssm.setVariable(graph, "create expression", "token", token + input[i1]);
-//   hcssm.setVariable(graph, "parse to tokens", "i1", i1 + 1);
+  // hcssm.setVariable(graph, "create expression", "token", token + input[i1]);
+  // hcssm.setVariable(graph, "parse to tokens", "i1", i1 + 1);
 
-//   return true;
-// };
+  return true;
+};
 // const saveNumber = (graph, parentStateName, currentStateName) => {
 //   // console.log('saveNumber')
 //   let expression = hcssm.getVariable(graph, "root", "expression").value;
@@ -519,7 +526,7 @@ const returnTrue = (graph) => {
 // };
 
 export {
-  //   numberGetDigit,
+  numberGetDigit,
   //   saveNumber,
   //   operatorGetOperator,
   //   saveOperator,

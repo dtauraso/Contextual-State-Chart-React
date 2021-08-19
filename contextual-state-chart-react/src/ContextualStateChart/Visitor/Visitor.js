@@ -6,6 +6,7 @@ import {
   makeArrays,
 } from "../ContextualStateChartInit";
 const getStateId = (namesTrie, stateName) => {
+  // console.log({ namesTrie, stateName });
   let stateId = 0;
   let namesTrieTracker = namesTrie;
   let isFound = true;
@@ -32,46 +33,55 @@ const getStateId = (namesTrie, stateName) => {
   return stateId;
 };
 const getState = (graph, stateName) => {
+  // console.log({ stateName });
   const stateId = getStateId(graph.namesTrie, stateName);
-  return graph.states[stateId];
+  return graph.statesObject.states[stateId];
 };
-const getVariable = (graph, state, variableName) => {
-  if (variableName in state.variableNames) {
-    const stateId = state.variableNames[variableName];
-    return graph.states[stateId];
+const getVariable = (graph, stateName, variableName) => {
+  console.log({ stateName });
+
+  const state = getState(graph, stateName);
+  console.log({ state });
+  if (variableName in state.variables) {
+    const stateId = state.variables[variableName];
+    return graph.statesObject.states[stateId];
   }
 };
-const setVariable = (graph, state, variableName, newValue) => {
-  console.log({ graph, state, variableName, newValue });
-  if (variableName in state.variableNames) {
-    const stateId = state.variableNames[variableName];
-    graph.states[stateId].value = newValue;
-    console.log({ graph, stateId });
+const setVariable = (graph, stateName, variableName, newValue) => {
+  // console.log({ graph, state, variableName, newValue });
+  const state = getState(graph, stateName);
+  if (variableName in state.variables) {
+    const stateId = state.variables[variableName];
+    graph.statesObject.states[stateId].value = newValue;
+    // console.log({ graph, stateId });
   }
 };
 const insertVariableState = (graph, state, variable) => {
   // variable is the new variable state
   // console.log({ variable });
-
+  // fix for data structure update
   // new variable state is inside graph.states
-  graph.states.push(variable);
+  graph.statesObject.maxStateId += 1;
+  graph.statesObject.states[graph.statesObject.maxStateId] = variable;
+  // graph.states.push(variable);
   // new variable state name is inside state.variableNames
-  state.variableNames[variable.name[0]] = graph.states.length - 1;
+  state.variables[variable.name[0]] = graph.statesObject.maxStateId;
 };
 const insertState = (graph, state, variables = {}) => {
+  graph.statesObject.maxStateId += 1;
   const { tree, updatedName } = insertName(
     graph.namesTrie,
     state.name,
-    graph.states.length // works because current length is current length - 1
-    // after state is added inside insertName
+    graph.statesObject.maxStateId
   );
+  console.log({ graph });
   graph.namesTrie = tree;
-  console.log({ updatedName });
+  // console.log({ updatedName });
   state.name = updatedName;
   if (Object.keys(variables).length > 0) {
-    state["variableNames"] = {};
+    state["variables"] = {};
   }
-  graph.states.push(state);
+  graph.statesObject.states[graph.statesObject.maxStateId] = state;
   // only works for variable names of 1 dimention
   // the variable can only be accesible from the current state
   // each state can only have 1 unique user defined variable name
@@ -120,19 +130,23 @@ export const visitor = (startStateName, graph) => {
       winningStateName: null,
     }
   );
-  console.log({ graph });
+  // console.log({ graph });
   let bottom = getState(graph, bottomName);
   let stateRunCount = 0;
   while (bottom.children.length > 0) {
     bottom.children.forEach((timeLine, i) => {
       let currentTracker = getState(graph, timeLine);
       // add a next states contest to currentTimeLine
-      console.log({
+      // console.log({
+      //   graph,
+      //   currentTracker,
+      //   nextStates: getVariable(graph, currentTracker, "nextStates"),
+      // });
+      let nextStates = getVariable(
         graph,
-        currentTracker,
-        nextStates: getVariable(graph, currentTracker, "nextStates"),
-      });
-      let nextStates = getVariable(graph, currentTracker, "nextStates").value;
+        currentTracker.name,
+        "nextStates"
+      ).value;
       while (nextStates.length > 0) {
         console.log({ nextStates, stateRunCount });
         if (stateRunCount >= 4) {
@@ -141,7 +155,7 @@ export const visitor = (startStateName, graph) => {
         }
         let winningStateName = getVariable(
           graph,
-          currentTracker,
+          currentTracker.name,
           "winningStateName"
         );
         console.log({ currentTracker, winningStateName });
@@ -152,7 +166,13 @@ export const visitor = (startStateName, graph) => {
           console.log({ stateToRunName });
           const state = getState(graph, stateToRunName);
           console.log({ functionCode: state.functionCode });
-          if (state.functionCode(graph)) {
+          if (typeof state.functionCode === "string") {
+            console.log(
+              `can't run a string ${state.functionCode} as a function`
+            );
+            return;
+          }
+          if (state.functionCode(graph, state)) {
             winningStateName.value = stateToRunName;
           }
         });
@@ -176,7 +196,7 @@ export const visitor = (startStateName, graph) => {
               name: newTrackerName,
               next: winningState.start,
               parent: currentTracker.name,
-              children: [],
+              children: [], // is updated each loop on line 193
             },
             {
               nextStates: [winningState.name],
@@ -187,14 +207,11 @@ export const visitor = (startStateName, graph) => {
 
           bottom.children[i] = newTrackerName;
           currentTracker = getState(graph, newTrackerName);
-          console.log({ currentTracker });
-          console.log({
-            graph,
-            bottom,
-            currentTracker,
-          });
-          // insertState(graph, {
-          //   name: ["calculator", "run state machine", "bottom"],
+          // console.log({ currentTracker });
+          // console.log({
+          //   graph,
+          //   bottom,
+          //   currentTracker,
           // });
           // insertState(graph, {
           //   name: ["calculator", "run state machine", "bottom"],
@@ -211,15 +228,22 @@ export const visitor = (startStateName, graph) => {
           // insertState(graph, {
           //   name: ["calculator", "run state machine", "bottom"],
           // });
-          console.log({ graph, winningState, nextStates });
+          // insertState(graph, {
+          //   name: ["calculator", "run state machine", "bottom"],
+          // });
+          // console.log({ graph, winningState, nextStates });
           // return false;
           setVariable(
             graph,
-            currentTracker,
-            getVariable(graph, currentTracker, "nextStates").name[0],
+            currentTracker.name,
+            getVariable(graph, currentTracker.name, "nextStates").name[0],
             winningState.start
           );
-          nextStates = getVariable(graph, currentTracker, "nextStates").value;
+          nextStates = getVariable(
+            graph,
+            currentTracker.name,
+            "nextStates"
+          ).value;
         } else if ("next" in winningState) {
           if (winningState.next.length > 0) {
             // there are next states to run
@@ -235,3 +259,5 @@ export const visitor = (startStateName, graph) => {
     return false;
   }
 };
+
+export { getVariable, setVariable };

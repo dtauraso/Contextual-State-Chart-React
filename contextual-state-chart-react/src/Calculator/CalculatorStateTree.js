@@ -1,5 +1,5 @@
 import {
-  // numberGetDigit,
+  numberGetDigit,
   // saveNumber,
   // operatorGetOperator,
   // saveOperator,
@@ -39,6 +39,7 @@ import {
   // validOp,
 } from "../Calculator/CalculatorStateFunctions";
 
+// convenient way to set the tree up
 export let stateTree = {
   calculator: {
     functionCode: returnTrue,
@@ -56,7 +57,7 @@ export let stateTree = {
             start: [["number get digit"]],
             children: {
               "number get digit": {
-                functionCode: "numberGetDigit",
+                functionCode: numberGetDigit,
                 next: [["number get digit"], ["save number"]],
               },
               "save number": {

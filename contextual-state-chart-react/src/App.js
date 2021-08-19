@@ -248,9 +248,9 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 // and language
 // use class based components
 const App = (props) => {
-  const { namesTrie, states } = makeArrays(stateTree);
-  console.log({ namesTrie, states });
-  let graph = { namesTrie, states };
+  const { namesTrie, statesObject } = makeArrays(stateTree);
+  console.log({ namesTrie, statesObject });
+  let graph = { namesTrie, statesObject };
   visitor(["calculator"], graph);
   return (
     // constructor() {

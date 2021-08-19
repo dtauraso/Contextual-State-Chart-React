@@ -104,21 +104,46 @@ const setAttribute = (object, newObject, key, value) => {
     newObject[key] = value;
   }
 };
-const setupState = (states, state, stateName) => {
+const setupState = (state, stateName) => {
   // append state
   const children = state?.children;
+  const variables = state?.variables;
+  // console.log({ variables });
+  let variableKeys = {};
+  if (variables) {
+    // console.log("here");
+    Object.keys(variables).forEach((variableName) => {
+      variableKeys[variableName] = 1; // how to find the id numbers of where the variables are in the array
+    });
+  }
   let newState = {};
   // console.log({ before: newState });
+  // console.log({ variableKeys });
   newState["name"] = stateName;
   setAttribute(state, newState, "functionCode", state?.functionCode);
   setAttribute(state, newState, "next", state?.next);
   setAttribute(state, newState, "start", state?.start);
   setAttribute(state, newState, "value", state?.value);
   setAttribute(state, newState, "children", children && Object.keys(children));
+  setAttribute(state, newState, "variables", variables && variableKeys);
   // console.log({ after: newState });
   return newState;
 };
-const getStateNames = (stateTree, stateName, names, states) => {
+const addState = (statesObject, stateTree, stateName) => {
+  statesObject.maxStateId += 1;
+  statesObject.states[statesObject.maxStateId] = setupState(
+    stateTree,
+    stateName
+  );
+  statesObject.states[statesObject.maxStateId]["id"] = statesObject.maxStateId;
+};
+const getStateNames = (
+  stateTree,
+  stateName,
+  names,
+  statesObject,
+  stateNameToStateIdAndVarCount
+) => {
   const keys = Object.keys(stateTree);
   const keyMapsToObject = keys.find(
     (key) =>
@@ -126,29 +151,59 @@ const getStateNames = (stateTree, stateName, names, states) => {
   );
   if (keys.includes("value")) {
     names.push(stateName);
-    states.push(setupState(states, stateTree, stateName));
-    states[states.length - 1]["id"] = states.length - 1;
-    return;
+    addState(statesObject, stateTree, stateName);
+    return statesObject.maxStateId;
   }
   if (keys.includes("children")) {
     // stateTree is an internal node
     names.push(stateName);
-    states.push(setupState(states, stateTree, stateName));
-    states[states.length - 1]["id"] = states.length - 1;
+    addState(statesObject, stateTree, stateName);
+    if (keys.includes("variables")) {
+      stateNameToStateIdAndVarCount[stateName.join(" ")] = {
+        varCountDown: Object.keys(stateTree.variables).length,
+        id: names.length - 1,
+      };
+    }
     Object.keys(stateTree.children).forEach((key) => {
-      getStateNames(stateTree.children[key], [key], names, states);
+      getStateNames(
+        stateTree.children[key],
+        [key],
+        names,
+        statesObject,
+        stateNameToStateIdAndVarCount
+      );
     });
   }
   if (keys.includes("variables")) {
     Object.keys(stateTree.variables).forEach((key) => {
-      getStateNames(stateTree.variables[key], [key], names, states);
+      const variableId = getStateNames(
+        stateTree.variables[key],
+        [key],
+        names,
+        statesObject,
+        stateNameToStateIdAndVarCount
+      );
+      // how to link the variable's id value in the object with it's name as a key
+      // in the state's variable's object
+      // how to find the id of the state
+      // variables have to added locally
+      // O(h) where h is the height of the tree from the stateName to the leaf node
+      // stateName.join(" ") -> {varCountDown, id} when it's been added and has variables
+      // console.log({ variableId });
+      // console.log({ stateName: stateName.join(" ") });
+      console.log({
+        variableId,
+        stateName: stateName,
+        stuff: stateNameToStateIdAndVarCount[stateName.join(" ")],
+      });
+      const stateId = stateNameToStateIdAndVarCount[stateName.join(" ")].id;
+      statesObject.states[stateId].variables[key] = variableId;
     });
   } else if (keyMapsToObject === undefined) {
     // no key maps to an object
     // stateTree is a leaf node
     names.push(stateName);
-    states.push(setupState(states, stateTree, stateName));
-    states[states.length - 1]["id"] = states.length - 1;
+    addState(statesObject, stateTree, stateName);
   } else if (
     !keys.includes("function") &&
     !keys.includes("next") &&
@@ -158,15 +213,22 @@ const getStateNames = (stateTree, stateName, names, states) => {
     // stateTree is part of a state name
 
     keys.forEach((key) => {
-      getStateNames(stateTree[key], [...stateName, key], names, states);
+      getStateNames(
+        stateTree[key],
+        [...stateName, key],
+        names,
+        statesObject,
+        stateNameToStateIdAndVarCount
+      );
     });
   }
 };
 const makeArrays = (stateTree) => {
   // get the state names
   let names = [];
-  let states = [];
-  getStateNames(stateTree, [], names, states);
+  // needs to be {} for O(1) adding, updating, and deleting
+  let statesObject = { maxStateId: -1, states: {} };
+  getStateNames(stateTree, [], names, statesObject, {});
   // console.log({ names, states });
   // console.log({ keys: Object.keys(names) });
   let namesTrie = {};
@@ -176,8 +238,8 @@ const makeArrays = (stateTree) => {
     // console.log({ tree, updatedName });
     namesTrie = tree;
   });
-  // console.log({ namesTrie, states });
-  return { namesTrie, states };
+  console.log({ namesTrie, statesObject });
+  return { namesTrie, statesObject };
 };
 /*
 rules of states
@@ -187,7 +249,7 @@ the user must be able to access each node in the context tree of each state
 each state that has variables, can be n words but must have a unique path between all variables
 the states has. this lets the user use the first word only to refer to it in code.
 each state has children
-
+a state cannot have variables but no children
 variable names inside the state scope
   not allowed
   a
