@@ -4,7 +4,7 @@ import {
 } from "../ContextualStateChart/Visitor/Visitor";
 const numberGetDigit = (graph, currentState) => {
   console.log({ graph, currentState });
-  const x = getVariable(graph, ["calculator"], "input");
+  const x = getVariable(graph, ["calculator"], "input").value;
   console.log({ x });
   // const input = hcssm.getVariable(graph, "root", "input").value;
   // const i1 = hcssm.getVariable(graph, "parse to tokens", "i1").value;

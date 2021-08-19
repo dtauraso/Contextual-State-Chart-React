@@ -161,7 +161,7 @@ const getStateNames = (
     if (keys.includes("variables")) {
       stateNameToStateIdAndVarCount[stateName.join(" ")] = {
         varCountDown: Object.keys(stateTree.variables).length,
-        id: names.length - 1,
+        stateId: names.length - 1,
       };
     }
     Object.keys(stateTree.children).forEach((key) => {
@@ -191,13 +191,18 @@ const getStateNames = (
       // stateName.join(" ") -> {varCountDown, id} when it's been added and has variables
       // console.log({ variableId });
       // console.log({ stateName: stateName.join(" ") });
-      console.log({
-        variableId,
-        stateName: stateName,
-        stuff: stateNameToStateIdAndVarCount[stateName.join(" ")],
-      });
-      const stateId = stateNameToStateIdAndVarCount[stateName.join(" ")].id;
+      // console.log({
+      //   variableId,
+      //   stateName: stateName,
+      //   stuff: stateNameToStateIdAndVarCount[stateName.join(" ")],
+      // });
+      const stateNameString = stateName.join(" ");
+      const stateId = stateNameToStateIdAndVarCount[stateNameString].stateId;
       statesObject.states[stateId].variables[key] = variableId;
+      stateNameToStateIdAndVarCount[stateNameString].varCountDown -= 1;
+      if (stateNameToStateIdAndVarCount[stateNameString].varCountDown === 0) {
+        delete stateNameToStateIdAndVarCount[stateNameString];
+      }
     });
   } else if (keyMapsToObject === undefined) {
     // no key maps to an object
