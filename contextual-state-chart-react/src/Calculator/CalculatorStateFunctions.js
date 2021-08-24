@@ -3,54 +3,52 @@ import {
   setVariable,
 } from "../ContextualStateChart/Visitor/Visitor";
 const numberGetDigit = (graph, currentState) => {
-  console.log({ graph, currentState });
-  const x = getVariable(graph, ["calculator"], "input").value;
-  console.log({ x });
-  // const input = hcssm.getVariable(graph, "root", "input").value;
-  // const i1 = hcssm.getVariable(graph, "parse to tokens", "i1").value;
-  // const token = hcssm.getVariable(graph, "create expression", "token").value;
+  const input = getVariable(graph, ["calculator"], "input").value;
+  const i1 = getVariable(graph, ["calculator"], "i1").value;
+  const token = getVariable(graph, ["createExpression"], "token").value;
+  if (i1 >= input.length) {
+    return false;
+  }
+  if (!(input[i1] >= "0" && input[i1] <= "9")) {
+    return false;
+  }
+  console.log("numberGetDigit");
 
-  // console.log(currentStateName)
-  // console.log({input, i, token})
-  // if (i1 >= input.length) {
-  //   return false;
-  // }
-  // if (!(input[i1] >= "0" && input[i1] <= "9")) {
-  //   return false;
-  // }
-
-  // hcssm.setVariable(graph, "create expression", "token", token + input[i1]);
-  // hcssm.setVariable(graph, "parse to tokens", "i1", i1 + 1);
-
+  setVariable(graph, ["createExpression"], "token", token + input[i1]);
+  setVariable(graph, ["calculator"], "i1", i1 + 1);
+  console.log("end of state", { graph });
   return true;
 };
-// const saveNumber = (graph, parentStateName, currentStateName) => {
-//   // console.log('saveNumber')
-//   let expression = hcssm.getVariable(graph, "root", "expression").value;
+const saveNumber = (graph, currentState) => {
+  let expression = getVariable(graph, ["calculator"], "expression").value;
+  let token = getVariable(graph, ["createExpression"], "token").value;
+  if (Number(token) === NaN) {
+    return false;
+  }
 
-//   // console.log({parentStateName, currentStateName, expression})
-//   let token = hcssm.getVariable(graph, "create expression", "token").value;
-//   if (Number(token) === NaN) {
-//     return false;
-//   }
+  expression.push(Number(token));
 
-//   expression.push(Number(token));
-//   console.log({ expression });
+  let i1 = getVariable(graph, ["calculator"], "i1").value;
+  let input = getVariable(graph, ["calculator"], "input").value;
 
-//   let i1 = hcssm.getVariable(graph, "parse to tokens", "i1").value;
-//   let input = hcssm.getVariable(graph, "root", "input").value;
+  if (i1 >= input.length) {
+    return false;
+  }
+  while (input[i1] === " ") {
+    i1 += 1;
+    if (i1 >= input.length) {
+      return false;
+    }
+  }
+  console.log("saveNumber");
 
-//   while (input[i1] === " ") {
-//     i1 += 1;
-//   }
-//   hcssm.setVariable(graph, "root", "expression", expression);
-//   hcssm.setVariable(graph, "create expression", "token", "");
-//   hcssm.setVariable(graph, "parse to tokens", "i1", i1);
-//   // console.log(graph['nodeGraph2']['expression'])
+  setVariable(graph, ["calculator"], "expression", expression);
+  setVariable(graph, ["calculator"], "i1", i1);
 
-//   // fail
-//   return true;
-// };
+  setVariable(graph, ["createExpression"], "token", "");
+  console.log("end of state", { graph });
+  return true;
+};
 
 // const operatorGetOperator = (graph, parentStateName, currentStateName) => {
 //   const input = hcssm.getVariable(graph, "root", "input").value;
@@ -527,7 +525,7 @@ const returnTrue = (graph) => {
 
 export {
   numberGetDigit,
-  //   saveNumber,
+  saveNumber,
   //   operatorGetOperator,
   //   saveOperator,
   //   isInputValid,

@@ -1,6 +1,6 @@
 import {
   numberGetDigit,
-  // saveNumber,
+  saveNumber,
   // operatorGetOperator,
   // saveOperator,
   // isInputValid,
@@ -61,7 +61,7 @@ export let stateTree = {
                 next: [["number get digit"], ["save number"]],
               },
               "save number": {
-                functionCode: "saveNumber",
+                functionCode: saveNumber,
               },
             },
           },
