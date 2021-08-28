@@ -6,6 +6,9 @@ const numberGetDigit = (graph, currentState) => {
   const input = getVariable(graph, ["calculator"], "input").value;
   const i1 = getVariable(graph, ["calculator"], "i1").value;
   const token = getVariable(graph, ["createExpression"], "token").value;
+  let expression = getVariable(graph, ["calculator"], "expression").value;
+
+  console.log({ input, i1, token, expression });
   if (i1 >= input.length) {
     return false;
   }
@@ -22,6 +25,7 @@ const numberGetDigit = (graph, currentState) => {
 const saveNumber = (graph, currentState) => {
   let expression = getVariable(graph, ["calculator"], "expression").value;
   let token = getVariable(graph, ["createExpression"], "token").value;
+  console.log({ token, test: Number(token) });
   if (Number(token) === NaN) {
     return false;
   }
@@ -30,11 +34,9 @@ const saveNumber = (graph, currentState) => {
 
   let i1 = getVariable(graph, ["calculator"], "i1").value;
   let input = getVariable(graph, ["calculator"], "input").value;
+  console.log({ i1, length: input.length });
 
-  if (i1 >= input.length) {
-    return false;
-  }
-  while (input[i1] === " ") {
+  while (input[i1] && input[i1] === " ") {
     i1 += 1;
     if (i1 >= input.length) {
       return false;
@@ -49,70 +51,68 @@ const saveNumber = (graph, currentState) => {
   console.log("end of state", { graph });
   return true;
 };
+const isInputValid = (graph, currentState) => {
+  // will only return true after we have read in all the input and it's a valid expression
+  const input = getVariable(graph, ["calculator"], "input").value;
+  let i1 = getVariable(graph, ["calculator"], "i1").value;
+  let expression = getVariable(graph, ["calculator"], "expression").value;
 
-// const operatorGetOperator = (graph, parentStateName, currentStateName) => {
-//   const input = hcssm.getVariable(graph, "root", "input").value;
-//   let i1 = hcssm.getVariable(graph, "parse to tokens", "i1").value;
-//   let token = hcssm.getVariable(graph, "create expression", "token").value;
-//   // console.log({input, i, token})
-//   if (i1 >= input.length) {
-//     return false;
-//   }
-//   const operators = ["*", "/", "+", "-"];
-//   if (!operators.includes(input[i1])) {
-//     return false;
-//   }
+  if (i1 >= input.length) {
+    console.log({ expression });
+    return true;
+  }
+  return false;
+};
 
-//   hcssm.setVariable(graph, "create expression", "token", token + input[i1]);
-//   hcssm.setVariable(graph, "parse to tokens", "i1", i1 + 1);
+const operatorGetOperator = (graph, currentState) => {
+  const input = getVariable(graph, ["calculator"], "input").value;
+  const i1 = getVariable(graph, ["calculator"], "i1").value;
+  const token = getVariable(graph, ["createExpression"], "token").value;
+  console.log({ input, i1, token });
+  if (i1 >= input.length) {
+    return false;
+  }
+  const operators = ["*", "/", "+", "-"];
+  if (!operators.includes(input[i1])) {
+    return false;
+  }
 
-//   return true;
-// };
+  setVariable(graph, ["createExpression"], "token", token + input[i1]);
+  setVariable(graph, ["calculator"], "i1", i1 + 1);
 
-// const saveOperator = (graph, parentStateName, currentStateName) => {
-//   // console.log('saveOperator')
-//   let expression = hcssm.getVariable(graph, "root", "expression").value;
+  return true;
+};
 
-//   // console.log({parentStateName, currentStateName, expression})
-//   let token = hcssm.getVariable(graph, "create expression", "token").value;
-//   const operators = ["*", "/", "+", "-"];
+const saveOperator = (graph, currentState) => {
+  console.log("saveOperator");
+  let expression = getVariable(graph, ["calculator"], "expression").value;
 
-//   if (!operators.includes(token)) {
-//     return false;
-//   }
-//   // let expression = hcssm.getVariable(graph, 'root', 'expression').value
+  // console.log({parentStateName, currentStateName, expression})
+  let token = getVariable(graph, ["createExpression"], "token").value;
+  const operators = ["*", "/", "+", "-"];
 
-//   expression.push(token);
+  if (!operators.includes(token)) {
+    return false;
+  }
 
-//   let i1 = hcssm.getVariable(graph, "parse to tokens", "i1").value;
-//   let input = hcssm.getVariable(graph, "root", "input").value;
+  expression.push(token);
 
-//   while (input[i1] === " ") {
-//     i1 += 1;
-//   }
+  let i1 = getVariable(graph, ["calculator"], "i1").value;
+  const input = getVariable(graph, ["calculator"], "input").value;
 
-//   hcssm.setVariable(graph, "root", "expression", expression);
-//   hcssm.setVariable(graph, "create expression", "token", "");
-//   hcssm.setVariable(graph, "parse to tokens", "i1", i1);
+  while (input[i1] === " ") {
+    i1 += 1;
+  }
 
-//   // console.log(graph['nodeGraph2']['expression'])
+  setVariable(graph, ["calculator"], "expression", expression);
+  setVariable(graph, ["createExpression"], "token", "");
+  setVariable(graph, ["calculator"], "i1", i1);
 
-//   // fail
-//   return true;
-// };
+  // console.log(graph['nodeGraph2']['expression'])
 
-// const isInputValid = (graph, parentStateName, currentStateName) => {
-//   // will only return true after we have read in all the input and it's a valid expression
-//   const input = hcssm.getVariable(graph, "root", "input").value;
-//   let i1 = hcssm.getVariable(graph, "parse to tokens", "i1").value;
-//   let expression = hcssm.getVariable(graph, "root", "expression").value;
-
-//   if (i1 >= input.length) {
-//     console.log({ expression });
-//     return true;
-//   }
-//   return false;
-// };
+  // fail
+  return true;
+};
 
 // // evaluator
 
@@ -526,9 +526,9 @@ const returnTrue = (graph) => {
 export {
   numberGetDigit,
   saveNumber,
-  //   operatorGetOperator,
-  //   saveOperator,
-  //   isInputValid,
+  isInputValid,
+  operatorGetOperator,
+  saveOperator,
   //   parseChar,
   //   getA2,
   //   getA,

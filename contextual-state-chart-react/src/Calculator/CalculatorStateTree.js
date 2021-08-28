@@ -1,9 +1,10 @@
 import {
   numberGetDigit,
   saveNumber,
-  // operatorGetOperator,
-  // saveOperator,
-  // isInputValid,
+  isInputValid,
+  operatorGetOperator,
+  saveOperator,
+
   // parseChar,
   // getA2,
   // getA,
@@ -62,27 +63,35 @@ export let stateTree = {
               },
               "save number": {
                 functionCode: saveNumber,
+                start: [["fake", "endState1"]],
+                children: {
+                  fake: {
+                    endState1: {
+                      functionCode: returnTrue,
+                    },
+                  },
+                },
               },
             },
           },
           "is input valid": {
-            functionCode: "isInputValid",
+            functionCode: isInputValid,
             // returns true if we hit end of input and it's a valid expression
           },
           operator: {
             functionCode: returnTrue,
             next: [["number"]],
-            start: [["operator, get"]],
+            start: [["operator", "get"]],
             // children: ["operator get operator"],
             children: {
               operator: {
                 get: {
                   // getOperator
-                  functionCode: "operatorGetOperator",
-                  next: [["operator, save"]],
+                  functionCode: operatorGetOperator,
+                  next: [["operator", "save"]],
                 },
                 save: {
-                  functionCode: "saveOperator",
+                  functionCode: saveOperator,
                 },
               },
             },
