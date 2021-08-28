@@ -8,24 +8,24 @@ const numberGetDigit = (graph, currentState) => {
   const token = getVariable(graph, ["createExpression"], "token").value;
   let expression = getVariable(graph, ["calculator"], "expression").value;
 
-  console.log({ input, i1, token, expression });
+  // console.log({ input, i1, token, expression });
   if (i1 >= input.length) {
     return false;
   }
   if (!(input[i1] >= "0" && input[i1] <= "9")) {
     return false;
   }
-  console.log("numberGetDigit");
+  // console.log("numberGetDigit");
 
   setVariable(graph, ["createExpression"], "token", token + input[i1]);
   setVariable(graph, ["calculator"], "i1", i1 + 1);
-  console.log("end of state", { graph });
+  // console.log("end of state", { graph });
   return true;
 };
 const saveNumber = (graph, currentState) => {
   let expression = getVariable(graph, ["calculator"], "expression").value;
   let token = getVariable(graph, ["createExpression"], "token").value;
-  console.log({ token, test: Number(token) });
+  // console.log({ token, test: Number(token) });
   if (Number(token) === NaN) {
     return false;
   }
@@ -34,7 +34,7 @@ const saveNumber = (graph, currentState) => {
 
   let i1 = getVariable(graph, ["calculator"], "i1").value;
   let input = getVariable(graph, ["calculator"], "input").value;
-  console.log({ i1, length: input.length });
+  // console.log({ i1, length: input.length });
 
   while (input[i1] && input[i1] === " ") {
     i1 += 1;
@@ -42,13 +42,13 @@ const saveNumber = (graph, currentState) => {
       return false;
     }
   }
-  console.log("saveNumber");
+  // console.log("saveNumber");
 
   setVariable(graph, ["calculator"], "expression", expression);
   setVariable(graph, ["calculator"], "i1", i1);
 
   setVariable(graph, ["createExpression"], "token", "");
-  console.log("end of state", { graph });
+  // console.log("end of state", { graph });
   return true;
 };
 const isInputValid = (graph, currentState) => {
@@ -58,7 +58,7 @@ const isInputValid = (graph, currentState) => {
   let expression = getVariable(graph, ["calculator"], "expression").value;
 
   if (i1 >= input.length) {
-    console.log({ expression });
+    // console.log({ expression });
     return true;
   }
   return false;
@@ -68,7 +68,7 @@ const operatorGetOperator = (graph, currentState) => {
   const input = getVariable(graph, ["calculator"], "input").value;
   const i1 = getVariable(graph, ["calculator"], "i1").value;
   const token = getVariable(graph, ["createExpression"], "token").value;
-  console.log({ input, i1, token });
+  // console.log({ input, i1, token });
   if (i1 >= input.length) {
     return false;
   }
@@ -84,7 +84,7 @@ const operatorGetOperator = (graph, currentState) => {
 };
 
 const saveOperator = (graph, currentState) => {
-  console.log("saveOperator");
+  // console.log("saveOperator");
   let expression = getVariable(graph, ["calculator"], "expression").value;
 
   // console.log({parentStateName, currentStateName, expression})
@@ -118,7 +118,7 @@ const saveOperator = (graph, currentState) => {
 const getA2 = (graph, currentState) => {
   //   // all chains start with this function
 
-  //   let i2 = hcssm.getVariable(graph, "evaluateExpression", "i2").value;
+  // let i2 = hcssm.getVariable(graph, "evaluateExpression", "i2").value;
   //   let expression = hcssm.getVariable(graph, "root", "expression").value;
   //   hcssm.setVariable(graph, "evaluateExpression", "a", expression[i2]);
   //   hcssm.setVariable(graph, "evaluateExpression", "i2", i2 + 1);

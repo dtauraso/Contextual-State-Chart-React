@@ -77,7 +77,7 @@ const insertState = (graph, state, variables = {}) => {
     state.name,
     graph.statesObject.maxStateId
   );
-  console.log({ graph });
+  // console.log({ graph });
   graph.namesTrie = tree;
   // console.log({ updatedName });
   state.name = updatedName;
@@ -121,6 +121,117 @@ const deleteNodesHelper = (namesTrie, states, name) => {
     }
   }
 };
+const moveDown1Level = (
+  newTrackerName,
+  graph,
+  currentTracker,
+  winningState,
+  bottom,
+  i,
+  nextStates
+) => {
+  // make new level tracker node and doubly link it with the current level
+  // tracker node
+  // console.log({ winningState, newTrackerName });
+  insertState(
+    graph,
+    {
+      name: newTrackerName,
+      parent: currentTracker.name,
+      children: [], // is updated each loop on line 193
+    },
+    {
+      nextStates: [winningState.name],
+      winningStateName: null,
+    }
+  );
+  // console.log({
+  //   winningState: getVariable(graph, newTrackerName, "winningStateName"),
+  // });
+  // adds to the end
+  currentTracker.children.push(newTrackerName);
+  // console.log(
+  //   "current tracker(push) child count",
+  //   currentTracker.children.length
+  // );
+  bottom.children[i] = newTrackerName;
+  currentTracker = getState(graph, newTrackerName);
+  // console.log({ currentTracker });
+  // console.log({
+  //   graph,
+  //   bottom,
+  //   currentTracker,
+  // });
+  // insertState(graph, {
+  //   name: ["calculator", "run state machine", "bottom"],
+  // });
+  // insertState(graph, {
+  //   name: ["calculator", "run state machine", "bottom"],
+  // });
+  // insertState(graph, {
+  //   name: ["calculator", "run state machine", "bottom"],
+  // });
+  // insertState(graph, {
+  //   name: ["calculator", "run state machine", "bottom"],
+  // });
+  // insertState(graph, {
+  //   name: ["calculator", "run state machine", "bottom"],
+  // });
+  // insertState(graph, {
+  //   name: ["calculator", "run state machine", "bottom"],
+  // });
+  // console.log({ graph, winningState, nextStates });
+  // return false;
+  setVariable(
+    graph,
+    currentTracker.name,
+    getVariable(graph, currentTracker.name, "nextStates").name[0],
+    winningState.start
+  );
+  nextStates = getVariable(graph, currentTracker.name, "nextStates").value;
+};
+
+const moveAcross1Level = (graph, currentTracker, winningState, nextStates) => {
+  setVariable(
+    graph,
+    currentTracker.name,
+    getVariable(graph, currentTracker.name, "nextStates").name[0],
+    winningState.next
+  );
+  setVariable(
+    graph,
+    currentTracker.name,
+    getVariable(graph, currentTracker.name, "winningStateName").name[0],
+    null
+  );
+  nextStates = getVariable(graph, currentTracker.name, "nextStates").value;
+};
+
+const moveUpToParentNode = (graph, bottom, i) => {
+  // move bottom's ith child up by 1 unit
+  let parentTracker = getState(
+    graph,
+    getState(graph, bottom.children[i]).parent
+  );
+  // console.log("parent tracker child count", currentTracker.children.length);
+  // remove the last one
+  parentTracker.children.pop();
+  // will mess things up if parentTracker connects
+  // to more than 1 branch
+  // parentTracker.children = [];
+  // console.log({ parentTracker });
+  bottom.children[i] = getState(
+    graph,
+    getState(graph, bottom.children[i]).parent
+  ).name;
+};
+
+const deleteCurrentNode = (graph, currentTracker) => {
+  Object.keys(currentTracker.variables).forEach((variableName) => {
+    delete graph.statesObject.states[currentTracker.variables[variableName]];
+  });
+  deleteNodes(graph, currentTracker.name);
+};
 export const visitor = (startStateName, graph) => {
   /*
     setup trackers
@@ -157,11 +268,15 @@ export const visitor = (startStateName, graph) => {
   let bottom = getState(graph, bottomName);
   let stateRunCount = 0;
   while (bottom.children.length > 0) {
-    console.log({ bottom });
+    // console.log({ bottom });
+
+    // works to 101
     if (stateRunCount >= 101) {
       console.log("state run count is too high");
       return false;
     }
+    // 1) cleaning code
+    // 2) put in state change recording tree
     for (let i = 0; i < bottom.children.length; i++) {
       let timeLine = bottom.children[i];
       let currentTracker = getState(graph, timeLine);
@@ -177,31 +292,20 @@ export const visitor = (startStateName, graph) => {
         "nextStates"
       ).value;
       if (nextStates.length > 0) {
-        console.log({ nextStates, stateRunCount });
-        // works to 101
-        // if (stateRunCount >= 101) {
-        //   console.log("state run count is too high");
-        //   // test delete code
-        //   // deleteNodes(graph, ["calculator"]);
-
-        //   // deleteNodes(graph, ["calculator", "run state machine", "bottom"]);
-
-        //   // console.log({ graph });
-        //   return false;
-        // }
+        // console.log({ nextStates, stateRunCount });
         let winningStateName = getVariable(
           graph,
           currentTracker.name,
           "winningStateName"
         );
-        console.log({ currentTracker, winningStateName });
+        // console.log({ currentTracker, winningStateName });
         nextStates.forEach((stateToRunName) => {
           if (winningStateName.value !== null) {
             return;
           }
-          console.log({ stateToRunName });
+          // console.log({ stateToRunName });
           const state = getState(graph, stateToRunName);
-          console.log({ functionCode: state.functionCode });
+          // console.log({ functionCode: state.functionCode });
           if (typeof state.functionCode === "string") {
             console.log(
               `can't run a string ${state.functionCode} as a function`
@@ -225,95 +329,21 @@ export const visitor = (startStateName, graph) => {
           console.log("there are children states to run");
           // update level id
           levelId += 1;
-          const newTrackerName = [`level ${levelId}`, `timeLine ${timeLineId}`];
-          // make new level tracker node and doubly link it with the current level
-          // tracker node
-          console.log({ winningState, newTrackerName });
-          insertState(
-            graph,
-            {
-              name: newTrackerName,
-              parent: currentTracker.name,
-              children: [], // is updated each loop on line 193
-            },
-            {
-              nextStates: [winningState.name],
-              winningStateName: null,
-            }
-          );
-          console.log({
-            winningState: getVariable(
-              graph,
-              newTrackerName,
-              "winningStateName"
-            ),
-          });
-          currentTracker.children.push(newTrackerName);
-          console.log(
-            "current tracker(push) child count",
-            currentTracker.children.length
-          );
-          bottom.children[i] = newTrackerName;
-          currentTracker = getState(graph, newTrackerName);
-          // console.log({ currentTracker });
-          // console.log({
-          //   graph,
-          //   bottom,
-          //   currentTracker,
-          // });
-          // insertState(graph, {
-          //   name: ["calculator", "run state machine", "bottom"],
-          // });
-          // insertState(graph, {
-          //   name: ["calculator", "run state machine", "bottom"],
-          // });
-          // insertState(graph, {
-          //   name: ["calculator", "run state machine", "bottom"],
-          // });
-          // insertState(graph, {
-          //   name: ["calculator", "run state machine", "bottom"],
-          // });
-          // insertState(graph, {
-          //   name: ["calculator", "run state machine", "bottom"],
-          // });
-          // insertState(graph, {
-          //   name: ["calculator", "run state machine", "bottom"],
-          // });
-          // console.log({ graph, winningState, nextStates });
-          // return false;
-          setVariable(
-            graph,
-            currentTracker.name,
-            getVariable(graph, currentTracker.name, "nextStates").name[0],
-            winningState.start
-          );
-          nextStates = getVariable(
-            graph,
-            currentTracker.name,
-            "nextStates"
-          ).value;
 
-          // sometimes the winning state isn't getting reset properly
-          // getting restarted on the same level
+          const newTrackerName = [`level ${levelId}`, `timeLine ${timeLineId}`];
+          moveDown1Level(
+            newTrackerName,
+            graph,
+            currentTracker,
+            winningState,
+            bottom,
+            i,
+            nextStates
+          );
         } else if ("next" in winningState) {
-          setVariable(
-            graph,
-            currentTracker.name,
-            getVariable(graph, currentTracker.name, "nextStates").name[0],
-            winningState.next
-          );
-          setVariable(
-            graph,
-            currentTracker.name,
-            getVariable(graph, currentTracker.name, "winningStateName").name[0],
-            null
-          );
-          nextStates = getVariable(
-            graph,
-            currentTracker.name,
-            "nextStates"
-          ).value;
-          console.log("here", { winningState, currentTracker, nextStates });
+          moveAcross1Level(graph, currentTracker, winningState, nextStates);
+
+          // console.log("here", { winningState, currentTracker, nextStates });
 
           if (winningState.next.length > 0) {
             // there are next states to run
@@ -336,40 +366,17 @@ export const visitor = (startStateName, graph) => {
           if parent node doesn't exist
             state machine is done
           */
-          // move bottom's ith child up by 1 unit
-          let parentTracker = getState(
-            graph,
-            getState(graph, bottom.children[i]).parent
-          );
-          console.log(
-            "parent tracker child count",
-            currentTracker.children.length
-          );
-          parentTracker.children.pop();
-          // will mess things up if parentTracker connects
-          // to more than 1 branch
-          // parentTracker.children = [];
-          console.log({ parentTracker });
-          bottom.children[i] = getState(
-            graph,
-            getState(graph, bottom.children[i]).parent
-          ).name;
-          // console.log({ bottom, currentTracker, states: graph.statesObject });
-          // delete variables under currentTracker
-          Object.keys(currentTracker.variables).forEach((variableName) => {
-            delete graph.statesObject.states[
-              currentTracker.variables[variableName]
-            ];
-          });
-          // delete currentTracker
-          deleteNodes(graph, currentTracker.name);
+          moveUpToParentNode(graph, bottom, i);
+
+          deleteCurrentNode(graph, currentTracker);
           currentTracker = getState(graph, bottom.children[i]);
-          console.log(
-            "current tracker child count",
-            currentTracker.children.length
-          );
-          console.log({ bottom, currentTracker, graph });
+          // console.log(
+          //   "current tracker child count",
+          //   currentTracker.children.length
+          // );
+          // console.log({ bottom, currentTracker, graph });
           levelId -= 1;
+
           while (bottom.children[i] !== null) {
             // get the latest winning state
             const currentWinningStateName = getVariable(
@@ -381,67 +388,35 @@ export const visitor = (startStateName, graph) => {
               graph,
               currentWinningStateName
             );
-            console.log({ currentWinningState });
+            // console.log({ currentWinningState });
             if ("next" in currentWinningState) {
               if (currentWinningState.next.length > 0) {
                 // all the ones above this one will have next states
                 // is there anything inside next states
                 console.log("don't got up higher");
-                // let parentTracker = getState(
-                //   graph,
-                //   getState(graph, bottom.children[i]).parent
-                // );
-                // parentTracker.children.pop();
 
                 // set new next states
-                setVariable(
+                moveAcross1Level(
                   graph,
-                  currentTracker.name,
-                  getVariable(graph, currentTracker.name, "nextStates").name[0],
-                  currentWinningState.next
+                  currentTracker,
+                  currentWinningState,
+                  nextStates
                 );
-                setVariable(
-                  graph,
-                  currentTracker.name,
-                  getVariable(graph, currentTracker.name, "winningStateName")
-                    .name[0],
-                  null
-                );
-                nextStates = getVariable(
-                  graph,
-                  currentTracker.name,
-                  "nextStates"
-                ).value;
-                console.log({ currentTracker, nextStates, graph });
+
+                // console.log({ currentTracker, nextStates, graph });
                 break;
               }
             } else {
               console.log("move up more");
-              let parentTracker = getState(
-                graph,
-                getState(graph, bottom.children[i]).parent
-              );
-              parentTracker.children.pop();
-              console.log({ parentTracker });
-              bottom.children[i] = getState(
-                graph,
-                getState(graph, bottom.children[i]).parent
-              ).name;
-              // console.log({ bottom, currentTracker, states: graph.statesObject });
-              // delete variables under currentTracker
-              Object.keys(currentTracker.variables).forEach((variableName) => {
-                delete graph.statesObject.states[
-                  currentTracker.variables[variableName]
-                ];
-              });
-              // delete currentTracker
-              deleteNodes(graph, currentTracker.name);
+              moveUpToParentNode(graph, bottom, i, currentTracker);
+
+              deleteCurrentNode(graph, currentTracker);
               currentTracker = getState(graph, bottom.children[i]);
-              console.log(
-                "current tracker child count",
-                currentTracker.children.length
-              );
-              console.log({ bottom, currentTracker, graph });
+              // console.log(
+              //   "current tracker child count",
+              //   currentTracker.children.length
+              // );
+              // console.log({ bottom, currentTracker, graph });
               levelId -= 1;
             }
           }
@@ -449,17 +424,11 @@ export const visitor = (startStateName, graph) => {
             // state machine is done
             console.log("state machine is done");
           }
-          console.log({ bottom, currentTracker, graph });
-          // return;
+          // console.log({ bottom, currentTracker, graph });
         }
         stateRunCount += 1;
-
-        // return false;
       }
-      // });
     }
-
-    // return false;
   }
 };
 
