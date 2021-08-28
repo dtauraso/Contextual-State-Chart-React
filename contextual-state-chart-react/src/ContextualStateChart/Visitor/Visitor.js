@@ -157,6 +157,11 @@ export const visitor = (startStateName, graph) => {
   let bottom = getState(graph, bottomName);
   let stateRunCount = 0;
   while (bottom.children.length > 0) {
+    console.log({ bottom });
+    if (stateRunCount >= 101) {
+      console.log("state run count is too high");
+      return false;
+    }
     for (let i = 0; i < bottom.children.length; i++) {
       let timeLine = bottom.children[i];
       let currentTracker = getState(graph, timeLine);
@@ -171,20 +176,19 @@ export const visitor = (startStateName, graph) => {
         currentTracker.name,
         "nextStates"
       ).value;
-      // TODO later: run 1 state at a time for each timeline
-      while (nextStates.length > 0) {
+      if (nextStates.length > 0) {
         console.log({ nextStates, stateRunCount });
-        // works to 89
-        if (stateRunCount >= 89) {
-          console.log("state run count is too high");
-          // test delete code
-          // deleteNodes(graph, ["calculator"]);
+        // works to 101
+        // if (stateRunCount >= 101) {
+        //   console.log("state run count is too high");
+        //   // test delete code
+        //   // deleteNodes(graph, ["calculator"]);
 
-          // deleteNodes(graph, ["calculator", "run state machine", "bottom"]);
+        //   // deleteNodes(graph, ["calculator", "run state machine", "bottom"]);
 
-          // console.log({ graph });
-          return false;
-        }
+        //   // console.log({ graph });
+        //   return false;
+        // }
         let winningStateName = getVariable(
           graph,
           currentTracker.name,
@@ -412,9 +416,6 @@ export const visitor = (startStateName, graph) => {
                 break;
               }
             } else {
-              // the calculator program doesn't have any levels
-              // where you have to move up by >= 2 levels to get
-              // to the next next state array
               console.log("move up more");
               let parentTracker = getState(
                 graph,
@@ -446,6 +447,7 @@ export const visitor = (startStateName, graph) => {
           }
           if (bottom.children[i] === null) {
             // state machine is done
+            console.log("state machine is done");
           }
           console.log({ bottom, currentTracker, graph });
           // return;
@@ -457,7 +459,7 @@ export const visitor = (startStateName, graph) => {
       // });
     }
 
-    return false;
+    // return false;
   }
 };
 

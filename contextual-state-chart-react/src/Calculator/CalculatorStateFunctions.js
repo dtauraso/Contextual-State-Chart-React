@@ -114,7 +114,17 @@ const saveOperator = (graph, currentState) => {
   return true;
 };
 
-// // evaluator
+// evaluator
+const getA2 = (graph, currentState) => {
+  //   // all chains start with this function
+
+  //   let i2 = hcssm.getVariable(graph, "evaluateExpression", "i2").value;
+  //   let expression = hcssm.getVariable(graph, "root", "expression").value;
+  //   hcssm.setVariable(graph, "evaluateExpression", "a", expression[i2]);
+  //   hcssm.setVariable(graph, "evaluateExpression", "i2", i2 + 1);
+
+  return true;
+};
 
 // //import * as cf from './common_functions.js'
 // const isNumber = (currentState, graph, parentState) => {
@@ -137,17 +147,6 @@ const saveOperator = (graph, currentState) => {
 //     return true;
 //   }
 //   return false;
-// };
-
-// const getA2 = (graph, parentState, currentState) => {
-//   // all chains start with this function
-
-//   let i2 = hcssm.getVariable(graph, "evaluateExpression", "i2").value;
-//   let expression = hcssm.getVariable(graph, "root", "expression").value;
-//   hcssm.setVariable(graph, "evaluateExpression", "a", expression[i2]);
-//   hcssm.setVariable(graph, "evaluateExpression", "i2", i2 + 1);
-
-//   return true;
 // };
 
 // var getA = (currentState, graph, parentState) => {

@@ -68,6 +68,15 @@ export let stateTree = {
                   fake: {
                     endState1: {
                       functionCode: returnTrue,
+                      start: [["fake", "endState1", "!"]],
+
+                      children: {
+                        fake: {
+                          endState1: {
+                            functionCode: returnTrue,
+                          },
+                        },
+                      },
                     },
                   },
                 },
