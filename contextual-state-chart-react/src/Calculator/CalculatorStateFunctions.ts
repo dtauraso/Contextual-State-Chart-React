@@ -2,7 +2,7 @@ import {
   getVariable,
   setVariable,
 } from "../ContextualStateChart/Visitor/Visitor";
-const numberGetDigit = (graph, currentState) => {
+const numberGetDigit = (graph: any, currentState: any) => {
   const input = getVariable(graph, ["calculator"], "input").value;
   const i1 = getVariable(graph, ["calculator"], "i1").value;
   const token = getVariable(graph, ["createExpression"], "token").value;
@@ -22,7 +22,7 @@ const numberGetDigit = (graph, currentState) => {
   // console.log("end of state", { graph });
   return true;
 };
-const saveNumber = (graph, currentState) => {
+const saveNumber = (graph: any, currentState: any) => {
   let expression = getVariable(graph, ["calculator"], "expression").value;
   let token = getVariable(graph, ["createExpression"], "token").value;
   // console.log({ token, test: Number(token) });
@@ -51,7 +51,7 @@ const saveNumber = (graph, currentState) => {
   // console.log("end of state", { graph });
   return true;
 };
-const isInputValid = (graph, currentState) => {
+const isInputValid = (graph: any, currentState: any) => {
   // will only return true after we have read in all the input and it's a valid expression
   const input = getVariable(graph, ["calculator"], "input").value;
   let i1 = getVariable(graph, ["calculator"], "i1").value;
@@ -64,7 +64,7 @@ const isInputValid = (graph, currentState) => {
   return false;
 };
 
-const operatorGetOperator = (graph, currentState) => {
+const operatorGetOperator = (graph: any, currentState: any) => {
   const input = getVariable(graph, ["calculator"], "input").value;
   const i1 = getVariable(graph, ["calculator"], "i1").value;
   const token = getVariable(graph, ["createExpression"], "token").value;
@@ -83,7 +83,7 @@ const operatorGetOperator = (graph, currentState) => {
   return true;
 };
 
-const saveOperator = (graph, currentState) => {
+const saveOperator = (graph: any, currentState: any) => {
   // console.log("saveOperator");
   let expression = getVariable(graph, ["calculator"], "expression").value;
 
@@ -115,7 +115,7 @@ const saveOperator = (graph, currentState) => {
 };
 
 // evaluator
-const getA2 = (graph, currentState) => {
+const getA2 = (graph: any, currentState: any) => {
   //   // all chains start with this function
 
   // let i2 = hcssm.getVariable(graph, "evaluateExpression", "i2").value;
@@ -438,7 +438,7 @@ const getA2 = (graph, currentState) => {
 //   return true;
 // };
 
-const returnTrue = (graph) => {
+const returnTrue = (graph: any) => {
   return true;
 };
 // const returnFalse2 = (graph, parentStateName, currentStateName) => {

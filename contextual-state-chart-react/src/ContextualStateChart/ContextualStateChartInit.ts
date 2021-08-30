@@ -99,13 +99,17 @@ const insertName = (names: any, name: any, stateId: any): any => {
     };
   }
 };
-const setAttribute = (object: any, newObject: any, key: any, value: any) => {
+const setAttribute = (object: any, newObject: any, key: string, value: any) => {
   if (key in object) {
     newObject[key] = value;
   }
 };
 
-const getSubStatePaths = (node: any, paths: any, currentPath: any) => {
+const getSubStatePaths = (
+  node: any,
+  paths: string[][],
+  currentPath: string[]
+) => {
   // console.log({ node });
   if (typeof node === "string") {
     return;
@@ -128,7 +132,7 @@ const getSubStatePaths = (node: any, paths: any, currentPath: any) => {
     });
   }
 };
-const setupState = (state: any, stateName: any) => {
+const setupState = (state: any, stateName: string[]) => {
   // append state
   const children = state?.children;
   const variables = state?.variables;
@@ -136,7 +140,7 @@ const setupState = (state: any, stateName: any) => {
   let variableKeys: any = {};
   if (variables) {
     // console.log("here");
-    Object.keys(variables).forEach((variableName: any) => {
+    Object.keys(variables).forEach((variableName: string) => {
       variableKeys[variableName] = 1; // how to find the id numbers of where the variables are in the array
     });
   }
@@ -152,7 +156,7 @@ const setupState = (state: any, stateName: any) => {
   // makes computing the parent links (metatdata file) easier
   // getSubStates(children, paths, [])
   if (children) {
-    let paths: any = [];
+    let paths: string[][] = [];
     getSubStatePaths(children, paths, []);
     setAttribute(state, newState, "children", paths);
   }
