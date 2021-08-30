@@ -1,7 +1,4 @@
-import {
-  getVariable,
-  setVariable,
-} from "../ContextualStateChart/Visitor/Visitor";
+import { getVariable, setVariable } from "../ContextualStateChart/StateTree";
 const numberGetDigit = (graph: any, currentState: any) => {
   const input = getVariable(graph, ["calculator"], "input").value;
   const i1 = getVariable(graph, ["calculator"], "i1").value;
