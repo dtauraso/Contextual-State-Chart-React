@@ -1,7 +1,7 @@
-export type Variables = {
+type Variables = {
   [key: string]: number;
 };
-export type State = {
+type State = {
   name?: string;
   functionCode?: (graph: any, currentState: any) => boolean;
   start?: string[][];
@@ -10,17 +10,19 @@ export type State = {
   variables?: Variables;
   value?: any;
 };
-export type States = {
+type States = {
   [key: Number]: State;
 };
-export type StatesObject = {
+type StatesObject = {
   maxStateId: Number;
   states: States;
 };
-export type NamesTrie = {
+type NamesTrie = {
   [key: string]: NamesTrie;
 };
-export type Graph = {
+type Graph = {
   namesTrie: NamesTrie;
   statesObject: StatesObject;
 };
+
+export { Graph, NamesTrie, StatesObject, States, Variables };
