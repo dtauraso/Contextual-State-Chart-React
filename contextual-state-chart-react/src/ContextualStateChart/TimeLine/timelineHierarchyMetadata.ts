@@ -1,4 +1,4 @@
-export const substateKeys = (state: any) => {
+const substateKeys = (state: any) => {
   let specialKeys = [
     "functionCode",
     "start",
@@ -11,14 +11,14 @@ export const substateKeys = (state: any) => {
   // console.log(keys)
   return keys;
 };
-export const isLeafState = (state: any) => {
+const isLeafState = (state: any) => {
   // console.log(state, !('children' in state), substateKeys(state).length)
   return substateKeys(state).length === 0 && !("children" in state);
 };
-export const isInternalState = (state: any) => {
+const isInternalState = (state: any) => {
   return substateKeys(state).length > 0 || "children" in state;
 };
-export const setTimelineMetadataToStates = (contextualStateChart: any) => {
+const setTimelineMetadataToStates = (contextualStateChart: any) => {
   // add timeline keys to each state
   // linking state to it's parent
   // a timeline key is not added to root because the key can only be added
@@ -75,4 +75,11 @@ export const setTimelineMetadataToStates = (contextualStateChart: any) => {
   } else {
     console.log("problem", contextualStateChart);
   }
+};
+
+export {
+  substateKeys,
+  isLeafState,
+  isInternalState,
+  setTimelineMetadataToStates,
 };
