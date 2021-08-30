@@ -1,5 +1,6 @@
+import { StatesObject } from "../App.types";
 // f(stateTree) => names and states arrays
-const insertName = (names: any, name: any, stateId: any): any => {
+const insertName = (names: any, name: string[], stateId: Number): any => {
   // console.log({ names, name, stateId });
   // save trie node as a state
   // extra strings are added to the end of the state name if there is a match
@@ -123,7 +124,7 @@ const getSubStatePaths = (
     paths.push(currentPath);
   } else {
     // console.log({ filteredKeys, keys });
-    filteredKeys.forEach((stateNamePart) => {
+    filteredKeys.forEach((stateNamePart: string) => {
       console.log({ stateNamePart, node });
       getSubStatePaths(node[stateNamePart], paths, [
         ...currentPath,
@@ -265,14 +266,14 @@ const getStateNames = (
 };
 const makeArrays = (stateTree: any) => {
   // get the state names
-  let names: any = [];
+  let names: string[][] = [];
   // needs to be {} for O(1) adding, updating, and deleting
-  let statesObject = { maxStateId: -1, states: {} };
+  let statesObject: StatesObject = { maxStateId: -1, states: {} };
   getStateNames(stateTree, [], names, statesObject, {});
   // console.log({ names, states });
   // console.log({ keys: Object.keys(names) });
   let namesTrie: any = {};
-  names.forEach((nameArray: any, i: any) => {
+  names.forEach((nameArray: any, i: Number) => {
     const { tree, updatedName } = insertName(namesTrie, nameArray, i);
     // console.log({ updatedName });
     // console.log({ tree, updatedName });

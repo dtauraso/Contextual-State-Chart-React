@@ -1,5 +1,14 @@
-export type X = {
-  att1: string;
+export type States = {
+  [key: Number]: any;
 };
-// graph = { namesTrie, statesObject };
-// statesObject = { maxStateId: -1, states: {} };
+export type StatesObject = {
+  maxStateId: Number;
+  states: States;
+};
+export type NamesTrie = {
+  [key: string]: NamesTrie;
+};
+export type Graph = {
+  namesTrie: NamesTrie;
+  statesObject: StatesObject;
+};

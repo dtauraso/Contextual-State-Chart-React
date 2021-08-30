@@ -6,6 +6,7 @@ import {
   getStateNames,
   makeArrays,
 } from "./ContextualStateChart/ContextualStateChartInit";
+import { Graph } from "./App.types";
 import { stateTree } from "./Calculator/CalculatorStateTree";
 import { visitor } from "./ContextualStateChart/Visitor/Visitor";
 import "./App.css";
@@ -250,7 +251,7 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 const App = (props: any) => {
   const { namesTrie, statesObject } = makeArrays(stateTree);
   console.log({ namesTrie, statesObject });
-  let graph = { namesTrie, statesObject };
+  let graph: Graph = { namesTrie, statesObject };
   visitor(["calculator"], graph);
   return (
     // constructor() {
