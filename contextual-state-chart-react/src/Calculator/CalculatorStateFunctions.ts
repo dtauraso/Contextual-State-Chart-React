@@ -438,7 +438,7 @@ const getA2 = (graph: any, currentState: any) => {
 //   return true;
 // };
 
-const returnTrue = (graph: any) => {
+const returnTrue = (graph: any, currentState: any) => {
   return true;
 };
 // const returnFalse2 = (graph, parentStateName, currentStateName) => {
