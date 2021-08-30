@@ -247,7 +247,7 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 // have something to put on my portfolio and practice react skills while I finish the state machine algorithm
 // and language
 // use class based components
-const App = (props) => {
+const App = (props: any) => {
   const { namesTrie, statesObject } = makeArrays(stateTree);
   console.log({ namesTrie, statesObject });
   let graph = { namesTrie, statesObject };

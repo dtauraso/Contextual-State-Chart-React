@@ -5,7 +5,7 @@ import {
   getStateNames,
   makeArrays,
 } from "../ContextualStateChartInit";
-const getStateId = (namesTrie, stateName) => {
+const getStateId = (namesTrie: any, stateName: string[]) => {
   // console.log({ namesTrie, stateName });
   let stateId = 0;
   let namesTrieTracker = namesTrie;
@@ -14,7 +14,7 @@ const getStateId = (namesTrie, stateName) => {
     console.log(`${stateName} is not an array`);
     return -1;
   }
-  stateName.forEach((namePart) => {
+  stateName.forEach((namePart: string) => {
     if (!isFound) {
       return;
     }
@@ -32,7 +32,7 @@ const getStateId = (namesTrie, stateName) => {
   }
   return stateId;
 };
-const getState = (graph, stateName) => {
+const getState = (graph: any, stateName: string[]) => {
   // console.log({ stateName });
   if (stateName === null) {
     return null;
@@ -40,7 +40,7 @@ const getState = (graph, stateName) => {
   const stateId = getStateId(graph.namesTrie, stateName);
   return graph.statesObject.states[stateId];
 };
-const getVariable = (graph, stateName, variableName) => {
+const getVariable = (graph: any, stateName: string[], variableName: any) => {
   // console.log({ stateName });
 
   const state = getState(graph, stateName);
@@ -50,7 +50,12 @@ const getVariable = (graph, stateName, variableName) => {
     return graph.statesObject.states[stateId];
   }
 };
-const setVariable = (graph, stateName, variableName, newValue) => {
+const setVariable = (
+  graph: any,
+  stateName: any,
+  variableName: any,
+  newValue: any
+) => {
   // console.log({ graph, state, variableName, newValue });
   const state = getState(graph, stateName);
   if (variableName in state.variables) {
@@ -59,7 +64,7 @@ const setVariable = (graph, stateName, variableName, newValue) => {
     // console.log({ graph, stateId });
   }
 };
-const insertVariableState = (graph, state, variable) => {
+const insertVariableState = (graph: any, state: any, variable: any) => {
   // variable is the new variable state
   // console.log({ variable });
   // fix for data structure update
@@ -70,7 +75,7 @@ const insertVariableState = (graph, state, variable) => {
   // new variable state name is inside state.variableNames
   state.variables[variable.name[0]] = graph.statesObject.maxStateId;
 };
-const insertState = (graph, state, variables = {}) => {
+const insertState = (graph: any, state: any, variables: any = {}) => {
   graph.statesObject.maxStateId += 1;
   const { tree, updatedName } = insertName(
     graph.namesTrie,
@@ -89,7 +94,7 @@ const insertState = (graph, state, variables = {}) => {
   // the variable can only be accesible from the current state
   // each state can only have 1 unique user defined variable name
   // all variables need to be 1 dimentional
-  Object.keys(variables).forEach((variableName) => {
+  Object.keys(variables).forEach((variableName: string) => {
     // do not insert variable names into the main graph
     // duplicate names are ok as long as their id number is different(variable names only)
     insertVariableState(graph, state, {
@@ -100,11 +105,11 @@ const insertState = (graph, state, variables = {}) => {
 
   return updatedName;
 };
-const deleteNodes = (graph, name) => {
+const deleteNodes = (graph: any, name: any) => {
   // console.log({ node, name });
   deleteNodesHelper(graph.namesTrie, graph.statesObject.states, name);
 };
-const deleteNodesHelper = (namesTrie, states, name) => {
+const deleteNodesHelper = (namesTrie: any, states: any, name: any) => {
   // console.log({ namesTrie });
   if (name.length === 0) {
     if ("id" in namesTrie) {
@@ -122,13 +127,13 @@ const deleteNodesHelper = (namesTrie, states, name) => {
   }
 };
 const moveDown1Level = (
-  newTrackerName,
-  graph,
-  currentTracker,
-  winningState,
-  bottom,
-  i,
-  nextStates
+  newTrackerName: any,
+  graph: any,
+  currentTracker: any,
+  winningState: any,
+  bottom: any,
+  i: any,
+  nextStates: any
 ) => {
   // make new level tracker node and doubly link it with the current level
   // tracker node
@@ -191,7 +196,12 @@ const moveDown1Level = (
   nextStates = getVariable(graph, currentTracker.name, "nextStates").value;
 };
 
-const moveAcross1Level = (graph, currentTracker, winningState, nextStates) => {
+const moveAcross1Level = (
+  graph: any,
+  currentTracker: any,
+  winningState: any,
+  nextStates: any
+) => {
   setVariable(
     graph,
     currentTracker.name,
@@ -207,7 +217,7 @@ const moveAcross1Level = (graph, currentTracker, winningState, nextStates) => {
   nextStates = getVariable(graph, currentTracker.name, "nextStates").value;
 };
 
-const moveUpToParentNode = (graph, bottom, i) => {
+const moveUpToParentNode = (graph: any, bottom: any, i: any) => {
   // move bottom's ith child up by 1 unit
   let parentTracker = getState(
     graph,
@@ -226,13 +236,18 @@ const moveUpToParentNode = (graph, bottom, i) => {
   ).name;
 };
 
-const deleteCurrentNode = (graph, currentTracker) => {
+const deleteCurrentNode = (graph: any, currentTracker: any) => {
   Object.keys(currentTracker.variables).forEach((variableName) => {
     delete graph.statesObject.states[currentTracker.variables[variableName]];
   });
   deleteNodes(graph, currentTracker.name);
 };
-export const visitor = (startStateName, graph) => {
+/*
+[..stateName, unitTest, 1stCycle, 1stRun]
+record unit test first using context additions
+use next states to build the end to end testing
+*/
+export const visitor = (startStateName: any, graph: any) => {
   /*
     setup trackers
 
@@ -299,7 +314,7 @@ export const visitor = (startStateName, graph) => {
           "winningStateName"
         );
         // console.log({ currentTracker, winningStateName });
-        nextStates.forEach((stateToRunName) => {
+        nextStates.forEach((stateToRunName: any) => {
           if (winningStateName.value !== null) {
             return;
           }
@@ -408,7 +423,7 @@ export const visitor = (startStateName, graph) => {
               }
             } else {
               console.log("move up more");
-              moveUpToParentNode(graph, bottom, i, currentTracker);
+              moveUpToParentNode(graph, bottom, i);
 
               deleteCurrentNode(graph, currentTracker);
               currentTracker = getState(graph, bottom.children[i]);
@@ -428,6 +443,7 @@ export const visitor = (startStateName, graph) => {
         }
         stateRunCount += 1;
       }
+      console.log({ graph });
     }
   }
 };

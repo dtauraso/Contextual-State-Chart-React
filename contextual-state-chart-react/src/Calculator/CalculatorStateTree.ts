@@ -38,8 +38,7 @@ import {
   // showAndExit,
   // validOp2,
   // validOp,
-} from "../Calculator/CalculatorStateFunctions";
-
+} from "./CalculatorStateFunctions";
 // convenient way to set the tree up
 export let stateTree = {
   calculator: {
