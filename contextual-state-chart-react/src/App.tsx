@@ -2,7 +2,6 @@ import React from "react";
 import {
   insertName,
   setAttribute,
-  setupState,
   getStateNames,
   makeArrays,
 } from "./ContextualStateChart/ContextualStateChartInit";
@@ -248,7 +247,38 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 // have something to put on my portfolio and practice react skills while I finish the state machine algorithm
 // and language
 // use class based components
+const test = () => {
+  console.log("inside test");
+  const recordStateTreeJson = {
+    "current/State/Name/unitTest/machine run 0/state run 0": {
+      functionCode: "functionName",
+
+      children: {
+        "parentData/state/absolute/path": {
+          after: {
+            variables: {
+              varName: {
+                value: [],
+              },
+            },
+          },
+          variables: {
+            reference: {
+              value: [],
+            },
+          },
+        },
+      },
+    },
+  };
+  // has a variables key, but no children key
+  console.log(recordStateTreeJson);
+  const { namesTrie, statesObject } = makeArrays(recordStateTreeJson);
+  console.log({ namesTrie, statesObject });
+};
+
 const App = (props: any) => {
+  test();
   const { namesTrie, statesObject } = makeArrays(stateTree);
   console.log({ namesTrie, statesObject });
   let graph: Graph = { namesTrie, statesObject };

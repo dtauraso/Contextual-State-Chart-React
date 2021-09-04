@@ -9,6 +9,26 @@ import {
   deleteNodes,
   deleteNodesHelper,
 } from "../StateTree";
+import { makeArrays } from "../ContextualStateChartInit";
+
+let initEntry = {
+  currentStateNameConcatenated: {
+    functionName: "functionName",
+  },
+};
+
+let updateEntry = {
+  currentStateNameConcatenated: {
+    functionName: "functionName",
+    parentDataStateAbsolutePathArrayConcatenated: {
+      after: {
+        varName: "newValue",
+      },
+      reference: ["parentDataStateName"],
+    },
+  },
+};
+let errorEntry = [updateEntry];
 
 const moveDown1Level = (
   { newTrackerName }: any,
@@ -21,7 +41,6 @@ const moveDown1Level = (
 ) => {
   // make new level tracker node and doubly link it with the current level
   // tracker node
-  // console.log({ winningState, newTrackerName });
   insertState(
     graph,
     {
@@ -186,6 +205,7 @@ const visitor = (startStateName: string[], graph: any) => {
         connect by parent link
 
     */
+  // test();
   let levelId = 0;
   let timeLineId = 0;
   let bottomName = setupTrackers(graph, levelId, timeLineId, startStateName);
@@ -300,4 +320,4 @@ const visitor = (startStateName: string[], graph: any) => {
   }
 };
 
-export { visitor };
+export { updateEntry, visitor };

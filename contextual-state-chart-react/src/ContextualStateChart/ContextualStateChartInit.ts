@@ -1,4 +1,5 @@
-import { StatesObject } from "../App.types";
+import { Children } from "react";
+import { State, StatesObject } from "../App.types";
 // f(stateTree) => names and states arrays
 const insertName = (names: any, name: string[], stateId: Number): any => {
   // console.log({ names, name, stateId });
@@ -125,7 +126,7 @@ const getSubStatePaths = (
   } else {
     // console.log({ filteredKeys, keys });
     filteredKeys.forEach((stateNamePart: string) => {
-      console.log({ stateNamePart, node });
+      // console.log({ stateNamePart, node });
       getSubStatePaths(node[stateNamePart], paths, [
         ...currentPath,
         stateNamePart,
@@ -133,45 +134,36 @@ const getSubStatePaths = (
     });
   }
 };
-const setupState = (state: any, stateName: string[]) => {
-  // append state
-  const children = state?.children;
-  const variables = state?.variables;
-  // console.log({ variables });
-  let variableKeys: any = {};
-  if (variables) {
-    // console.log("here");
-    Object.keys(variables).forEach((variableName: string) => {
-      variableKeys[variableName] = 1; // how to find the id numbers of where the variables are in the array
-    });
-  }
-  let newState: any = {};
-  // console.log({ before: newState });
-  // console.log({ variableKeys });
-  newState["name"] = stateName;
-  setAttribute(state, newState, "functionCode", state?.functionCode);
-  setAttribute(state, newState, "next", state?.next);
-  setAttribute(state, newState, "start", state?.start);
-  setAttribute(state, newState, "value", state?.value);
-  // get a list of all the substate paths
-  // makes computing the parent links (metatdata file) easier
-  // getSubStates(children, paths, [])
-  if (children) {
-    let paths: string[][] = [];
-    getSubStatePaths(children, paths, []);
-    setAttribute(state, newState, "children", paths);
-  }
-  setAttribute(state, newState, "variables", variables && variableKeys);
-  // console.log({ after: newState });
-  return newState;
-};
-const addState = (statesObject: any, stateTree: any, stateName: any) => {
+
+const addState = (
+  statesObject: any,
+  stateTree: any,
+  stateName: any,
+  children: string[][],
+  variables: any,
+  isVariable: boolean
+) => {
   statesObject.maxStateId += 1;
-  statesObject.states[statesObject.maxStateId] = setupState(
-    stateTree,
-    stateName
-  );
+  let newState: State = {};
+  newState["A_name"] = stateName;
+
+  if (!isVariable) {
+    newState["set2SFromStateFunctionCallCount"] = 0;
+    newState["stateRunCount"] = 0;
+  }
+  setAttribute(stateTree, newState, "functionCode", stateTree?.functionCode);
+  setAttribute(stateTree, newState, "next", stateTree?.next);
+  setAttribute(stateTree, newState, "start", stateTree?.start);
+  setAttribute(stateTree, newState, "value", stateTree?.value);
+  setAttribute(stateTree, newState, "children", children);
+  setAttribute(stateTree, newState, "variables", variables);
+
+  statesObject.states[statesObject.maxStateId] = newState;
   statesObject.states[statesObject.maxStateId]["id"] = statesObject.maxStateId;
+};
+const specialPrint = (object: any) => {
+  // console.log({ object });
+  console.log(JSON.parse(JSON.stringify(object)));
 };
 const getStateNames = (
   stateTree: any,
@@ -180,80 +172,94 @@ const getStateNames = (
   statesObject: any,
   stateNameToStateIdAndVarCount: any
 ) => {
+  // console.log({ stateName, stateTree });
   const keys = Object.keys(stateTree);
-  const keyMapsToObject = keys.find(
-    (key) =>
-      Object.prototype.toString.call(stateTree[key]) === "[object Object]"
-  );
-  if (keys.includes("value")) {
-    names.push(stateName);
-    addState(statesObject, stateTree, stateName);
-    return statesObject.maxStateId;
-  }
-  if (keys.includes("children")) {
-    // stateTree is an internal node
-    names.push(stateName);
-    addState(statesObject, stateTree, stateName);
-    if (keys.includes("variables")) {
-      stateNameToStateIdAndVarCount[stateName.join(" ")] = {
-        varCountDown: Object.keys(stateTree.variables).length,
-        stateId: names.length - 1,
-      };
+  // const keyMapsToObject = keys.find(
+  //   (key) =>
+  //     Object.prototype.toString.call(stateTree[key]) === "[object Object]"
+  // );
+  /*
+  if any of the below keys is inside stateTree
+    we have reached a stop conditin
+  */
+  let foundStop = false;
+  const stopKeys = ["functionCode", "start", "next", "children", "variables"];
+  stopKeys.forEach((stopKey) => {
+    if (stopKey in stateTree) {
+      foundStop = true;
     }
-    Object.keys(stateTree.children).forEach((key) => {
-      getStateNames(
-        stateTree.children[key],
-        [key],
-        names,
-        statesObject,
-        stateNameToStateIdAndVarCount
-      );
-    });
-  }
-  if (keys.includes("variables")) {
-    Object.keys(stateTree.variables).forEach((key) => {
-      const variableId = getStateNames(
-        stateTree.variables[key],
-        [key],
-        names,
-        statesObject,
-        stateNameToStateIdAndVarCount
-      );
-      // how to link the variable's id value in the object with it's name as a key
-      // in the state's variable's object
-      // how to find the id of the state
-      // variables have to added locally
-      // O(h) where h is the height of the tree from the stateName to the leaf node
-      // stateName.join(" ") -> {varCountDown, id} when it's been added and has variables
-      // console.log({ variableId });
-      // console.log({ stateName: stateName.join(" ") });
-      // console.log({
-      //   variableId,
-      //   stateName: stateName,
-      //   stuff: stateNameToStateIdAndVarCount[stateName.join(" ")],
-      // });
-      const stateNameString = stateName.join(" ");
-      const stateId = stateNameToStateIdAndVarCount[stateNameString].stateId;
-      statesObject.states[stateId].variables[key] = variableId;
-      stateNameToStateIdAndVarCount[stateNameString].varCountDown -= 1;
-      if (stateNameToStateIdAndVarCount[stateNameString].varCountDown === 0) {
-        delete stateNameToStateIdAndVarCount[stateNameString];
+  });
+  if (foundStop) {
+    // console.log("at stop condition");
+    // stop conditions for the full state name
+    if ("children" in stateTree || "variables" in stateTree) {
+      // console.log("at stop condition");
+      // add state
+      // collect data for state
+      // names.push(stateName);
+      // addState(statesObject, stateTree, stateName);
+      // console.log("statesObject", JSON.parse(JSON.stringify(statesObject)));
+      let variableData: any = {};
+      if ("variables" in stateTree) {
+        // variable states are added here
+        // save variable names and id's for state
+        Object.keys(stateTree.variables).forEach((variableName) => {
+          names.push([variableName]);
+          addState(
+            statesObject,
+            stateTree.variables[variableName],
+            [variableName],
+            [],
+            {},
+            true
+          );
+          const variableId = statesObject.maxStateId;
+          variableData[variableName] = variableId;
+        });
       }
-    });
-  } else if (keyMapsToObject === undefined) {
-    // no key maps to an object
-    // stateTree is a leaf node
-    names.push(stateName);
-    addState(statesObject, stateTree, stateName);
-  } else if (
-    !keys.includes("function") &&
-    !keys.includes("next") &&
-    !keys.includes("start") &&
-    !keys.includes("children")
-  ) {
-    // stateTree is part of a state name
+      let childrenPaths: string[][] = [];
 
-    keys.forEach((key) => {
+      if ("children" in stateTree) {
+        // add state names from children into state's children list
+        getSubStatePaths(stateTree.children, childrenPaths, []);
+      }
+      // add state here
+      // console.log("variableData", JSON.parse(JSON.stringify(variableData)));
+      // console.log("paths", JSON.parse(JSON.stringify(childrenPaths)));
+      names.push(stateName);
+      addState(
+        statesObject,
+        stateTree,
+        stateName,
+        childrenPaths,
+        variableData,
+        false
+      );
+      if ("children" in stateTree) {
+        Object.keys(stateTree.children).forEach((child) => {
+          getStateNames(
+            stateTree.children[child],
+            [child],
+            names,
+            statesObject,
+            stateNameToStateIdAndVarCount
+          );
+        });
+      }
+    } else if (!("variables" in stateTree) && !("children" in stateTree)) {
+      names.push(stateName);
+      addState(statesObject, stateTree, stateName, [], {}, false);
+    }
+  }
+
+  // continue down the state name path
+  const filteredKeys = keys.filter(
+    (key) =>
+      !["functionCode", "start", "next", "children", "variables"].includes(key)
+  );
+  if (filteredKeys.length > 0) {
+    filteredKeys.forEach((key) => {
+      // getStateNames(key)
       getStateNames(
         stateTree[key],
         [...stateName, key],
@@ -263,6 +269,129 @@ const getStateNames = (
       );
     });
   }
+  /*
+    if keys has any context names
+      getStateNames(each context name)
+    */
+  // if (keys.includes("value")) {
+  //   names.push(stateName);
+  //   addState(statesObject, stateTree, stateName);
+  //   return statesObject.maxStateId;
+  // }
+  // if (keys.includes("children")) {
+  //   // stateTree is an internal node
+  //   names.push(stateName);
+  //   addState(statesObject, stateTree, stateName);
+  //   if (keys.includes("variables")) {
+  //     stateNameToStateIdAndVarCount[stateName.join(" ")] = {
+  //       varCountDown: Object.keys(stateTree.variables).length,
+  //       stateId: names.length - 1,
+  //     };
+  //   }
+  //   Object.keys(stateTree.children).forEach((key) => {
+  //     getStateNames(
+  //       stateTree.children[key],
+  //       [key],
+  //       names,
+  //       statesObject,
+  //       stateNameToStateIdAndVarCount
+  //     );
+  //   });
+  // }
+  // if (keys.includes("variables")) {
+  //   if (stateName.length > 0) {
+  //     // the current name is also done
+  //     names.push(stateName);
+  //     addState(statesObject, stateTree, stateName);
+  //     // stateNameToStateIdAndVarCount[stateName.join(" ")] = {
+  //     //   varCountDown: Object.keys(stateTree.variables).length,
+  //     //   stateId: names.length - 1,
+  //     // };
+  //   }
+  //   const filteredKeys = keys.filter(
+  //     (key) =>
+  //       ![
+  //         "functionCode",
+  //         "functionName",
+  //         "start",
+  //         "next",
+  //         "children",
+  //         "variables",
+  //       ].includes(key)
+  //   );
+  //   if (filteredKeys.length > 0) {
+  //     // there are more names to try
+  //     console.log({ filteredKeys });
+  //     filteredKeys.forEach((key) => {
+  //       console.log({ key, stateTree });
+  //       getStateNames(
+  //         stateTree[key],
+  //         [...stateName, key],
+  //         names,
+  //         statesObject,
+  //         stateNameToStateIdAndVarCount
+  //       );
+  //     });
+  //   }
+  //   Object.keys(stateTree.variables).forEach((key) => {
+  //     const variableId = getStateNames(
+  //       stateTree.variables[key],
+  //       [key],
+  //       names,
+  //       statesObject,
+  //       stateNameToStateIdAndVarCount
+  //     );
+  //     // how to link the variable's id value in the object with it's name as a key
+  //     // in the state's variable's object
+  //     // how to find the id of the state
+  //     // variables have to added locally
+  //     // O(h) where h is the height of the tree from the stateName to the leaf node
+  //     // stateName.join(" ") -> {varCountDown, id} when it's been added and has variables
+  //     // console.log({ variableId });
+  //     // console.log({ stateName: stateName.join(" ") });
+  //     // console.log({
+  //     //   variableId,
+  //     //   stateName: stateName,
+  //     //   stuff: stateNameToStateIdAndVarCount[stateName.join(" ")],
+  //     // });
+  //     const stateNameString = stateName.join(" ");
+  //     if (stateNameString in stateNameToStateIdAndVarCount) {
+  //       if ("stateId" in stateNameToStateIdAndVarCount[stateNameString]) {
+  //         const stateId =
+  //           stateNameToStateIdAndVarCount[stateNameString].stateId;
+  //         statesObject.states[stateId].variables[key] = variableId;
+  //         stateNameToStateIdAndVarCount[stateNameString].varCountDown -= 1;
+  //         if (
+  //           stateNameToStateIdAndVarCount[stateNameString].varCountDown === 0
+  //         ) {
+  //           delete stateNameToStateIdAndVarCount[stateNameString];
+  //         }
+  //       }
+  //     }
+  //   });
+  // } else if (keyMapsToObject === undefined) {
+  //   // no key maps to an object
+  //   // stateTree is a leaf node
+  //   names.push(stateName);
+  //   addState(statesObject, stateTree, stateName);
+  // } else if (
+  //   !keys.includes("function") &&
+  //   !keys.includes("next") &&
+  //   !keys.includes("start") &&
+  //   !keys.includes("children")
+  // ) {
+  //   // stateTree is part of a state name
+
+  //   keys.forEach((key) => {
+  //     getStateNames(
+  //       stateTree[key],
+  //       [...stateName, key],
+  //       names,
+  //       statesObject,
+  //       stateNameToStateIdAndVarCount
+  //     );
+  //   });
+  // }
 };
 const makeArrays = (stateTree: any) => {
   // get the state names
@@ -270,7 +399,7 @@ const makeArrays = (stateTree: any) => {
   // needs to be {} for O(1) adding, updating, and deleting
   let statesObject: StatesObject = { maxStateId: -1, states: {} };
   getStateNames(stateTree, [], names, statesObject, {});
-  // console.log({ names, states });
+  console.log({ names, states: statesObject.states });
   // console.log({ keys: Object.keys(names) });
   let namesTrie: any = {};
   names.forEach((nameArray: any, i: Number) => {
@@ -279,14 +408,15 @@ const makeArrays = (stateTree: any) => {
     // console.log({ tree, updatedName });
     namesTrie = tree;
   });
-  // add metadata
-  // Object.keys(statesObject.states).forEach((stateId: any) => {
-  //   statesObject.states[stateId]["Set2SFromStateFunctionCallCount"] = 0;
-  //   statesObject.states[stateId]["stateRunCount"] = 0;
-  // });
   console.log({ namesTrie, statesObject });
   return { namesTrie, statesObject };
 };
+/*
+state object -> stateId
+childrenNames -> all paths from current state to the children keys
+
+*/
+
 /*
 rules of states
 each state must be able to access any other state in O(n); where n is the length of the path through
@@ -330,4 +460,4 @@ root state for the search tries(26 tries)
     c/{randomNumber/, ....}/title -> [title/{randomNumber/, ....}, ]
 */
 
-export { insertName, setAttribute, setupState, getStateNames, makeArrays };
+export { insertName, setAttribute, getStateNames, makeArrays };

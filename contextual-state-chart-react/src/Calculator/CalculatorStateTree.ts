@@ -47,7 +47,7 @@ let stateTree = {
     children: {
       createExpression: {
         functionCode: returnTrue,
-        next: [["evaluateExpression"]],
+        next: [["test", "evaluateExpression"]],
         start: [["number"]],
         children: {
           number: {
@@ -67,11 +67,11 @@ let stateTree = {
                   fake: {
                     endState1: {
                       functionCode: returnTrue,
-                      start: [["fake", "endState1", "!"]],
+                      start: [["fake", "endState2"]],
 
                       children: {
                         fake: {
-                          endState1: {
+                          endState2: {
                             functionCode: returnTrue,
                           },
                         },
@@ -107,63 +107,75 @@ let stateTree = {
         },
         variables: { token: { value: "" } },
       },
-      evaluateExpression: {
-        functionCode: returnTrue,
-        next: [["inputHas1Value"] /*,'evaluateExpression'*/],
-        start: [["a0"]],
-        children: {
-          // get, save, increment or update the array
-          a0: {
-            functionCode: "getA2", // increment
-            next: [["resetForNextRoundOfInput"], ["op"], ["opIgnore"]],
-          },
+      test: {
+        evaluateExpression: {
+          functionCode: returnTrue,
+          next: [["inputHas1Value"] /*,'evaluateExpression'*/],
+          start: [["a0"]],
+          children: {
+            // get, save, increment or update the array
+            a0: {
+              functionCode: "getA2", // increment
+              next: [["resetForNextRoundOfInput"], ["op"], ["opIgnore"]],
+            },
 
-          op: {
-            functionCode: "isOp2", // increment
-            next: [["b evaluate"]],
-          },
-          // add new step to save b?
-          // make a result variable to show the result?
-          // the item 'b evaluate' put in is the same item 'a0' starts on
-          "b evaluate": {
-            functionCode: "evaluate2", // updates the array
-            next: [["a0"]],
-          },
+            op: {
+              functionCode: "isOp2", // increment
+              next: [["b evaluate"]],
+            },
+            // add new step to save b?
+            // make a result variable to show the result?
+            // the item 'b evaluate' put in is the same item 'a0' starts on
+            "b evaluate": {
+              functionCode: "evaluate2", // updates the array
+              next: [["a0"]],
+            },
 
-          opIgnore: {
-            functionCode: "ignoreOp2", // increment
-            next: [["a0"]],
-          },
+            opIgnore: {
+              functionCode: "ignoreOp2", // increment
+              next: [["a0"]],
+            },
 
-          // some of this is wrong
-          resetForNextRoundOfInput: {
-            functionCode: "resetForNextRound2",
-            next: [/*'endOfEvaluating'*/ ["inputHas1Value"], ["a0"]],
+            // some of this is wrong
+            resetForNextRoundOfInput: {
+              functionCode: "resetForNextRound2",
+              next: [/*'endOfEvaluating'*/ ["inputHas1Value"], ["a0"]],
+            },
+          },
+          variables: {
+            i2: {
+              value: 0,
+            },
+            a: {
+              value: 0,
+            },
+            b: {
+              value: 0,
+            },
+            operators: {
+              value: ["*", "/", "-", "+"],
+            },
+            j: {
+              value: 0,
+            },
+            operatorFunctions: {
+              value: { "*": "mult", "/": "divide", "+": "plus", "-": "minus" },
+            },
           },
         },
-        variables: {
-          i2: {
-            value: 0,
+        anotherTest: {
+          testing: {
+            test: {
+              functionCode: "yes",
+            },
           },
-          a: {
-            value: 0,
-          },
-          b: {
-            value: 0,
-          },
-          operators: {
-            value: ["*", "/", "-", "+"],
-          },
-          j: {
-            value: 0,
-          },
-          operatorFunctions: {
-            value: { "*": "mult", "/": "divide", "+": "plus", "-": "minus" },
-          },
+          functionCode: "yes",
         },
       },
-      inputHas1Value: {
-        functionCode: "showAndExit2",
+      "another test": {
+        inputHas1Value: {
+          functionCode: "showAndExit2",
+        },
       },
     },
     variables: {
