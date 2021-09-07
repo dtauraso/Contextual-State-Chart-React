@@ -4,7 +4,7 @@ import {
   setAttribute,
   getStateNames,
   makeArrays,
-} from "./ContextualStateChart/ContextualStateChartInit";
+} from "./ContextualStateChart/Init/ContextualStateChartInit";
 import { Graph } from "./App.types";
 import { stateTree } from "./Calculator/CalculatorStateTree";
 import { visitor } from "./ContextualStateChart/Visitor/Visitor";
@@ -250,21 +250,32 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 const test = () => {
   console.log("inside test");
   const recordStateTreeJson = {
-    "current/State/Name/unitTest/machine run 0/state run 0": {
-      functionCode: "functionName",
+    current: {
+      State: {
+        Name: {
+          unitTest: {
+            "machine run 0": {
+              "state run 0": {
+                functionCode: "functionName",
 
-      children: {
-        "parentData/state/absolute/path": {
-          after: {
-            variables: {
-              varName: {
-                value: [],
+                children: {
+                  parentData: {
+                    state: {
+                      absolute: {
+                        path: {
+                          after: {
+                            variables: {
+                              varName: {
+                                value: [],
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
               },
-            },
-          },
-          variables: {
-            reference: {
-              value: [],
             },
           },
         },
@@ -274,7 +285,12 @@ const test = () => {
   // has a variables key, but no children key
   console.log(recordStateTreeJson);
   const { namesTrie, statesObject } = makeArrays(recordStateTreeJson);
-  console.log({ namesTrie, statesObject });
+  console.log(
+    "namesTrie",
+    JSON.parse(JSON.stringify(namesTrie)),
+    "statesObject",
+    JSON.parse(JSON.stringify(statesObject))
+  );
 };
 
 const App = (props: any) => {

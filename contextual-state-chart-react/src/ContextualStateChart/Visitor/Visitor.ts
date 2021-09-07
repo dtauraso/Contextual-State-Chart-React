@@ -9,7 +9,7 @@ import {
   deleteNodes,
   deleteNodesHelper,
 } from "../StateTree";
-import { makeArrays } from "../ContextualStateChartInit";
+import { makeArrays } from "../Init/ContextualStateChartInit";
 
 let initEntry = {
   currentStateNameConcatenated: {

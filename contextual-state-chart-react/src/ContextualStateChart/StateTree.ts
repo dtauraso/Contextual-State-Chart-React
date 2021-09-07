@@ -1,4 +1,4 @@
-import { insertName } from "./ContextualStateChartInit";
+import { insertName } from "./Init/ContextualStateChartInit";
 
 const getStateId = (namesTrie: any, stateName: string[]) => {
   // console.log({ namesTrie, stateName });
