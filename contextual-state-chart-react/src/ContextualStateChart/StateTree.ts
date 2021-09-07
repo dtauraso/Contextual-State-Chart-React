@@ -52,6 +52,11 @@ const setVariable = (
   newValue: any
 ) => {
   // console.log({ graph, state, variableName, newValue });
+  /*
+  record state
+
+  [...stateName, unitTest, machine run 0, state run 0]
+  */
   const state = getState(graph, stateName);
   if (variableName in state.variables) {
     const stateId = state.variables[variableName];

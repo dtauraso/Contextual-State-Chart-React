@@ -1,4 +1,4 @@
-import { Graph } from "../../App.types";
+import { Graph } from "../App.types";
 import {
   getStateId,
   getState,
@@ -8,8 +8,8 @@ import {
   insertState,
   deleteNodes,
   deleteNodesHelper,
-} from "../StateTree";
-import { makeArrays } from "../Init/ContextualStateChartInit";
+} from "./StateTree";
+import { makeArrays } from "./Init/ContextualStateChartInit";
 
 let initEntry = {
   currentStateNameConcatenated: {

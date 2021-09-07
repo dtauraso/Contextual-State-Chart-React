@@ -7,7 +7,7 @@ import {
 } from "./ContextualStateChart/Init/ContextualStateChartInit";
 import { Graph } from "./App.types";
 import { stateTree } from "./Calculator/CalculatorStateTree";
-import { visitor } from "./ContextualStateChart/Visitor/Visitor";
+import { visitor } from "./ContextualStateChart/Visitor";
 import "./App.css";
 import Header from "./components/debug_interface/Header";
 // import Data from "./components/debug_interface/data/Data";
