@@ -1,12 +1,49 @@
 import { insertName } from "./Init/ContextualStateChartInit";
-
-const getStateId = (namesTrie: any, stateName: string[]) => {
+import { Graph, NamesTrie } from "../App.types";
+import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
+import { returnTrue } from "../Calculator/CalculatorStateFunctions";
+let stateTree = {
+  tree: {
+    functionCode: returnTrue,
+    start: ["calculator"],
+    children: {
+      ...calculatorStateTree,
+      "run state machine": {
+        calculator: {
+          bottom: {
+            children: {
+              "level 0": {
+                "timeLine 0": {
+                  children: {},
+                  variables: {
+                    nextStates: { value: [] },
+                    winningStateName: { value: null },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    variables: {
+      levelId: { value: 0 },
+      timeLineId: { value: 0 },
+      machineRun: { value: 0 },
+    },
+  },
+};
+const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
   // console.log({ namesTrie, stateName });
-  let stateId = 0;
+  let stateId: number = 0;
   let namesTrieTracker = namesTrie;
   let isFound = true;
   if (typeof stateName === "string") {
     console.log(`${stateName} is not an array`);
+    return -1;
+  }
+  if (stateName === undefined) {
+    console.log("stateName is not defined");
     return -1;
   }
   stateName.forEach((namePart: string) => {
@@ -15,7 +52,7 @@ const getStateId = (namesTrie: any, stateName: string[]) => {
     }
     if (namePart in namesTrieTracker) {
       if ("id" in namesTrieTracker[namePart]) {
-        stateId = namesTrieTracker[namePart].id;
+        stateId = namesTrieTracker[namePart]?.id;
       }
       namesTrieTracker = namesTrieTracker[namePart];
     } else {
@@ -36,8 +73,10 @@ const getState = (graph: any, stateName: string[]) => {
   return graph.statesObject.states[stateId];
 };
 const getVariable = (graph: any, stateName: string[], variableName: any) => {
-  // console.log({ stateName });
-
+  // console.log({ stateName, graph });
+  if (stateName === undefined) {
+    return null;
+  }
   const state = getState(graph, stateName);
   // console.log({ state });
   if (variableName in state.variables) {
@@ -46,9 +85,10 @@ const getVariable = (graph: any, stateName: string[], variableName: any) => {
   }
 };
 const setVariable = (
-  graph: any,
-  stateName: any,
-  variableName: any,
+  argumentObject: any,
+  graph: Graph,
+  stateName: string[],
+  variableName: string,
   newValue: any
 ) => {
   // console.log({ graph, state, variableName, newValue });
@@ -56,10 +96,26 @@ const setVariable = (
   record state
 
   [...stateName, unitTest, machine run 0, state run 0]
+    functionName: "functionName"
+    children: {
+      parentDataStateNameString: {
+        after: {
+          variables: {
+            var1
+            var2
+            var3
+          }
+        }
+      }
+    }
+    current record counting vars
+      state run count
+      set function count
+    
   */
   const state = getState(graph, stateName);
   if (variableName in state.variables) {
-    const stateId = state.variables[variableName];
+    const stateId: number = state.variables[variableName];
     graph.statesObject.states[stateId].value = newValue;
     // console.log({ graph, stateId });
   }
@@ -128,6 +184,7 @@ const deleteNodesHelper = (namesTrie: any, states: any, name: any) => {
 };
 
 export {
+  stateTree,
   getStateId,
   getState,
   getVariable,

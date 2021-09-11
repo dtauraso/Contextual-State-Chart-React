@@ -14,8 +14,8 @@ const numberGetDigit = (graph: any, currentState: any) => {
   }
   // console.log("numberGetDigit");
 
-  setVariable(graph, ["createExpression"], "token", token + input[i1]);
-  setVariable(graph, ["calculator"], "i1", i1 + 1);
+  setVariable({}, graph, ["createExpression"], "token", token + input[i1]);
+  setVariable({}, graph, ["calculator"], "i1", i1 + 1);
   // console.log("end of state", { graph });
   return true;
 };
@@ -41,10 +41,10 @@ const saveNumber = (graph: any, currentState: any) => {
   }
   // console.log("saveNumber");
 
-  setVariable(graph, ["calculator"], "expression", expression);
-  setVariable(graph, ["calculator"], "i1", i1);
+  setVariable({}, graph, ["calculator"], "expression", expression);
+  setVariable({}, graph, ["calculator"], "i1", i1);
 
-  setVariable(graph, ["createExpression"], "token", "");
+  setVariable({}, graph, ["createExpression"], "token", "");
   // console.log("end of state", { graph });
   return true;
 };
@@ -74,8 +74,8 @@ const operatorGetOperator = (graph: any, currentState: any) => {
     return false;
   }
 
-  setVariable(graph, ["createExpression"], "token", token + input[i1]);
-  setVariable(graph, ["calculator"], "i1", i1 + 1);
+  setVariable({}, graph, ["createExpression"], "token", token + input[i1]);
+  setVariable({}, graph, ["calculator"], "i1", i1 + 1);
 
   return true;
 };
@@ -101,9 +101,9 @@ const saveOperator = (graph: any, currentState: any) => {
     i1 += 1;
   }
 
-  setVariable(graph, ["calculator"], "expression", expression);
-  setVariable(graph, ["createExpression"], "token", "");
-  setVariable(graph, ["calculator"], "i1", i1);
+  setVariable({}, graph, ["calculator"], "expression", expression);
+  setVariable({}, graph, ["createExpression"], "token", "");
+  setVariable({}, graph, ["calculator"], "i1", i1);
 
   // console.log(graph['nodeGraph2']['expression'])
 

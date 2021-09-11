@@ -40,7 +40,7 @@ import {
   // validOp,
 } from "./CalculatorStateFunctions";
 // convenient way to set the tree up
-let stateTree = {
+let calculatorStateTree = {
   calculator: {
     functionCode: returnTrue,
     start: [["createExpression"]],
@@ -194,4 +194,4 @@ let stateTree = {
   },
 };
 
-export { stateTree };
+export { calculatorStateTree };

@@ -2,7 +2,7 @@ type Variables = {
   [key: string]: number;
 };
 type State = {
-  A_name?: string;
+  name?: string;
   functionCode?: (graph: any, currentState: any) => boolean;
   functionName?: string;
   start?: string[][];
@@ -10,18 +10,19 @@ type State = {
   next?: string[][];
   variables?: Variables;
   value?: any;
-  set2SFromStateFunctionCallCount?: Number;
-  stateRunCount?: Number;
+  set2SFromStateFunctionCallCount?: number;
+  stateRunCount?: number;
 };
 type States = {
-  [key: Number]: State;
+  [key: number]: State;
 };
 type StatesObject = {
-  maxStateId: Number;
+  maxStateId: number;
   states: States;
 };
 type NamesTrie = {
   [key: string]: NamesTrie;
+  id: number;
 };
 type Graph = {
   namesTrie: NamesTrie;

@@ -6,7 +6,8 @@ import {
   makeArrays,
 } from "./ContextualStateChart/Init/ContextualStateChartInit";
 import { Graph } from "./App.types";
-import { stateTree } from "./Calculator/CalculatorStateTree";
+import { calculatorStateTree } from "./Calculator/CalculatorStateTree";
+import { stateTree } from "./ContextualStateChart/StateTree";
 import { visitor } from "./ContextualStateChart/Visitor";
 import "./App.css";
 import Header from "./components/debug_interface/Header";

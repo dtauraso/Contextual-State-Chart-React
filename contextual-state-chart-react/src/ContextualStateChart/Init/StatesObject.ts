@@ -44,7 +44,7 @@ const addState = (
 ) => {
   statesObject.maxStateId += 1;
   let newState: State = {};
-  newState["A_name"] = stateName;
+  newState["name"] = stateName;
 
   if (!isVariable) {
     newState["set2SFromStateFunctionCallCount"] = 0;

@@ -91,6 +91,7 @@ const moveDown1Level = (
   // console.log({ graph, winningState, nextStates });
   // return false;
   setVariable(
+    {},
     graph,
     currentTracker.name,
     getVariable(graph, currentTracker.name, "nextStates").name[0],
@@ -106,12 +107,14 @@ const moveAcross1Level = (
   nextStates: any
 ) => {
   setVariable(
+    {},
     graph,
     currentTracker.name,
     getVariable(graph, currentTracker.name, "nextStates").name[0],
     winningState.next
   );
   setVariable(
+    {},
     graph,
     currentTracker.name,
     getVariable(graph, currentTracker.name, "winningStateName").name[0],
@@ -157,26 +160,20 @@ const setupTrackers = (
   startStateName: string[]
 ): any => {
   let parentTrackerName = [`level ${levelId}`, `timeLine ${timeLineId}`];
-  let bottomName = ["calculator", "run state machine", "bottom"];
-  bottomName = insertState(graph, {
-    name: bottomName,
-    children: [parentTrackerName],
-  });
-
-  // bottom acts as a reader of the tree timelines like a disk read write head on a disk drive
-  parentTrackerName = insertState(
+  setVariable(
+    {},
     graph,
-    {
-      name: parentTrackerName,
-      parent: null,
-      children: [],
-    },
-    {
-      nextStates: [startStateName],
-      winningStateName: null,
-    }
+    parentTrackerName,
+    getVariable(graph, parentTrackerName, "nextStates").name[0],
+    [startStateName]
   );
-  return bottomName;
+  setVariable(
+    {},
+    graph,
+    parentTrackerName,
+    getVariable(graph, parentTrackerName, "winningStateName").name[0],
+    null
+  );
 };
 const runState = (
   graph: any,
@@ -205,10 +202,14 @@ const visitor = (startStateName: string[], graph: any) => {
         connect by parent link
 
     */
-  // test();
-  let levelId = 0;
-  let timeLineId = 0;
-  let bottomName = setupTrackers(graph, levelId, timeLineId, startStateName);
+  let levelId = getVariable(graph, ["tree"], "levelId").value;
+  let timeLineId = getVariable(graph, ["tree"], "timeLineId").value;
+  setupTrackers(graph, levelId, timeLineId, startStateName);
+
+  // bottom acts as a reader of the tree timelines like a disk read write head on a disk drive
+
+  let bottomName = ["run state machine", "calculator", "bottom"];
+
   let bottom = getState(graph, bottomName);
   let stateRunCount = 0;
   while (bottom.children.length > 0) {
@@ -220,11 +221,16 @@ const visitor = (startStateName: string[], graph: any) => {
     // 2) put in state change recording tree
     for (let i = 0; i < bottom.children.length; i++) {
       let currentTracker = getState(graph, bottom.children[i]);
+      // console.log(currentTracker);
       let nextStates = getVariable(
         graph,
         currentTracker.name,
         "nextStates"
-      ).value;
+      )?.value;
+      if (!nextStates) {
+        console.log({ nextStates });
+        return false;
+      }
       if (nextStates.length > 0) {
         let winningStateName = getVariable(
           graph,
@@ -247,7 +253,8 @@ const visitor = (startStateName: string[], graph: any) => {
           // there are children states to run
           // console.log("there are children states to run");
           // update level id
-          levelId += 1;
+          setVariable({}, graph, ["tree"], "levelId", levelId + 1);
+          levelId = getVariable(graph, ["tree"], "levelId").value;
 
           moveDown1Level(
             { newTrackerName: [`level ${levelId}`, `timeLine ${timeLineId}`] },
@@ -274,7 +281,7 @@ const visitor = (startStateName: string[], graph: any) => {
           moveUpToParentNode(graph, bottom, i);
 
           deleteCurrentNode(graph, currentTracker);
-          levelId -= 1;
+          setVariable({}, graph, ["tree"], "levelId", levelId - 1);
 
           currentTracker = getState(graph, bottom.children[i]);
 
@@ -303,7 +310,7 @@ const visitor = (startStateName: string[], graph: any) => {
               moveUpToParentNode(graph, bottom, i);
 
               deleteCurrentNode(graph, currentTracker);
-              levelId -= 1;
+              setVariable({}, graph, ["tree"], "levelId", levelId - 1);
 
               currentTracker = getState(graph, bottom.children[i]);
             }
