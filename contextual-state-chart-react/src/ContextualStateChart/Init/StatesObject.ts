@@ -47,7 +47,6 @@ const addState = (
   newState["name"] = stateName;
 
   if (!isVariable) {
-    newState["set2SFromStateFunctionCallCount"] = 0;
     newState["stateRunCount"] = 0;
   }
   setAttribute(stateTree, newState, "functionCode", stateTree?.functionCode);

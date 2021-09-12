@@ -10,7 +10,6 @@ type State = {
   next?: string[][];
   variables?: Variables;
   value?: any;
-  set2SFromStateFunctionCallCount?: number;
   stateRunCount?: number;
   id?: number;
 };

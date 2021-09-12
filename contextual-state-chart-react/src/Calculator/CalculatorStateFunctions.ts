@@ -5,9 +5,13 @@ const calculatorName = ["calculator"];
 const createExpressionName = ["createExpression"];
 
 // argumentObjects
-const argumentObjectCalculator = { parentDataStateName: calculatorName };
-const argumentObjectCreateExpression = {
+let argumentObjectCalculator = {
+  parentDataStateName: calculatorName,
+  currentStateName: null,
+};
+let argumentObjectCreateExpression = {
   parentDataStateName: createExpressionName,
+  currentStateName: null,
 };
 
 // variable names
@@ -29,7 +33,7 @@ const numberGetDigit = (graph: any, currentState: any) => {
     return false;
   }
   // console.log("numberGetDigit");
-
+  argumentObjectCreateExpression.currentStateName = currentState.name;
   setVariable(
     argumentObjectCreateExpression,
     graph,
@@ -37,6 +41,7 @@ const numberGetDigit = (graph: any, currentState: any) => {
     tokenName,
     token + input[i1]
   );
+  argumentObjectCalculator.currentStateName = currentState.name;
   setVariable(argumentObjectCalculator, graph, calculatorName, i1Name, i1 + 1);
   // console.log("end of state", { graph });
   return true;
@@ -62,7 +67,7 @@ const saveNumber = (graph: any, currentState: any) => {
     }
   }
   // console.log("saveNumber");
-
+  argumentObjectCalculator.currentStateName = currentState.name;
   setVariable(
     argumentObjectCalculator,
     graph,
@@ -71,7 +76,7 @@ const saveNumber = (graph: any, currentState: any) => {
     expression
   );
   setVariable(argumentObjectCalculator, graph, calculatorName, i1Name, i1);
-
+  argumentObjectCreateExpression.currentStateName = currentState.name;
   setVariable(
     argumentObjectCreateExpression,
     graph,
@@ -107,7 +112,7 @@ const operatorGetOperator = (graph: any, currentState: any) => {
   if (!operators.includes(input[i1])) {
     return false;
   }
-
+  argumentObjectCreateExpression.currentStateName = currentState.name;
   setVariable(
     argumentObjectCreateExpression,
     graph,
@@ -115,6 +120,7 @@ const operatorGetOperator = (graph: any, currentState: any) => {
     tokenName,
     token + input[i1]
   );
+  argumentObjectCalculator.currentStateName = currentState.name;
   setVariable(argumentObjectCalculator, graph, calculatorName, i1Name, i1 + 1);
 
   return true;
@@ -141,6 +147,7 @@ const saveOperator = (graph: any, currentState: any) => {
     i1 += 1;
   }
 
+  argumentObjectCalculator.currentStateName = currentState.name;
   setVariable(
     argumentObjectCalculator,
     graph,
@@ -148,6 +155,8 @@ const saveOperator = (graph: any, currentState: any) => {
     expressionName,
     expression
   );
+
+  argumentObjectCreateExpression.currentStateName = currentState.name;
   setVariable(
     argumentObjectCreateExpression,
     graph,
