@@ -282,7 +282,7 @@ const visitor = (startStateName: string[], graph: any) => {
 
           deleteCurrentNode(graph, currentTracker);
           setVariable({}, graph, ["tree"], "levelId", levelId - 1);
-
+          levelId = getVariable(graph, ["tree"], "levelId").value;
           currentTracker = getState(graph, bottom.children[i]);
 
           while (bottom.children[i] !== null) {
@@ -311,7 +311,7 @@ const visitor = (startStateName: string[], graph: any) => {
 
               deleteCurrentNode(graph, currentTracker);
               setVariable({}, graph, ["tree"], "levelId", levelId - 1);
-
+              levelId = getVariable(graph, ["tree"], "levelId").value;
               currentTracker = getState(graph, bottom.children[i]);
             }
           }

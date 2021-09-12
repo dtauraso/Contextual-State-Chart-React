@@ -29,12 +29,12 @@ let stateTree = {
     variables: {
       levelId: { value: 0 },
       timeLineId: { value: 0 },
-      machineRun: { value: 0 },
+      machineRunId: { value: 0 },
     },
   },
 };
 const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
-  // console.log({ namesTrie, stateName });
+  console.log({ namesTrie, stateName });
   let stateId: number = 0;
   let namesTrieTracker = namesTrie;
   let isFound = true;
@@ -70,6 +70,10 @@ const getState = (graph: any, stateName: string[]) => {
     return null;
   }
   const stateId = getStateId(graph.namesTrie, stateName);
+  if (!(stateId in graph.statesObject.states)) {
+    console.log(`${stateId} is not in graph.statesObject.states`);
+    return false;
+  }
   return graph.statesObject.states[stateId];
 };
 const getVariable = (graph: any, stateName: string[], variableName: any) => {
@@ -108,17 +112,104 @@ const setVariable = (
         }
       }
     }
-    current record counting vars
-      state run count
-      set function count
-    
+  
+  if argument object is empty
+    don't make a record state
+  if record state exists
+    update the "after" child state
+  else
+    setup record state
   */
   const state = getState(graph, stateName);
-  if (variableName in state.variables) {
+  console.log("state", JSON.parse(JSON.stringify(state)));
+  if (!(variableName in state.variables)) {
+    return;
+  }
+  if (Object.keys(argumentObject).length === 0) {
     const stateId: number = state.variables[variableName];
     graph.statesObject.states[stateId].value = newValue;
-    // console.log({ graph, stateId });
+    return;
   }
+  const machineRunId = getVariable(graph, ["tree"], "machineRunId").value;
+  const stateRunCount = getState(graph, stateName).stateRunCount;
+  let recordStateTreeRootName = [
+    ...stateName,
+    "unitTest",
+    `${machineRunId}`,
+    `${stateRunCount}`,
+  ];
+  let recordStateRoot = getState(graph, recordStateTreeRootName);
+  console.log({ recordStateRoot });
+  if (!recordStateRoot) {
+    // make record state tree
+    const stateId: number = state.variables[variableName];
+
+    let afterStateName = insertState(
+      graph,
+      {
+        name: [...argumentObject.parentDataStateName, "after"],
+        functionName: getState(graph, stateName).functionCode.name.toString(),
+      },
+      {
+        [variableName]: graph.statesObject.states[stateId].value,
+      }
+    );
+
+    recordStateTreeRootName = insertState(graph, {
+      name: recordStateTreeRootName,
+      children: [afterStateName],
+    });
+    // console.log("added record state", JSON.parse(JSON.stringify(graph)));
+    console.log("added record state new");
+    printRecordTree(graph, recordStateTreeRootName);
+  } else {
+    // just because the record state exists doesn't mean the variable has been updated before
+    console.log("added record state old");
+    let recordTreeRoot = getState(graph, recordStateTreeRootName);
+    let afterState = getState(graph, recordTreeRoot.children[0]);
+    console.log(
+      "variableName",
+      JSON.parse(JSON.stringify(variableName)),
+      JSON.parse(JSON.stringify(afterState)),
+      JSON.parse(JSON.stringify(graph))
+    );
+    if (!(variableName in afterState.variables)) {
+      graph.statesObject.maxStateId += 1;
+      graph.statesObject.states[graph.statesObject.maxStateId] = {
+        name: [variableName],
+        value: newValue,
+        id: graph.statesObject.maxStateId,
+      };
+      afterState.variables[variableName] = graph.statesObject.maxStateId;
+      printRecordTree(graph, recordStateTreeRootName);
+    } else {
+      graph.statesObject.states[afterState.variables[variableName]].value =
+        newValue;
+      printRecordTree(graph, recordStateTreeRootName);
+    }
+  }
+  const stateId: number = state.variables[variableName];
+  graph.statesObject.states[stateId].value = newValue;
+  // else if()
+  // console.log({ graph, stateId });
+};
+const printRecordTree = (graph: any, recordTreeRootName: string[]) => {
+  let recordTreeRoot = getState(graph, recordTreeRootName);
+  let afterState = getState(graph, recordTreeRoot.children[0]);
+
+  console.log("added record state", JSON.parse(JSON.stringify(recordTreeRoot)));
+  console.log("added record state", JSON.parse(JSON.stringify(afterState)));
+  Object.keys(afterState.variables).forEach((variableName) => {
+    console.log(
+      "added record state",
+      JSON.parse(JSON.stringify(variableName)),
+      JSON.parse(
+        JSON.stringify(
+          graph.statesObject.states[afterState.variables[variableName]].value
+        )
+      )
+    );
+  });
 };
 const insertVariableState = (graph: any, state: any, variable: any) => {
   // variable is the new variable state

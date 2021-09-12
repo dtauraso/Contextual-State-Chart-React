@@ -2,7 +2,7 @@ type Variables = {
   [key: string]: number;
 };
 type State = {
-  name?: string;
+  name?: string[];
   functionCode?: (graph: any, currentState: any) => boolean;
   functionName?: string;
   start?: string[][];
@@ -12,6 +12,7 @@ type State = {
   value?: any;
   set2SFromStateFunctionCallCount?: number;
   stateRunCount?: number;
+  id?: number;
 };
 type States = {
   [key: number]: State;

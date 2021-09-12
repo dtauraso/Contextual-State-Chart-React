@@ -1,10 +1,26 @@
 import { getVariable, setVariable } from "../ContextualStateChart/StateTree";
-const numberGetDigit = (graph: any, currentState: any) => {
-  const input = getVariable(graph, ["calculator"], "input").value;
-  const i1 = getVariable(graph, ["calculator"], "i1").value;
-  const token = getVariable(graph, ["createExpression"], "token").value;
-  let expression = getVariable(graph, ["calculator"], "expression").value;
 
+// state names
+const calculatorName = ["calculator"];
+const createExpressionName = ["createExpression"];
+
+// argumentObjects
+const argumentObjectCalculator = { parentDataStateName: calculatorName };
+const argumentObjectCreateExpression = {
+  parentDataStateName: createExpressionName,
+};
+
+// variable names
+const inputName = "input";
+const i1Name = "i1";
+const tokenName = "token";
+const expressionName = "expression";
+
+const numberGetDigit = (graph: any, currentState: any) => {
+  const input = getVariable(graph, calculatorName, inputName).value;
+  const i1 = getVariable(graph, calculatorName, i1Name).value;
+  const token = getVariable(graph, createExpressionName, tokenName).value;
+  let expression = getVariable(graph, calculatorName, expressionName).value;
   // console.log({ input, i1, token, expression });
   if (i1 >= input.length) {
     return false;
@@ -14,14 +30,20 @@ const numberGetDigit = (graph: any, currentState: any) => {
   }
   // console.log("numberGetDigit");
 
-  setVariable({}, graph, ["createExpression"], "token", token + input[i1]);
-  setVariable({}, graph, ["calculator"], "i1", i1 + 1);
+  setVariable(
+    argumentObjectCreateExpression,
+    graph,
+    createExpressionName,
+    tokenName,
+    token + input[i1]
+  );
+  setVariable(argumentObjectCalculator, graph, calculatorName, i1Name, i1 + 1);
   // console.log("end of state", { graph });
   return true;
 };
 const saveNumber = (graph: any, currentState: any) => {
-  let expression = getVariable(graph, ["calculator"], "expression").value;
-  let token = getVariable(graph, ["createExpression"], "token").value;
+  let expression = getVariable(graph, calculatorName, expressionName).value;
+  let token = getVariable(graph, createExpressionName, tokenName).value;
   // console.log({ token, test: Number(token) });
   if (Number(token) === NaN) {
     return false;
@@ -29,8 +51,8 @@ const saveNumber = (graph: any, currentState: any) => {
 
   expression.push(Number(token));
 
-  let i1 = getVariable(graph, ["calculator"], "i1").value;
-  let input = getVariable(graph, ["calculator"], "input").value;
+  let i1 = getVariable(graph, calculatorName, i1Name).value;
+  let input = getVariable(graph, calculatorName, inputName).value;
   // console.log({ i1, length: input.length });
 
   while (input[i1] && input[i1] === " ") {
@@ -41,18 +63,30 @@ const saveNumber = (graph: any, currentState: any) => {
   }
   // console.log("saveNumber");
 
-  setVariable({}, graph, ["calculator"], "expression", expression);
-  setVariable({}, graph, ["calculator"], "i1", i1);
+  setVariable(
+    argumentObjectCalculator,
+    graph,
+    calculatorName,
+    expressionName,
+    expression
+  );
+  setVariable(argumentObjectCalculator, graph, calculatorName, i1Name, i1);
 
-  setVariable({}, graph, ["createExpression"], "token", "");
+  setVariable(
+    argumentObjectCreateExpression,
+    graph,
+    createExpressionName,
+    tokenName,
+    ""
+  );
   // console.log("end of state", { graph });
   return true;
 };
 const isInputValid = (graph: any, currentState: any) => {
   // will only return true after we have read in all the input and it's a valid expression
-  const input = getVariable(graph, ["calculator"], "input").value;
-  let i1 = getVariable(graph, ["calculator"], "i1").value;
-  let expression = getVariable(graph, ["calculator"], "expression").value;
+  const input = getVariable(graph, calculatorName, inputName).value;
+  let i1 = getVariable(graph, calculatorName, i1Name).value;
+  let expression = getVariable(graph, calculatorName, expressionName).value;
 
   if (i1 >= input.length) {
     // console.log({ expression });
@@ -62,9 +96,9 @@ const isInputValid = (graph: any, currentState: any) => {
 };
 
 const operatorGetOperator = (graph: any, currentState: any) => {
-  const input = getVariable(graph, ["calculator"], "input").value;
-  const i1 = getVariable(graph, ["calculator"], "i1").value;
-  const token = getVariable(graph, ["createExpression"], "token").value;
+  const input = getVariable(graph, calculatorName, inputName).value;
+  const i1 = getVariable(graph, calculatorName, i1Name).value;
+  const token = getVariable(graph, createExpressionName, tokenName).value;
   // console.log({ input, i1, token });
   if (i1 >= input.length) {
     return false;
@@ -74,18 +108,24 @@ const operatorGetOperator = (graph: any, currentState: any) => {
     return false;
   }
 
-  setVariable({}, graph, ["createExpression"], "token", token + input[i1]);
-  setVariable({}, graph, ["calculator"], "i1", i1 + 1);
+  setVariable(
+    argumentObjectCreateExpression,
+    graph,
+    createExpressionName,
+    tokenName,
+    token + input[i1]
+  );
+  setVariable(argumentObjectCalculator, graph, calculatorName, i1Name, i1 + 1);
 
   return true;
 };
 
 const saveOperator = (graph: any, currentState: any) => {
   // console.log("saveOperator");
-  let expression = getVariable(graph, ["calculator"], "expression").value;
+  let expression = getVariable(graph, calculatorName, expressionName).value;
 
   // console.log({parentStateName, currentStateName, expression})
-  let token = getVariable(graph, ["createExpression"], "token").value;
+  let token = getVariable(graph, createExpressionName, tokenName).value;
   const operators = ["*", "/", "+", "-"];
 
   if (!operators.includes(token)) {
@@ -94,16 +134,28 @@ const saveOperator = (graph: any, currentState: any) => {
 
   expression.push(token);
 
-  let i1 = getVariable(graph, ["calculator"], "i1").value;
-  const input = getVariable(graph, ["calculator"], "input").value;
+  let i1 = getVariable(graph, calculatorName, i1Name).value;
+  const input = getVariable(graph, calculatorName, inputName).value;
 
   while (input[i1] === " ") {
     i1 += 1;
   }
 
-  setVariable({}, graph, ["calculator"], "expression", expression);
-  setVariable({}, graph, ["createExpression"], "token", "");
-  setVariable({}, graph, ["calculator"], "i1", i1);
+  setVariable(
+    argumentObjectCalculator,
+    graph,
+    calculatorName,
+    expressionName,
+    expression
+  );
+  setVariable(
+    argumentObjectCreateExpression,
+    graph,
+    createExpressionName,
+    tokenName,
+    ""
+  );
+  setVariable(argumentObjectCalculator, graph, calculatorName, i1Name, i1);
 
   // console.log(graph['nodeGraph2']['expression'])
 
