@@ -7,11 +7,9 @@ const createExpressionName = ["createExpression"];
 // argumentObjects
 let argumentObjectCalculator = {
   parentDataStateName: calculatorName,
-  currentStateName: null,
 };
 let argumentObjectCreateExpression = {
   parentDataStateName: createExpressionName,
-  currentStateName: null,
 };
 
 // variable names
@@ -33,16 +31,23 @@ const numberGetDigit = (graph: any, currentState: any) => {
     return false;
   }
   // console.log("numberGetDigit");
-  argumentObjectCreateExpression.currentStateName = currentState.name;
   setVariable(
     argumentObjectCreateExpression,
     graph,
     createExpressionName,
     tokenName,
-    token + input[i1]
+    token + input[i1],
+    currentState.name
   );
-  argumentObjectCalculator.currentStateName = currentState.name;
-  setVariable(argumentObjectCalculator, graph, calculatorName, i1Name, i1 + 1);
+
+  setVariable(
+    argumentObjectCalculator,
+    graph,
+    calculatorName,
+    i1Name,
+    i1 + 1,
+    currentState.name
+  );
   // console.log("end of state", { graph });
   return true;
 };
@@ -67,22 +72,29 @@ const saveNumber = (graph: any, currentState: any) => {
     }
   }
   // console.log("saveNumber");
-  argumentObjectCalculator.currentStateName = currentState.name;
   setVariable(
     argumentObjectCalculator,
     graph,
     calculatorName,
     expressionName,
-    expression
+    expression,
+    currentState.name
   );
-  setVariable(argumentObjectCalculator, graph, calculatorName, i1Name, i1);
-  argumentObjectCreateExpression.currentStateName = currentState.name;
+  setVariable(
+    argumentObjectCalculator,
+    graph,
+    calculatorName,
+    i1Name,
+    i1,
+    currentState.name
+  );
   setVariable(
     argumentObjectCreateExpression,
     graph,
     createExpressionName,
     tokenName,
-    ""
+    "",
+    currentState.name
   );
   // console.log("end of state", { graph });
   return true;
@@ -112,16 +124,22 @@ const operatorGetOperator = (graph: any, currentState: any) => {
   if (!operators.includes(input[i1])) {
     return false;
   }
-  argumentObjectCreateExpression.currentStateName = currentState.name;
   setVariable(
     argumentObjectCreateExpression,
     graph,
     createExpressionName,
     tokenName,
-    token + input[i1]
+    token + input[i1],
+    currentState.name
   );
-  argumentObjectCalculator.currentStateName = currentState.name;
-  setVariable(argumentObjectCalculator, graph, calculatorName, i1Name, i1 + 1);
+  setVariable(
+    argumentObjectCalculator,
+    graph,
+    calculatorName,
+    i1Name,
+    i1 + 1,
+    currentState.name
+  );
 
   return true;
 };
@@ -147,24 +165,31 @@ const saveOperator = (graph: any, currentState: any) => {
     i1 += 1;
   }
 
-  argumentObjectCalculator.currentStateName = currentState.name;
   setVariable(
     argumentObjectCalculator,
     graph,
     calculatorName,
     expressionName,
-    expression
+    expression,
+    currentState.name
   );
 
-  argumentObjectCreateExpression.currentStateName = currentState.name;
   setVariable(
     argumentObjectCreateExpression,
     graph,
     createExpressionName,
     tokenName,
-    ""
+    "",
+    currentState.name
   );
-  setVariable(argumentObjectCalculator, graph, calculatorName, i1Name, i1);
+  setVariable(
+    argumentObjectCalculator,
+    graph,
+    calculatorName,
+    i1Name,
+    i1,
+    currentState.name
+  );
 
   // console.log(graph['nodeGraph2']['expression'])
 

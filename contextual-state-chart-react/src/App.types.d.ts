@@ -27,6 +27,7 @@ type NamesTrie = {
 type Graph = {
   namesTrie: NamesTrie;
   statesObject: StatesObject;
+  [key: string]: any;
 };
 
 export { Graph, NamesTrie, State, StatesObject, States, Variables };
