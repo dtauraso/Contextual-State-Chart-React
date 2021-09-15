@@ -2,6 +2,7 @@ import { insertName } from "./Init/TrieTree";
 import { Graph, NamesTrie } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
 import { returnTrue } from "../Calculator/CalculatorStateFunctions";
+import { getRunningState } from "./Visitor";
 let stateTree = {
   tree: {
     functionCode: returnTrue,
@@ -18,9 +19,13 @@ let stateTree = {
                   variables: {
                     nextStates: { value: [] },
                     winningStateName: { value: null },
+                    j: { value: 0 },
                   },
                 },
               },
+            },
+            variables: {
+              i: { value: 0 },
             },
           },
         },
@@ -33,6 +38,7 @@ let stateTree = {
       startRecordingStates: { value: ["a state name"] },
       stopRecordingStates: { value: ["another state name"] },
       recordingActive: { value: false },
+      bottomName: { value: ["run state machine", "calculator", "bottom"] },
     },
   },
 };
@@ -88,19 +94,18 @@ const getVariable = (graph: any, stateName: string[], variableName: any) => {
   // console.log({ state });
   if ("variables" in state) {
     if (variableName in state.variables) {
-      const stateId = state.variables[variableName];
-      return graph.statesObject.states[stateId];
+      const variableId = state.variables[variableName];
+      // {variableName: {stateName, value}}
+      return graph.statesObject.states[variableId];
     }
   }
   return null;
 };
 const setVariable = (
-  argumentObject: any,
   graph: Graph,
   parentDataStateName: string[],
   variableName: string,
-  newValue: any,
-  currentStateName: string[]
+  newValue: any
 ) => {
   // console.log({ graph, state, variableName, newValue });
   /*
@@ -130,13 +135,12 @@ const setVariable = (
   /**
    * save the change data from the user in a js object
    */
-  if (Object.keys(argumentObject).length === 0) {
-    const stateId: number = state.variables[variableName];
-    graph.statesObject.states[stateId].value = newValue;
-    return;
-  }
-  const stateNameString = currentStateName.join(",");
+  let currentState = getRunningState(graph);
+  const stateNameString = currentState.name.join(",");
   const parentDataStateNameString = parentDataStateName.join(",");
+  /**
+   * {variableName: {parentDataStateNameString, newValue}}
+   */
   graph["changes"][stateNameString] = {
     ...graph["changes"][stateNameString],
     [parentDataStateNameString]: {
@@ -216,8 +220,8 @@ const setVariable = (
   //     }
   //   }
   // }
-  const stateId: number = state.variables[variableName];
-  graph.statesObject.states[stateId].value = newValue;
+  const variableId: number = state.variables[variableName];
+  graph.statesObject.states[variableId].value = newValue;
   // getState(graph, argumentObject.currentStateName).stateRunCount += 1;
   // else if()
   // console.log({ graph, stateId });

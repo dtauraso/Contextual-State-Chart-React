@@ -54,7 +54,8 @@ variable names inside the state scope
    b
     d
   c
-
+all variables have unique id number
+only 1 unique variable name per state function is allowed
 role of variables
 primitives
 small data structures(js inbuilt data structures)
