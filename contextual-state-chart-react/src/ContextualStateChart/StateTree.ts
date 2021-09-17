@@ -2,7 +2,7 @@ import { insertName } from "./Init/TrieTree";
 import { Graph, NamesTrie } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
 import { returnTrue } from "../Calculator/CalculatorStateFunctions";
-import { getRunningState } from "./Visitor";
+import { getRunningStateParent, getRunningState } from "./Visitor";
 let stateTree = {
   tree: {
     functionCode: returnTrue,
@@ -102,6 +102,9 @@ const getVariable = (
       // {variableName: {stateName, value}}
       const parentDataStateNameString = parentDataStateName.join(",");
       // console.log("get", { variableName, stateNameString });
+      // missing the running state's parent
+      let runningStateNameParentString =
+        getRunningStateParent(graph).name.join(",");
       let runningStateNameString = getRunningState(graph).name.join(",");
       graph["changes"] = {
         ...graph["changes"],
@@ -109,6 +112,7 @@ const getVariable = (
           setFunctionWasCalled: false,
           parentDataStateNameString,
           runningStateNameString,
+          runningStateNameParentString,
           value: null,
         },
       };

@@ -152,6 +152,26 @@ const setupTrackers = (
     startStateName,
   ]);
 };
+const getRunningStateParent = (graph: any) => {
+  const bottomName = getVariableVisitor(graph, ["tree"], "bottomName").value;
+
+  const i = getVariableVisitor(graph, bottomName, "i").value;
+  const currentTrackerName = getState(graph, bottomName).children[i];
+  const currentTrackerParentName = getState(graph, currentTrackerName).parent;
+  const winningParentState = getVariableVisitor(
+    graph,
+    currentTrackerParentName,
+    "winningStateName"
+  ).value;
+  // const j = getVariableVisitor(graph, currentTrackerName, "j").value;
+  // const nextStates = getVariableVisitor(
+  //   graph,
+  //   currentTrackerName,
+  //   "nextStates"
+  // ).value;
+  // const currentTrialStateName = nextStates[j];
+  return getState(graph, winningParentState);
+};
 const getRunningState = (graph: any) => {
   const bottomName = getVariableVisitor(graph, ["tree"], "bottomName").value;
 
@@ -421,4 +441,4 @@ const visitor = (startStateName: string[], graph: any) => {
   }
 };
 
-export { updateEntry, getRunningState, visitor };
+export { updateEntry, getRunningStateParent, getRunningState, visitor };
