@@ -102,7 +102,6 @@ const getVariable = (
       // {variableName: {stateName, value}}
       const parentDataStateNameString = parentDataStateName.join(",");
       // console.log("get", { variableName, stateNameString });
-      // compare the name of the parent state agains stateNameString
       let runningStateNameString = getRunningState(graph).name.join(",");
       graph["changes"] = {
         ...graph["changes"],
@@ -115,13 +114,6 @@ const getVariable = (
       };
       // console.log("get changes", JSON.parse(JSON.stringify(graph["changes"])));
 
-      // graph["changes"][variableName] = {
-      //   ...graph["changes"][variableName],
-      //   [stateNameString]: {
-      //     ...graph["changes"][variableName]?.stateNameString,
-      //     [variableName]: graph.statesObject.states[variableId].value,
-      //   },
-      // };
       return graph.statesObject.states[variableId];
     }
   }
