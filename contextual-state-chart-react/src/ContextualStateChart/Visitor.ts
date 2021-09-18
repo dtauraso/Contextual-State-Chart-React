@@ -7,6 +7,7 @@ import {
   deleteNodes,
   deleteNodesHelper,
   printRecordTree,
+  getVariable,
 } from "./StateTree";
 import { makeArrays } from "./Init/ContextualStateChartInit";
 
@@ -186,6 +187,18 @@ const getRunningState = (graph: any) => {
   const currentTrialStateName = nextStates[j];
   return getState(graph, currentTrialStateName);
 };
+const getStartRecordingStateName = (graph: any) => {
+  return getVariableVisitor(graph, ["tree"], "startRecordingStates").value;
+};
+const getEndReordingStateName = (graph: any) => {
+  return getVariableVisitor(graph, ["tree"], "stopRecordingStates").value;
+};
+const setRecordingFlag = (graph: any, recordingFlagValue: boolean) => {
+  updateVariableVisitor(graph, ["tree"], "recordingActive", recordingFlagValue);
+};
+const getRecordingFlag = (graph: any) => {
+  return getVariableVisitor(graph, ["tree"], "recordingActive").value;
+};
 const runState = (graph: any, winningStateName: any) => {
   if (winningStateName.value !== null) {
     return;
@@ -198,22 +211,11 @@ const runState = (graph: any, winningStateName: any) => {
     console.log(`can't run a string ${state.functionCode} as a function`);
     return;
   }
-
   // make a single data change js object to record all changes
   // made by running functionCode()
-  graph["changes"] = { [currentRunningStateName.join(",")]: {} };
   if (state.functionCode(graph)) {
     winningStateName.value = currentRunningStateName;
-    Object.keys(graph["changes"]).forEach((variableName) => {
-      if (!graph["changes"][variableName].setFunctionWasCalled) {
-        // return { [variableName]: graph["changes"][variableName] };
-        delete graph["changes"][variableName];
-      } else {
-        delete graph["changes"][variableName].setFunctionWasCalled;
-      }
-    });
-    console.log("changes", JSON.parse(JSON.stringify(graph["changes"])));
-    graph["changes"] = null;
+
     // parse through change data here
     // move it to the record states
     // const machineRunId = getVariable(graph, ["tree"], "machineRunId").value;
@@ -268,6 +270,7 @@ const updateVariableVisitor = (
   const variableId: number = state.variables[variableName];
   graph.statesObject.states[variableId].value = newValue;
 };
+
 const visitor = (startStateName: string[], graph: any) => {
   /*
     setup trackers
@@ -326,16 +329,60 @@ const visitor = (startStateName: string[], graph: any) => {
          */
         updateVariableVisitor(graph, currentTracker.name, "j", 0);
         let j = getVariableVisitor(graph, currentTracker.name, "j").value;
+        let stateChanges = [];
         while (j < nextStates.length) {
+          const currentRunningStateName = getRunningState(graph).name;
+          const startRecordingStatesNameString =
+            getStartRecordingStateName(graph).join(",");
+          const endRecordingStatesNameString =
+            getEndReordingStateName(graph).join(",");
+          const currentRunningStateNameString =
+            currentRunningStateName.join(",");
+          console.log({
+            startRecordingStatesNameString,
+            endRecordingStatesNameString,
+            currentRunningStateNameString,
+          });
+          if (
+            startRecordingStatesNameString === currentRunningStateNameString
+          ) {
+            setRecordingFlag(graph, true);
+          } else if (
+            endRecordingStatesNameString === currentRunningStateNameString
+          ) {
+            setRecordingFlag(graph, false);
+          }
+          graph["changes"] = { [currentRunningStateName.join(",")]: {} };
+
           runState(graph, winningStateName);
+          Object.keys(graph["changes"]).forEach((variableName) => {
+            if (!graph["changes"][variableName].setFunctionWasCalled) {
+              // return { [variableName]: graph["changes"][variableName] };
+              delete graph["changes"][variableName];
+            } else {
+              delete graph["changes"][variableName].setFunctionWasCalled;
+            }
+          });
+          stateChanges.push(graph["changes"]);
+          graph["changes"] = null;
           updateVariableVisitor(graph, currentTracker.name, "j", j + 1);
           j = getVariableVisitor(graph, currentTracker.name, "j").value;
         }
+
         if (winningStateName.value === null) {
           // all of the states failed
           console.log("all the states failed");
           // make a list of record state trees for each failed state
           return false;
+        }
+        console.log("changes", JSON.parse(JSON.stringify(stateChanges)));
+        // save the changes as a record state tree is record flag is active
+        console.log(
+          "recording flag",
+          JSON.parse(JSON.stringify(getRecordingFlag(graph)))
+        );
+        if (getRecordingFlag(graph)) {
+          console.log("record changes");
         }
         console.log("winning state name", winningStateName.value);
 
@@ -441,4 +488,10 @@ const visitor = (startStateName: string[], graph: any) => {
   }
 };
 
-export { updateEntry, getRunningStateParent, getRunningState, visitor };
+export {
+  updateEntry,
+  getRunningStateParent,
+  getRunningState,
+  getRecordingFlag,
+  visitor,
+};

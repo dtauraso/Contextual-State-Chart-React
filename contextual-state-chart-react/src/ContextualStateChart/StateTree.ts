@@ -35,8 +35,8 @@ let stateTree = {
       levelId: { value: 0 },
       timeLineId: { value: 0 },
       machineRunId: { value: 0 },
-      startRecordingStates: { value: ["a state name"] },
-      stopRecordingStates: { value: ["another state name"] },
+      startRecordingStates: { value: ["calculator"] },
+      stopRecordingStates: { value: ["test", "evaluateExpression"] },
       recordingActive: { value: false },
       bottomName: { value: ["run state machine", "calculator", "bottom"] },
     },
@@ -104,7 +104,7 @@ const getVariable = (
       // console.log("get", { variableName, stateNameString });
       // missing the running state's parent
       let runningStateNameParentString =
-        getRunningStateParent(graph).name.join(",");
+        getRunningStateParent(graph)?.name.join(",");
       let runningStateNameString = getRunningState(graph).name.join(",");
       graph["changes"] = {
         ...graph["changes"],
