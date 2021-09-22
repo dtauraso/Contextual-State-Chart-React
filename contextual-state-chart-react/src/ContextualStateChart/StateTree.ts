@@ -19,6 +19,7 @@ let stateTree = {
                   variables: {
                     nextStates: { value: [] },
                     winningStateName: { value: null },
+                    previousSiblingWinningStateName: { value: null },
                     j: { value: 0 },
                   },
                 },

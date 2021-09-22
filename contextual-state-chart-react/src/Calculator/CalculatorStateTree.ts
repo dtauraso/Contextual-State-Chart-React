@@ -31,7 +31,7 @@ import {
   // returnTrue2,
   returnTrue,
   // returnFalse2,
-  // returnFalse,
+  returnFalse,
   // resetForNextRound2,
   // resetForNextRound,
   // showAndExit2,

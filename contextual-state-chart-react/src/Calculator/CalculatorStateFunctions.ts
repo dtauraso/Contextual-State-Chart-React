@@ -447,16 +447,16 @@ const getA2 = (graph: any) => {
 //   return true;
 // };
 
-const returnTrue = (graph: any, currentState: any) => {
+const returnTrue = (graph: any) => {
   return true;
 };
 // const returnFalse2 = (graph, parentStateName, currentStateName) => {
 //   return false;
 // };
 
-// const returnFalse = (graph, parentStateName, currentStateName) => {
-//   return false;
-// };
+const returnFalse = (graph: any) => {
+  return false;
+};
 
 // const resetForNextRound2 = (graph, parentState, currentState) => {
 //   let i = hcssm.getVariable(graph, "evaluateExpression", "i2").value;
@@ -563,7 +563,7 @@ export {
   //   returnTrue2,
   returnTrue,
   //   returnFalse2,
-  //   returnFalse,
+  returnFalse,
   //   resetForNextRound2,
   //   resetForNextRound,
   //   showAndExit2,
