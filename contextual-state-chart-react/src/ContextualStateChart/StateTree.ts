@@ -106,15 +106,15 @@ const getVariable = (
       // missing the running state's parent
       let runningStateNameParentString =
         getRunningStateParent(graph)?.name.join(",");
-      let runningStateNameString = getRunningState(graph).name.join(",");
       graph["changes"] = {
         ...graph["changes"],
-        [variableName]: {
-          setFunctionWasCalled: false,
-          parentDataStateNameString,
-          runningStateNameString,
-          runningStateNameParentString,
-          value: null,
+        variables: {
+          ...graph["changes"]["variables"],
+          [variableName]: {
+            setFunctionWasCalled: false,
+            parentDataStateNameString,
+            value: null,
+          },
         },
       };
       // console.log("get changes", JSON.parse(JSON.stringify(graph["changes"])));
@@ -145,10 +145,10 @@ const setVariable = (graph: Graph, variableName: string, newValue: any) => {
   else
     setup record state
   */
-
   const parentDataStateName =
-    graph["changes"][variableName]?.parentDataStateNameString.split(",");
-  // console.log("state", JSON.parse(JSON.stringify(state)));
+    graph["changes"]["variables"][
+      variableName
+    ]?.parentDataStateNameString.split(",");
   const parentDataState = getState(graph, parentDataStateName);
   if (!(variableName in parentDataState.variables)) {
     return;
@@ -161,10 +161,13 @@ const setVariable = (graph: Graph, variableName: string, newValue: any) => {
    */
   graph["changes"] = {
     ...graph["changes"],
-    [variableName]: {
-      ...graph["changes"][variableName],
-      setFunctionWasCalled: true,
-      value: newValue,
+    variables: {
+      ...graph["changes"]["variables"],
+      [variableName]: {
+        ...graph["changes"]["variables"][variableName],
+        setFunctionWasCalled: true,
+        value: newValue,
+      },
     },
   };
   const variableId: number = parentDataState.variables[variableName];

@@ -244,15 +244,12 @@ const setupRecordingFlag = (graph: any) => {
   }
 };
 const cleanupChanges = (graph: any) => {
-  Object.keys(graph["changes"]).forEach((variableName) => {
-    if (variableName === "pass") {
-      return;
-    }
-    if (!graph["changes"][variableName].setFunctionWasCalled) {
+  Object.keys(graph["changes"]["variables"]).forEach((variableName) => {
+    if (!graph["changes"]["variables"][variableName].setFunctionWasCalled) {
       // return { [variableName]: graph["changes"][variableName] };
-      delete graph["changes"][variableName];
+      delete graph["changes"]["variables"][variableName];
     } else {
-      delete graph["changes"][variableName].setFunctionWasCalled;
+      delete graph["changes"]["variables"][variableName].setFunctionWasCalled;
     }
   });
 };
@@ -456,7 +453,9 @@ const visitor = (startStateName: string[], graph: any) => {
           setupRecordingFlag(graph);
           graph["changes"] = {
             pass: false,
-            [getRunningState(graph).name.join(",")]: {},
+            stateName: getRunningState(graph).name,
+            parentStateName: getRunningStateParent(graph)?.name,
+            variables: {},
           };
           runState(graph, winningStateName);
           cleanupChanges(graph);
