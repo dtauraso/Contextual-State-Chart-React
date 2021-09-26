@@ -253,6 +253,63 @@ const cleanupChanges = (graph: any) => {
     }
   });
 };
+
+/**
+ 1 state passed
+  parentStateName: ['number']
+  pass: true
+  stateName: ['save number']
+  variables: {
+    expression: {parentDataStateNameString: 'calculator', value: Array(23)}
+    i1: {parentDataStateNameString: 'calculator', value: 18}
+  }
+
+ {
+   id: y,
+   name: ["number", "unitTest", "machine run 0", "iteration 0"],
+   children: [["save number", "unitTest", "machine run 0", "iteration 0"]]
+ }
+ {
+   id: x,
+   name: ["save number", "unitTest", "machine run 0", "iteration 0"],
+   start: [["fake", "endState1", "unitTest", "machine run 0", "iteration 0"]],
+   variables: {
+    parentStateName: {value: ["number"]},
+    pass: {value: true},
+    stateName: {value: ["save number"]},
+    variables: {keys: {expression: id_0, i1: id_1, toke: id_2}}
+ },
+ {
+   id: id_0,
+   name: ["expression"],
+   variables: {
+     parentDataStateNameString: {value: "calculator"},
+     value: {value: [stuff]}
+   }
+ },
+ {
+   id: id_1,
+   name: ["i1"],
+   variables: {
+     parentDataStateNameString: {value: "calculator"},
+     value: {value: 48}
+   }
+ },
+ {
+   id: id_2,
+   name: ["token"],
+   variables: {
+     parentDataStateNameString: {value: "createExpression"},
+     value: {value: ""}
+   }
+ }
+ 
+ convert all of the above items(states and variables) to json
+ json -> array
+ make a separate json to array function for the variable tree
+ array -> json
+ 
+ */
 const runState = (graph: any, winningStateName: any) => {
   let currentRunningStateName = getRunningState(graph).name;
   // console.log({ stateToRunName: currentRunningStateName.join(",") });

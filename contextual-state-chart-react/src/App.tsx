@@ -294,12 +294,118 @@ const test = () => {
   );
 };
 
+const isBoolean = (json: any) => {
+  return Object.prototype.toString.call(json) === "[object Boolean]";
+};
+const isNumber = (json: any) => {
+  return Object.prototype.toString.call(json) === "[object Number]";
+};
+const isString = (json: any) => {
+  return Object.prototype.toString.call(json) === "[object String]";
+};
+const isArray = (json: any) => {
+  return Object.prototype.toString.call(json) === "[object Array]";
+};
+const isObject = (json: any) => {
+  return Object.prototype.toString.call(json) === "[object Object]";
+};
+
+const noArraysInArray = (json: any) => {
+  return json.filter((item: any) => isArray(item)).length === 0;
+};
+const noObjectsInArray = (json: any) => {
+  return json.filter((item: any) => isObject(item)).length === 0;
+};
+
+const noArraysInObject = (json: any) => {
+  return (
+    Object.keys(json).filter((key: any) => isArray(json[key])).length === 0
+  );
+};
+const noObjectsInObject = (json: any) => {
+  return (
+    Object.keys(json).filter((key: any) => isObject(json[key])).length === 0
+  );
+};
+
+const jsonToStateObjects = (json: any, stateObjects: any, key?: any) => {
+  // console.log(Object.prototype.toString.call(json));
+  const typeName = Object.prototype.toString.call(json);
+
+  if (isBoolean(json) || isNumber(json) || isString(json)) {
+    console.log("primitive", { name: key, json });
+    return { name: key, value: json };
+  }
+  // if the container only has leaves stop
+  else if (typeName === "[object Array]") {
+    if (noArraysInArray(json) && noObjectsInArray(json)) {
+      console.log("stop array", { name: key, value: json });
+      // treat array as a value
+
+      // single key value pair
+      // return {variableName, value: json}
+      return { name: key, value: json };
+    }
+    //  else {
+    //   console.log("should not be here");
+    //   json.forEach((item: any, i: number) => {
+    //     let { key, value }: any = jsonToStateObjects(item, stateObjects, i);
+    //     console.log("variable entry array", { key, value });
+    //   });
+    // }
+  } else if (typeName === "[object Object]") {
+    if (noArraysInObject(json) && noObjectsInObject(json)) {
+      console.log("stop object", { name: key, value: json });
+      // treat object as a collection of key value pairs
+      // state entry with variables
+      return { name: key, value: 0 };
+    } else {
+      // i1 and variables are not returned
+      // return collection of variable names and values as ids from stateObjects
+      let objects = Object.keys(json).map((key, i) => {
+        console.log({ key, value: json[key] });
+
+        let x: any = jsonToStateObjects(json[key], stateObjects, key);
+        console.log({ key, x });
+        if (Object.prototype.toString.call(x) === "[object Object]") {
+          return { name: x.name, value: x.value };
+        } else {
+          return { name: key, value: i };
+        }
+      });
+      console.log("variable entry objects", objects);
+      return objects;
+    }
+  }
+};
 const App = (props: any) => {
-  test();
+  // test();
   const { namesTrie, statesObject } = makeArrays(stateTree);
   console.log({ namesTrie, statesObject });
   let graph: Graph = { namesTrie, statesObject };
   visitor(["calculator"], graph);
+  // jsonToStateObjects({}, []);
+  // jsonToStateObjects([], []);
+  // jsonToStateObjects(5, []);
+  // jsonToStateObjects("5", []);
+  jsonToStateObjects(
+    {
+      parentStateName: ["operator"],
+      pass: true,
+      stateName: ["operator", "get"],
+      variables: {
+        i1: {
+          parentDataStateNameString: "calculator",
+          value: 45,
+          test: {
+            something: 5,
+          },
+        },
+        token: { parentDataStateNameString: "createExpression", value: "+" },
+      },
+    },
+    []
+  );
   return (
     // constructor() {
     //   super();
