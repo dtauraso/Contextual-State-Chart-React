@@ -264,6 +264,19 @@ const cleanupChanges = (graph: any) => {
     i1: {parentDataStateNameString: 'calculator', value: 18}
   }
 
+  base case is arrays for now
+  {
+    id: 0,
+    parentStateName: ['number']
+    pass: true
+    stateName: ['save number']
+    variables: {
+      id: 1,
+      expression: {id: 2, parentDataStateNameString: 'calculator', value: Array(23)}
+      i1: {id: 3, parentDataStateNameString: 'calculator', value: 18}
+    }
+  }
+
  {
    id: y,
    name: ["number", "unitTest", "machine run 0", "iteration 0"],

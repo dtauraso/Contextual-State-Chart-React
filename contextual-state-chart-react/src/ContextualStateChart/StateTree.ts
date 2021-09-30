@@ -145,6 +145,19 @@ const setVariable = (graph: Graph, variableName: string, newValue: any) => {
   else
     setup record state
   */
+  /*
+ array method wrapper functions
+ save the entry to be changed
+ {i: {entry, modificationStatus}}
+
+ map, filter, reduce
+ object
+  value
+  changes: {i: {entry_before_change_entry, modification_status}}
+  object.proto.mapWrapper
+  object.proto.filterWrapper
+  object.proto.reduceWrapper
+ */
   const parentDataStateName =
     graph["changes"]["variables"][
       variableName
