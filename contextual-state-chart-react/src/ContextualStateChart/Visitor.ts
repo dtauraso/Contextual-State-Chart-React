@@ -465,9 +465,10 @@ const visitor = (startStateName: string[], graph: any) => {
         a tree for representing the changes made in the state(unit test)
         a tree of trees for representing the end to end changes across the entire contextual state chart
     */
-  let levelId = getVariableVisitor(graph, ["tree"], "levelId").value;
-  let timeLineId = getVariableVisitor(graph, ["tree"], "timeLineId").value;
-  setupTrackers(graph, levelId, timeLineId, startStateName);
+  let levelId = getVariableVisitor(graph, ["tree"], "levelId");
+  // console.log({ levelId });
+  let timeLineId = getVariableVisitor(graph, ["tree"], "timeLineId");
+  setupTrackers(graph, levelId.value, timeLineId.value, startStateName);
 
   // bottom acts as a reader of the tree timelines like a disk read write head on a disk drive
 
@@ -599,11 +600,18 @@ const visitor = (startStateName: string[], graph: any) => {
           // there are children states to run
           console.log("there are children states to run");
           // update level id
-          updateVariableVisitor(graph, ["tree"], "levelId", levelId + 1);
-          levelId = getVariableVisitor(graph, ["tree"], "levelId").value;
+          // updateVariableVisitor(graph, ["tree"], "levelId", levelId + 1);
+          // console.log({ levelId });
+          levelId.add(graph, 1);
+          // levelId = getVariableVisitor(graph, ["tree"], "levelId").value;
 
           moveDown1Level(
-            { newTrackerName: [`level ${levelId}`, `timeLine ${timeLineId}`] },
+            {
+              newTrackerName: [
+                `level ${levelId.value}`,
+                `timeLine ${timeLineId.value}`,
+              ],
+            },
             graph,
             currentTracker,
             winningState,
@@ -628,8 +636,9 @@ const visitor = (startStateName: string[], graph: any) => {
           moveUpToParentNode(graph, bottom, i);
 
           deleteCurrentNode(graph, currentTracker);
-          updateVariableVisitor(graph, ["tree"], "levelId", levelId - 1);
-          levelId = getVariableVisitor(graph, ["tree"], "levelId").value;
+          // updateVariableVisitor(graph, ["tree"], "levelId", levelId - 1);
+          levelId.subtract(graph, 1);
+          // levelId = getVariableVisitor(graph, ["tree"], "levelId").value;
           currentTracker = getState(graph, bottom.children[i]);
 
           while (bottom.children[i] !== null) {
@@ -658,8 +667,9 @@ const visitor = (startStateName: string[], graph: any) => {
               moveUpToParentNode(graph, bottom, i);
 
               deleteCurrentNode(graph, currentTracker);
-              updateVariableVisitor(graph, ["tree"], "levelId", levelId - 1);
-              levelId = getVariableVisitor(graph, ["tree"], "levelId").value;
+              // updateVariableVisitor(graph, ["tree"], "levelId", levelId - 1);
+              levelId.subtract(graph, 1);
+              // levelId = getVariableVisitor(graph, ["tree"], "levelId").value;
               currentTracker = getState(graph, bottom.children[i]);
             }
           }

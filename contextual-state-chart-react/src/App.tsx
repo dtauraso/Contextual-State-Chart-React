@@ -9,6 +9,7 @@ import { Graph } from "./App.types";
 import { calculatorStateTree } from "./Calculator/CalculatorStateTree";
 import { stateTree } from "./ContextualStateChart/StateTree";
 import { visitor } from "./ContextualStateChart/Visitor";
+import { numberWrapper } from "./ContextualStateChart/StateTree";
 import "./App.css";
 import Header from "./components/debug_interface/Header";
 // import Data from "./components/debug_interface/data/Data";
@@ -532,14 +533,16 @@ const jsonToStateObjects = (json: any, stateObjects: any, key?: any) => {
     }
   }
 };
-let x = function (value: any) {
+
+let arrayWrapper = function (value: any) {
   return Object.create({
     value: value,
     records: {},
-    mappy: function mappy(this: any, callback: any, _this: any) {
+    mapWrapper: function mapWrapper(this: any, callback: any, _this: any) {
       // const newArray = [];
       console.log("this", this.value, "callback", callback, "_this", _this);
       let m = this.value;
+      // console.log("prior records", JSON.parse(JSON.stringify(this.records)));
       m.forEach((a: any, i: number, m: any) => {
         this.records[i] = {
           value: callback(a, i, m),
@@ -593,7 +596,7 @@ let x = function (value: any) {
 const App = (props: any) => {
   // test();
   // console.log(x.prototype, x);
-  let myObject = x([7, 8, 3, 4]);
+  let myObject = arrayWrapper([7, 8, 3, 4]);
   // myObject.prototype = Object.setPrototypeOf(myObject, specialFunction);
   // myObject.prototype = Object.setPrototypeOf(myObject, specialFunction2);
 
@@ -602,17 +605,25 @@ const App = (props: any) => {
   console.log(myObject.value);
   let y = myObject.value;
 
-  const g = myObject
-    .mappy((x: any, i: number, y: any) => ({ [i]: { x, y: y[i] + 3 } }))
-    .mappy((x: any, i: number, y: any) => ({ x, i, y: y[i] }));
+  myObject.value = myObject
+    .mapWrapper((x: any, i: number, y: any) => ({ [i]: { x, y: y[i] + 3 } }))
+    .mapWrapper((x: any, i: number, y: any) => ({ x, i, y: y[i] }))
+    .mapWrapper((x: any) => x.i * 7).value;
 
   console.log(myObject.mappy2);
-  console.log(g);
+  console.log("updated values", myObject.value);
   console.log(myObject.records);
-  // const { namesTrie, statesObject } = makeArrays(stateTree);
-  // console.log({ namesTrie, statesObject });
-  // let graph: Graph = { namesTrie, statesObject };
-  // visitor(["calculator"], graph);
+
+  let i = numberWrapper();
+  i.setValue(5);
+  i.add({}, i.value + 1);
+  i.add({}, i.value + 1);
+
+  console.log({ i }, i.value);
+  const { namesTrie, statesObject } = makeArrays(stateTree);
+  console.log({ namesTrie, statesObject });
+  let graph: Graph = { namesTrie, statesObject };
+  visitor(["calculator"], graph);
   // jsonToStateObjects({}, []);
   // jsonToStateObjects([], []);
   // jsonToStateObjects(5, []);

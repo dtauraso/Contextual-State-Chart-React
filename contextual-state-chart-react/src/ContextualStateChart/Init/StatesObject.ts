@@ -1,5 +1,5 @@
 import { State, StatesObject } from "../../App.types";
-
+import { numberWrapper } from "../StateTree";
 const setAttribute = (object: any, newObject: any, key: string, value: any) => {
   if (key in object) {
     newObject[key] = value;
@@ -43,21 +43,45 @@ const addState = (
   isVariable: boolean
 ) => {
   statesObject.maxStateId += 1;
-  let newState: State = {};
-  newState["name"] = stateName;
+  if (
+    JSON.stringify(stateName) === JSON.stringify(["levelId"]) ||
+    JSON.stringify(stateName) === JSON.stringify(["timeLineId"]) ||
+    JSON.stringify(stateName) === JSON.stringify(["machineRunId"])
+  ) {
+    statesObject.states[statesObject.maxStateId] = numberWrapper();
+    let x = statesObject.states[statesObject.maxStateId];
+    // Object.assign()
+    x.setId(statesObject.maxStateId);
+    x.setName(stateName);
+    x.setValue(stateTree.value);
+    // x.name = stateName;
+  } else {
+    let newState: State = {};
+    newState["name"] = stateName;
 
-  if (!isVariable) {
-    newState["stateRunCount"] = 0;
+    if (!isVariable) {
+      newState["stateRunCount"] = 0;
+    }
+    // console.log(stateName, stateName === ["levelId"]);
+    setAttribute(stateTree, newState, "functionCode", stateTree?.functionCode);
+    setAttribute(stateTree, newState, "next", stateTree?.next);
+    setAttribute(stateTree, newState, "start", stateTree?.start);
+    // if (JSON.stringify(stateName) === JSON.stringify(["levelId"])) {
+    //   // console.log("here");
+    //   // console.log({ stateTree });
+    //   // numberWrapper
+    //   newState.wrapper = numberWrapper(stateTree.value); // = { ...newState, ...stateTree.prototype };
+    //   // setAttribute(stateTree, newState, "value", stateTree);
+    // } else {
+    setAttribute(stateTree, newState, "value", stateTree?.value);
+    // }
+    setAttribute(stateTree, newState, "children", children);
+    setAttribute(stateTree, newState, "variables", variables);
+
+    statesObject.states[statesObject.maxStateId] = newState;
+    statesObject.states[statesObject.maxStateId]["id"] =
+      statesObject.maxStateId;
   }
-  setAttribute(stateTree, newState, "functionCode", stateTree?.functionCode);
-  setAttribute(stateTree, newState, "next", stateTree?.next);
-  setAttribute(stateTree, newState, "start", stateTree?.start);
-  setAttribute(stateTree, newState, "value", stateTree?.value);
-  setAttribute(stateTree, newState, "children", children);
-  setAttribute(stateTree, newState, "variables", variables);
-
-  statesObject.states[statesObject.maxStateId] = newState;
-  statesObject.states[statesObject.maxStateId]["id"] = statesObject.maxStateId;
 };
 const specialPrint = (object: any) => {
   // console.log({ object });
@@ -103,6 +127,10 @@ const getStateNames = (
         // save variable names and id's for state
         Object.keys(stateTree.variables).forEach((variableName) => {
           names.push([variableName]);
+          // console.log({
+          //   variableName,
+          //   variable: stateTree.variables[variableName],
+          // });
           addState(
             statesObject,
             stateTree.variables[variableName],

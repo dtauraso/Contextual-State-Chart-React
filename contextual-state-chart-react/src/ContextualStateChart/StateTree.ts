@@ -3,6 +3,42 @@ import { Graph, NamesTrie } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
 import { returnTrue } from "../Calculator/CalculatorStateFunctions";
 import { getRunningStateParent, getRunningState } from "./Visitor";
+export const numberWrapper = function () {
+  return Object.create({
+    setId: function setId(this: any, id: number) {
+      this.id = id;
+    },
+    setName: function setName(this: any, name: any) {
+      this.name = name;
+    },
+    setValue: function setValue(this: any, value: any) {
+      this.value = value;
+      this.records = {};
+      this.records = {
+        ...this.records,
+        [Object.keys(this.records).length]: value,
+      };
+    },
+    add: function add(this: any, graph: any, secondValue: number) {
+      // console.log(this, secondValue);
+      this.value = this.value + secondValue;
+      // if graph recording flag is active then record
+      this.records = {
+        ...this.records,
+        [Object.keys(this.records).length]: this.value,
+      };
+    },
+    subtract: function subtract(this: any, grpah: any, secondValue: number) {
+      // console.log(this, secondValue);
+      this.value = this.value - secondValue;
+      this.records = {
+        ...this.records,
+        [Object.keys(this.records).length]: this.value,
+      };
+    },
+  });
+};
+// import { numberWrapper } from "../App";
 let stateTree = {
   tree: {
     functionCode: returnTrue,
