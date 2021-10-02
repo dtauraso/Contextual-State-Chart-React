@@ -48,7 +48,8 @@ const addState = (
     JSON.stringify(stateName) === JSON.stringify(["levelId"]) ||
     JSON.stringify(stateName) === JSON.stringify(["timeLineId"]) ||
     JSON.stringify(stateName) === JSON.stringify(["machineRunId"]) ||
-    JSON.stringify(stateName) === JSON.stringify(["j"])
+    JSON.stringify(stateName) === JSON.stringify(["j"]) ||
+    JSON.stringify(stateName) === JSON.stringify(["i"])
   ) {
     console.log("here");
     statesObject.states[statesObject.maxStateId] = numberWrapper();
