@@ -10,28 +10,32 @@ import {
   isArray,
   isObject,
 } from "./Init/StatesObject";
+const wrapper = {
+  setId: function setId(this: any, id: number) {
+    this.id = id;
+  },
+  setName: function setName(this: any, name: any) {
+    this.name = name;
+  },
+  setValue: function setValue(this: any, value: any) {
+    this.value = value;
+    this.records = {};
+    this.records = {
+      ...this.records,
+      [Object.keys(this.records).length]: value,
+    };
+  },
+  setReferenceToStatesObject: function setReferenceToStatesObject(
+    this: any,
+    statesObject: any
+  ) {
+    this.statesObject = statesObject;
+  },
+};
 export const numberWrapper = function () {
   return Object.create({
-    setId: function setId(this: any, id: number) {
-      this.id = id;
-    },
-    setName: function setName(this: any, name: any) {
-      this.name = name;
-    },
-    setValue: function setValue(this: any, value: any) {
-      this.value = value;
-      this.records = {};
-      this.records = {
-        ...this.records,
-        [Object.keys(this.records).length]: value,
-      };
-    },
-    setReferenceToStatesObject: function setReferenceToStatesObject(
-      this: any,
-      statesObject: any
-    ) {
-      this.statesObject = statesObject;
-    },
+    __proto__: wrapper,
+
     add: function add(this: any, secondValue: number) {
       // console.log(this, secondValue);
       this.value = this.value + secondValue;
@@ -55,26 +59,7 @@ export const numberWrapper = function () {
 };
 export const arrayWrapper = function () {
   return Object.create({
-    setId: function setId(this: any, id: number) {
-      this.id = id;
-    },
-    setName: function setName(this: any, name: any) {
-      this.name = name;
-    },
-    setValue: function setValue(this: any, value: any) {
-      this.value = value;
-      this.records = {};
-      this.records = {
-        ...this.records,
-        [Object.keys(this.records).length]: value,
-      };
-    },
-    setReferenceToStatesObject: function setReferenceToStatesObject(
-      this: any,
-      statesObject: any
-    ) {
-      this.statesObject = statesObject;
-    },
+    __proto__: wrapper,
     get: function get(this: any, i: any) {
       const length = this.value.length;
       if (i.value < 0 || i.value >= length) {
@@ -154,6 +139,8 @@ let stateTree = {
       startRecordingStates: { value: ["calculator"] },
       stopRecordingStates: { value: ["test", "evaluateExpression"] },
       recordingActive: { value: false },
+      // changes made to bottom can still be recorded while the recordingActive flag is on
+      visitorDataStructureRecordingActive: { value: false },
       bottomName: { value: ["run state machine", "calculator", "bottom"] },
     },
   },
