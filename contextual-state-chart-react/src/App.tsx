@@ -629,17 +629,17 @@ const App = (props: any) => {
 
   let i = numberWrapper();
   i.setValue(5);
-  i.add({}, i.value + 1).add({}, 1);
+  i.add(i.value + 1).add(1);
 
   console.log({ i });
   const { namesTrie, statesObject } = makeArrays(stateTree);
   console.log({ namesTrie, statesObject });
   let graph: Graph = { namesTrie, statesObject };
   visitor(["calculator"], graph);
-  myObject.generic(myObject.value.push, 10);
-  console.log({ myObject: JSON.parse(JSON.stringify(myObject)) });
-  myObject.generic(myObject.value.pop);
-  console.log({ myObject });
+  // myObject.generic(myObject.value.push, 10);
+  // console.log({ myObject: JSON.parse(JSON.stringify(myObject)) });
+  // myObject.generic(myObject.value.pop);
+  // console.log({ myObject });
   // jsonToStateObjects({}, []);
   // jsonToStateObjects([], []);
   // jsonToStateObjects(5, []);

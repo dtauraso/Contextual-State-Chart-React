@@ -484,10 +484,8 @@ const visitor = (startStateName: string[], graph: any) => {
     }
     // 2) put in state change recording tree
     // graph -> bottom.children[i] -> nextStates[j] = currentState
-    // updateVariableVisitor(graph, bottomName, "i", 0);
     let i = getVariableVisitor(graph, bottomName, "i");
     i.setValue(0);
-    // let i = getVariableVisitor(graph, bottomName, "i").value;
     while (i.value < bottom.children.length) {
       let currentTracker = getState(graph, bottom.children[i.value]);
       // console.log("name", JSON.parse(JSON.stringify(currentTracker.name)));
@@ -514,11 +512,9 @@ const visitor = (startStateName: string[], graph: any) => {
          * if 1 state succeded
          *    only record a state tree for the winning state
          */
-        // updateVariableVisitor(graph, currentTracker.name, "j", 0);
         let j = getVariableVisitor(graph, currentTracker.name, "j");
         console.log({ j });
         j.setValue(0);
-        // let j = getVariableVisitor(graph, currentTracker.name, "j").value;
         graph["stateChanges"] = [];
         console.log("next states", nextStates);
         // visiting all the states
@@ -536,9 +532,7 @@ const visitor = (startStateName: string[], graph: any) => {
           runState(graph, winningStateName);
           cleanupChanges(graph);
           graph["stateChanges"].push(graph["changes"]);
-          // updateVariableVisitor(graph, currentTracker.name, "j", j + 1);
-          j.add(graph, 1);
-          // j = getVariableVisitor(graph, currentTracker.name, "j").value;
+          j.add(1);
         }
         if (getRecordingFlag(graph)) {
           // console.log("record changes");
@@ -606,10 +600,8 @@ const visitor = (startStateName: string[], graph: any) => {
           // there are children states to run
           console.log("there are children states to run");
           // update level id
-          // updateVariableVisitor(graph, ["tree"], "levelId", levelId + 1);
           // console.log({ levelId });
-          levelId.add(graph, 1);
-          // levelId = getVariableVisitor(graph, ["tree"], "levelId").value;
+          levelId.add(1);
 
           moveDown1Level(
             {
@@ -642,9 +634,7 @@ const visitor = (startStateName: string[], graph: any) => {
           moveUpToParentNode(graph, bottom, i);
 
           deleteCurrentNode(graph, currentTracker);
-          // updateVariableVisitor(graph, ["tree"], "levelId", levelId - 1);
-          levelId.subtract(graph, 1);
-          // levelId = getVariableVisitor(graph, ["tree"], "levelId").value;
+          levelId.subtract(1);
           currentTracker = getState(graph, bottom.children[i.value]);
 
           while (bottom.children[i.value] !== null) {
@@ -673,9 +663,7 @@ const visitor = (startStateName: string[], graph: any) => {
               moveUpToParentNode(graph, bottom, i);
 
               deleteCurrentNode(graph, currentTracker);
-              // updateVariableVisitor(graph, ["tree"], "levelId", levelId - 1);
-              levelId.subtract(graph, 1);
-              // levelId = getVariableVisitor(graph, ["tree"], "levelId").value;
+              levelId.subtract(1);
               currentTracker = getState(graph, bottom.children[i.value]);
             }
           }
@@ -687,9 +675,7 @@ const visitor = (startStateName: string[], graph: any) => {
         stateRunCount += 1;
       }
       console.log({ graph });
-      // updateVariableVisitor(graph, bottomName, "i", i + 1);
       i.add(1);
-      // i = getVariableVisitor(graph, bottomName, "i").value;
     }
   }
 };

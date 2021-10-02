@@ -19,7 +19,13 @@ export const numberWrapper = function () {
         [Object.keys(this.records).length]: value,
       };
     },
-    add: function add(this: any, graph: any, secondValue: number) {
+    setReferenceToStatesObject: function setReferenceToStatesObject(
+      this: any,
+      statesObject: any
+    ) {
+      this.statesObject = statesObject;
+    },
+    add: function add(this: any, secondValue: number) {
       // console.log(this, secondValue);
       this.value = this.value + secondValue;
       // if graph recording flag is active then record
@@ -29,7 +35,7 @@ export const numberWrapper = function () {
       };
       return this;
     },
-    subtract: function subtract(this: any, grpah: any, secondValue: number) {
+    subtract: function subtract(this: any, secondValue: number) {
       // console.log(this, secondValue);
       this.value = this.value - secondValue;
       this.records = {
@@ -144,6 +150,7 @@ const getVariable = (
       // missing the running state's parent
       let runningStateNameParentString =
         getRunningStateParent(graph)?.name.join(",");
+      // relocate changes to graph.statesObject
       graph["changes"] = {
         ...graph["changes"],
         variables: {
@@ -210,6 +217,7 @@ const setVariable = (graph: Graph, variableName: string, newValue: any) => {
   /**
    * {variableName: {parentDataStateNameString, newValue}}
    */
+
   graph["changes"] = {
     ...graph["changes"],
     variables: {
@@ -264,6 +272,8 @@ const insertVariableState = (graph: any, state: any, variable: any) => {
     x.setId(graph.statesObject.maxStateId);
     x.setName(variable.name);
     x.setValue(variable.value);
+    x.setReferenceToStatesObject(graph.statesObject);
+
     console.log({ x });
     state.variables[x.name[0]] = graph.statesObject.maxStateId;
     // x.name = stateName;

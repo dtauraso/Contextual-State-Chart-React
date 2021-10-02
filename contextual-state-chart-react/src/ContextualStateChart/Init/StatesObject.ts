@@ -43,22 +43,23 @@ const addState = (
   isVariable: boolean
 ) => {
   statesObject.maxStateId += 1;
-  console.log(stateName);
+  // console.log(stateName);
   if (
     JSON.stringify(stateName) === JSON.stringify(["levelId"]) ||
     JSON.stringify(stateName) === JSON.stringify(["timeLineId"]) ||
     JSON.stringify(stateName) === JSON.stringify(["machineRunId"]) ||
     JSON.stringify(stateName) === JSON.stringify(["j"]) ||
-    JSON.stringify(stateName) === JSON.stringify(["i"])
+    JSON.stringify(stateName) === JSON.stringify(["i"]) ||
+    JSON.stringify(stateName) === JSON.stringify(["i1"])
   ) {
-    console.log("here");
+    // console.log("here");
     statesObject.states[statesObject.maxStateId] = numberWrapper();
     let x = statesObject.states[statesObject.maxStateId];
     // Object.assign()
     x.setId(statesObject.maxStateId);
     x.setName(stateName);
     x.setValue(stateTree.value);
-
+    x.setReferenceToStatesObject(statesObject);
     // x.name = stateName;
   } else {
     let newState: State = {};
