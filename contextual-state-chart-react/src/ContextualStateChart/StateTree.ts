@@ -3,6 +3,13 @@ import { Graph, NamesTrie } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
 import { returnTrue } from "../Calculator/CalculatorStateFunctions";
 import { getRunningStateParent, getRunningState } from "./Visitor";
+import {
+  isBoolean,
+  isNumber,
+  isString,
+  isArray,
+  isObject,
+} from "./Init/StatesObject";
 export const numberWrapper = function () {
   return Object.create({
     setId: function setId(this: any, id: number) {
@@ -42,6 +49,70 @@ export const numberWrapper = function () {
         ...this.records,
         [Object.keys(this.records).length]: this.value,
       };
+      return this;
+    },
+  });
+};
+export const arrayWrapper = function () {
+  return Object.create({
+    setId: function setId(this: any, id: number) {
+      this.id = id;
+    },
+    setName: function setName(this: any, name: any) {
+      this.name = name;
+    },
+    setValue: function setValue(this: any, value: any) {
+      this.value = value;
+      this.records = {};
+      this.records = {
+        ...this.records,
+        [Object.keys(this.records).length]: value,
+      };
+    },
+    setReferenceToStatesObject: function setReferenceToStatesObject(
+      this: any,
+      statesObject: any
+    ) {
+      this.statesObject = statesObject;
+    },
+    get: function get(this: any, i: any) {
+      const length = this.value.length;
+      if (i.value < 0 || i.value >= length) {
+        return this;
+      }
+      return this.value[i.value];
+    },
+    mapWrapper: function mapWrapper(this: any, callback: any, _this: any) {
+      // const newArray = [];
+      console.log("this", this.value, "callback", callback, "_this", _this);
+      let m = this.value;
+      // console.log("prior records", JSON.parse(JSON.stringify(this.records)));
+      m.forEach((a: any, i: number, m: any) => {
+        this.records[i] = {
+          value: callback(a, i, m),
+          changedStatus: "modified",
+        };
+      });
+      this.value = this.value.map((x: any, i: number, m: any) =>
+        callback(x, i, m)
+      );
+      return this;
+    },
+    pushWrapper: function pushWrapper(this: any, _this: any) {
+      this.newIndex = this.value.push(_this);
+      return this;
+    },
+    generic: function generic(this: any, callback: any, _this?: any) {
+      console.log(this, callback, _this);
+      console.log(callback.name);
+      let a = this.value;
+      // let v: Array<any> = [];
+      if (_this === undefined) {
+        a[callback.name]();
+      } else {
+        a[callback.name](_this);
+      }
+      // console.log(a);
       return this;
     },
   });
@@ -263,10 +334,18 @@ const insertVariableState = (graph: any, state: any, variable: any) => {
     JSON.stringify(variable.name) === JSON.stringify(["levelId"]) ||
     JSON.stringify(variable.name) === JSON.stringify(["timeLineId"]) ||
     JSON.stringify(variable.name) === JSON.stringify(["machineRunId"]) ||
-    JSON.stringify(variable.name) === JSON.stringify(["j"])
+    JSON.stringify(variable.name) === JSON.stringify(["j"]) ||
+    JSON.stringify(variable.name) === JSON.stringify(["nextStates"])
   ) {
     console.log("here insertVariableState");
-    graph.statesObject.states[graph.statesObject.maxStateId] = numberWrapper();
+    // graph.statesObject.states[graph.statesObject.maxStateId] = numberWrapper();
+    if (isNumber(variable.value)) {
+      graph.statesObject.states[graph.statesObject.maxStateId] =
+        numberWrapper();
+    } else if (isArray(variable.value)) {
+      console.log({ stateName: variable.name, stateTree });
+      graph.statesObject.states[graph.statesObject.maxStateId] = arrayWrapper();
+    }
     let x = graph.statesObject.states[graph.statesObject.maxStateId];
     // Object.assign()
     x.setId(graph.statesObject.maxStateId);

@@ -68,7 +68,7 @@ const moveDown1Level = (
       children: [], // is updated each loop on line 193
     },
     {
-      nextStates: [winningState.name],
+      nextStates: winningState.start, //[winningState.name],
       winningStateName: null,
       previousSiblingWinningStateName: null,
       j: 0,
@@ -79,23 +79,27 @@ const moveDown1Level = (
 
   bottom.children[i.value] = newTrackerName;
   currentTracker = getState(graph, newTrackerName);
-  updateVariableVisitor(
-    graph,
-    currentTracker.name,
-    "nextStates",
-    winningState.start
-  );
+  nextStates = getVariableVisitor(graph, currentTracker.name, "nextStates");
+  // nextStates.setValue(winningState.start);
+  // updateVariableVisitor(
+  //   graph,
+  //   currentTracker.name,
+  //   "nextStates",
+  //   winningState.start
+  // );
+  console.log({ nextStates });
   updateVariableVisitor(
     graph,
     currentTracker.name,
     "previousSiblingWinningStateName",
     null
   );
-  nextStates = getVariableVisitor(
-    graph,
-    currentTracker.name,
-    "nextStates"
-  ).value;
+  // nextStates = getVariableVisitor(graph, currentTracker.name, "nextStates");
+  // nextStates = getVariableVisitor(
+  //   graph,
+  //   currentTracker.name,
+  //   "nextStates"
+  // ).value;
 };
 
 const moveAcross1Level = (
@@ -104,12 +108,14 @@ const moveAcross1Level = (
   winningState: any,
   nextStates: any
 ) => {
-  updateVariableVisitor(
-    graph,
-    currentTracker.name,
-    "nextStates",
-    winningState.next
-  );
+  console.log({ winningState });
+
+  // updateVariableVisitor(
+  //   graph,
+  //   currentTracker.name,
+  //   "nextStates",
+  //   winningState.next
+  // );
   updateVariableVisitor(
     graph,
     currentTracker.name,
@@ -118,11 +124,16 @@ const moveAcross1Level = (
   );
   // previousSiblingWinningStateName
   updateVariableVisitor(graph, currentTracker.name, "winningStateName", null);
-  nextStates = getVariableVisitor(
-    graph,
-    currentTracker.name,
-    "nextStates"
-  ).value;
+  console.log({ currentTracker });
+  console.log({ graph });
+  nextStates = getVariableVisitor(graph, currentTracker.name, "nextStates");
+  nextStates.setValue(winningState.next);
+  // nextStates = getVariableVisitor(
+  //   graph,
+  //   currentTracker.name,
+  //   "nextStates"
+  // ).value;
+  console.log({ nextStates });
 };
 
 const moveUpToParentNode = (graph: any, bottom: any, i: any) => {
@@ -162,9 +173,11 @@ const setupTrackers = (
   startStateName: string[]
 ): any => {
   let parentTrackerName = [`level ${levelId}`, `timeLine ${timeLineId}`];
-  updateVariableVisitor(graph, parentTrackerName, "nextStates", [
-    startStateName,
-  ]);
+  let nextStates = getVariableVisitor(graph, parentTrackerName, "nextStates");
+  nextStates.setValue([startStateName]);
+  // updateVariableVisitor(graph, parentTrackerName, "nextStates", [
+  //   startStateName,
+  // ]);
 };
 const getRunningStateParent = (graph: any) => {
   const bottomName = getVariableVisitor(graph, ["tree"], "bottomName").value;
@@ -200,8 +213,8 @@ const getRunningState = (graph: any) => {
     graph,
     currentTrackerName,
     "nextStates"
-  ).value;
-  const currentTrialStateName = nextStates[j.value];
+  ); //.value;
+  const currentTrialStateName = nextStates.value[j.value];
   return getState(graph, currentTrialStateName);
 };
 const getStartRecordingStateName = (graph: any) => {
@@ -493,12 +506,12 @@ const visitor = (startStateName: string[], graph: any) => {
         graph,
         currentTracker.name,
         "nextStates"
-      )?.value;
+      );
       if (!nextStates) {
         console.log({ nextStates });
         return false;
       }
-      if (nextStates.length > 0) {
+      if (nextStates.value.length > 0) {
         let winningStateName = getVariableVisitor(
           graph,
           currentTracker.name,
@@ -516,9 +529,14 @@ const visitor = (startStateName: string[], graph: any) => {
         console.log({ j });
         j.setValue(0);
         graph["stateChanges"] = [];
-        console.log("next states", nextStates);
+        console.log(
+          "next states",
+          nextStates,
+          "winning state name",
+          winningStateName.value
+        );
         // visiting all the states
-        while (j.value < nextStates.length) {
+        while (j.value < nextStates.value.length) {
           if (winningStateName.value !== null) {
             break;
           }
@@ -529,6 +547,7 @@ const visitor = (startStateName: string[], graph: any) => {
             parentStateName: getRunningStateParent(graph)?.name,
             variables: {},
           };
+          // why is ["calculator"] always the winning state
           runState(graph, winningStateName);
           cleanupChanges(graph);
           graph["stateChanges"].push(graph["changes"]);
@@ -551,7 +570,7 @@ const visitor = (startStateName: string[], graph: any) => {
               prevState.name
             }`
           );
-          makeRecordingTree(graph, prevState);
+          // makeRecordingTree(graph, prevState);
           // prevSibling should always be null after a parent state is run
           /**
            * what previous state do we use to look for the previous record
@@ -645,6 +664,7 @@ const visitor = (startStateName: string[], graph: any) => {
                 "winningStateName",
               ]).value
             );
+            console.log({ currentWinningState });
             if ("next" in currentWinningState) {
               if (currentWinningState.next.length > 0) {
                 console.log("don't got up higher");

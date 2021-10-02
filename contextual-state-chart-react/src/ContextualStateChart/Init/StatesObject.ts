@@ -1,5 +1,20 @@
 import { State, StatesObject } from "../../App.types";
-import { numberWrapper } from "../StateTree";
+import { numberWrapper, arrayWrapper } from "../StateTree";
+const isBoolean = (json: any) => {
+  return Object.prototype.toString.call(json) === "[object Boolean]";
+};
+const isNumber = (json: any) => {
+  return Object.prototype.toString.call(json) === "[object Number]";
+};
+const isString = (json: any) => {
+  return Object.prototype.toString.call(json) === "[object String]";
+};
+const isArray = (json: any) => {
+  return Object.prototype.toString.call(json) === "[object Array]";
+};
+const isObject = (json: any) => {
+  return Object.prototype.toString.call(json) === "[object Object]";
+};
 const setAttribute = (object: any, newObject: any, key: string, value: any) => {
   if (key in object) {
     newObject[key] = value;
@@ -50,16 +65,25 @@ const addState = (
     JSON.stringify(stateName) === JSON.stringify(["machineRunId"]) ||
     JSON.stringify(stateName) === JSON.stringify(["j"]) ||
     JSON.stringify(stateName) === JSON.stringify(["i"]) ||
-    JSON.stringify(stateName) === JSON.stringify(["i1"])
+    JSON.stringify(stateName) === JSON.stringify(["i1"]) ||
+    JSON.stringify(stateName) === JSON.stringify(["nextStates"])
   ) {
+    if (isNumber(stateTree.value)) {
+      statesObject.states[statesObject.maxStateId] = numberWrapper();
+    } else if (isArray(stateTree.value)) {
+      console.log({ stateName, stateTree });
+      statesObject.states[statesObject.maxStateId] = arrayWrapper();
+    }
+    // console.log({ stateTree });
     // console.log("here");
-    statesObject.states[statesObject.maxStateId] = numberWrapper();
+    // statesObject.states[statesObject.maxStateId] = numberWrapper();
     let x = statesObject.states[statesObject.maxStateId];
     // Object.assign()
     x.setId(statesObject.maxStateId);
     x.setName(stateName);
     x.setValue(stateTree.value);
     x.setReferenceToStatesObject(statesObject);
+    console.log({ x });
     // x.name = stateName;
   } else {
     let newState: State = {};
@@ -203,6 +227,11 @@ const getStateNames = (
 };
 
 export {
+  isBoolean,
+  isNumber,
+  isString,
+  isArray,
+  isObject,
   setAttribute,
   getSubStatePaths,
   addState,

@@ -22,6 +22,7 @@ const numberGetDigit = (graph: any) => {
   if (i1.value >= input.length) {
     return false;
   }
+  console.log(input[i1.value]);
   if (!(input[i1.value] >= "0" && input[i1.value] <= "9")) {
     return false;
   }
