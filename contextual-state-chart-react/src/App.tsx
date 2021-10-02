@@ -10,6 +10,13 @@ import { calculatorStateTree } from "./Calculator/CalculatorStateTree";
 import { stateTree } from "./ContextualStateChart/StateTree";
 import { visitor } from "./ContextualStateChart/Visitor";
 import { numberWrapper } from "./ContextualStateChart/StateTree";
+import {
+  isBoolean,
+  isNumber,
+  isString,
+  isArray,
+  isObject,
+} from "./ContextualStateChart/Init/StatesObject";
 import "./App.css";
 import Header from "./components/debug_interface/Header";
 // import Data from "./components/debug_interface/data/Data";
@@ -293,22 +300,6 @@ const test = () => {
     "statesObject",
     JSON.parse(JSON.stringify(statesObject))
   );
-};
-
-const isBoolean = (json: any) => {
-  return Object.prototype.toString.call(json) === "[object Boolean]";
-};
-const isNumber = (json: any) => {
-  return Object.prototype.toString.call(json) === "[object Number]";
-};
-const isString = (json: any) => {
-  return Object.prototype.toString.call(json) === "[object String]";
-};
-const isArray = (json: any) => {
-  return Object.prototype.toString.call(json) === "[object Array]";
-};
-const isObject = (json: any) => {
-  return Object.prototype.toString.call(json) === "[object Object]";
 };
 
 const noArraysInArray = (json: any) => {
