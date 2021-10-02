@@ -27,6 +27,7 @@ export const numberWrapper = function () {
         ...this.records,
         [Object.keys(this.records).length]: this.value,
       };
+      return this;
     },
     subtract: function subtract(this: any, grpah: any, secondValue: number) {
       // console.log(this, secondValue);
@@ -35,6 +36,7 @@ export const numberWrapper = function () {
         ...this.records,
         [Object.keys(this.records).length]: this.value,
       };
+      return this;
     },
   });
 };
@@ -249,10 +251,28 @@ const insertVariableState = (graph: any, state: any, variable: any) => {
   // fix for data structure update
   // new variable state is inside graph.states
   graph.statesObject.maxStateId += 1;
-  graph.statesObject.states[graph.statesObject.maxStateId] = variable;
-  // graph.states.push(variable);
-  // new variable state name is inside state.variableNames
-  state.variables[variable.name[0]] = graph.statesObject.maxStateId;
+  if (
+    JSON.stringify(variable.name) === JSON.stringify(["levelId"]) ||
+    JSON.stringify(variable.name) === JSON.stringify(["timeLineId"]) ||
+    JSON.stringify(variable.name) === JSON.stringify(["machineRunId"]) ||
+    JSON.stringify(variable.name) === JSON.stringify(["j"])
+  ) {
+    console.log("here insertVariableState");
+    graph.statesObject.states[graph.statesObject.maxStateId] = numberWrapper();
+    let x = graph.statesObject.states[graph.statesObject.maxStateId];
+    // Object.assign()
+    x.setId(graph.statesObject.maxStateId);
+    x.setName(variable.name);
+    x.setValue(variable.value);
+    console.log({ x });
+    state.variables[x.name[0]] = graph.statesObject.maxStateId;
+    // x.name = stateName;
+  } else {
+    graph.statesObject.states[graph.statesObject.maxStateId] = variable;
+    // graph.states.push(variable);
+    // new variable state name is inside state.variableNames
+    state.variables[variable.name[0]] = graph.statesObject.maxStateId;
+  }
 };
 const insertState = (graph: any, state: any, variables: any = {}) => {
   graph.statesObject.maxStateId += 1;
@@ -281,6 +301,7 @@ const insertState = (graph: any, state: any, variables: any = {}) => {
       value: variables[variableName],
     });
   });
+  console.log(graph);
 
   return updatedName;
 };

@@ -195,13 +195,13 @@ const getRunningState = (graph: any) => {
 
   const i = getVariableVisitor(graph, bottomName, "i").value;
   const currentTrackerName = getState(graph, bottomName).children[i];
-  const j = getVariableVisitor(graph, currentTrackerName, "j").value;
+  const j = getVariableVisitor(graph, currentTrackerName, "j");
   const nextStates = getVariableVisitor(
     graph,
     currentTrackerName,
     "nextStates"
   ).value;
-  const currentTrialStateName = nextStates[j];
+  const currentTrialStateName = nextStates[j.value];
   return getState(graph, currentTrialStateName);
 };
 const getStartRecordingStateName = (graph: any) => {
@@ -512,12 +512,15 @@ const visitor = (startStateName: string[], graph: any) => {
          * if 1 state succeded
          *    only record a state tree for the winning state
          */
-        updateVariableVisitor(graph, currentTracker.name, "j", 0);
-        let j = getVariableVisitor(graph, currentTracker.name, "j").value;
+        // updateVariableVisitor(graph, currentTracker.name, "j", 0);
+        let j = getVariableVisitor(graph, currentTracker.name, "j");
+        console.log({ j });
+        j.setValue(0);
+        // let j = getVariableVisitor(graph, currentTracker.name, "j").value;
         graph["stateChanges"] = [];
         console.log("next states", nextStates);
         // visiting all the states
-        while (j < nextStates.length) {
+        while (j.value < nextStates.length) {
           if (winningStateName.value !== null) {
             break;
           }
@@ -531,8 +534,9 @@ const visitor = (startStateName: string[], graph: any) => {
           runState(graph, winningStateName);
           cleanupChanges(graph);
           graph["stateChanges"].push(graph["changes"]);
-          updateVariableVisitor(graph, currentTracker.name, "j", j + 1);
-          j = getVariableVisitor(graph, currentTracker.name, "j").value;
+          // updateVariableVisitor(graph, currentTracker.name, "j", j + 1);
+          j.add(graph, 1);
+          // j = getVariableVisitor(graph, currentTracker.name, "j").value;
         }
         if (getRecordingFlag(graph)) {
           // console.log("record changes");

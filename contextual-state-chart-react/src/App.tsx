@@ -590,6 +590,19 @@ let arrayWrapper = function (value: any) {
       // containing our transformed items.
       return newArray;
     },
+    generic: function generic(this: any, callback: any, _this?: any) {
+      console.log(this, callback, _this);
+      console.log(callback.name);
+      let a = this.value;
+      // let v: Array<any> = [];
+      if (_this === undefined) {
+        a[callback.name]();
+      } else {
+        a[callback.name](_this);
+      }
+      // console.log(a);
+      return this;
+    },
   });
 };
 
@@ -616,14 +629,17 @@ const App = (props: any) => {
 
   let i = numberWrapper();
   i.setValue(5);
-  i.add({}, i.value + 1);
-  i.add({}, i.value + 1);
+  i.add({}, i.value + 1).add({}, 1);
 
-  console.log({ i }, i.value);
+  console.log({ i });
   const { namesTrie, statesObject } = makeArrays(stateTree);
   console.log({ namesTrie, statesObject });
   let graph: Graph = { namesTrie, statesObject };
   visitor(["calculator"], graph);
+  myObject.generic(myObject.value.push, 10);
+  console.log({ myObject: JSON.parse(JSON.stringify(myObject)) });
+  myObject.generic(myObject.value.pop);
+  console.log({ myObject });
   // jsonToStateObjects({}, []);
   // jsonToStateObjects([], []);
   // jsonToStateObjects(5, []);
