@@ -214,7 +214,7 @@ const getRunningState = (graph: any) => {
     currentTrackerName,
     "nextStates"
   ); //.value;
-  const currentTrialStateName = nextStates.value[j.value];
+  const currentTrialStateName = nextStates.get(j);
   return getState(graph, currentTrialStateName);
 };
 const getStartRecordingStateName = (graph: any) => {
