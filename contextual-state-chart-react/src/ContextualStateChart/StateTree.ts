@@ -32,7 +32,17 @@ const wrapper = {
     this.statesObject = statesObject;
   },
 };
-export const numberWrapper = function () {
+const nullWrapper = function () {
+  return Object.create({
+    __proto__: wrapper,
+  });
+};
+const booleanWrapper = function () {
+  return Object.create({
+    __proto__: wrapper,
+  });
+};
+const numberWrapper = function () {
   return Object.create({
     __proto__: wrapper,
 
@@ -57,7 +67,12 @@ export const numberWrapper = function () {
     },
   });
 };
-export const arrayWrapper = function () {
+const stringWrapper = function () {
+  return Object.create({
+    __proto__: wrapper,
+  });
+};
+const arrayWrapper = function () {
   return Object.create({
     __proto__: wrapper,
     get: function get(this: any, i: any) {
@@ -102,6 +117,11 @@ export const arrayWrapper = function () {
     },
   });
 };
+const objectWrapper = function () {
+  return Object.create({
+    __proto__: wrapper,
+  });
+};
 // import { numberWrapper } from "../App";
 let stateTree = {
   tree: {
@@ -118,8 +138,8 @@ let stateTree = {
                   children: {},
                   variables: {
                     nextStates: { value: [] },
-                    winningStateName: { value: null },
-                    previousSiblingWinningStateName: { value: null },
+                    winningStateName: { value: [] },
+                    previousSiblingWinningStateName: { value: [] },
                     j: { value: 0 },
                   },
                 },
@@ -140,6 +160,7 @@ let stateTree = {
       stopRecordingStates: { value: ["test", "evaluateExpression"] },
       recordingActive: { value: false },
       // changes made to bottom can still be recorded while the recordingActive flag is on
+      // will need to check against internal states holding the variables
       visitorDataStructureRecordingActive: { value: false },
       bottomName: { value: ["run state machine", "calculator", "bottom"] },
     },
@@ -322,15 +343,21 @@ const insertVariableState = (graph: any, state: any, variable: any) => {
     JSON.stringify(variable.name) === JSON.stringify(["timeLineId"]) ||
     JSON.stringify(variable.name) === JSON.stringify(["machineRunId"]) ||
     JSON.stringify(variable.name) === JSON.stringify(["j"]) ||
-    JSON.stringify(variable.name) === JSON.stringify(["nextStates"])
+    JSON.stringify(variable.name) === JSON.stringify(["nextStates"]) ||
+    JSON.stringify(variable.name) === JSON.stringify(["winningStateName"]) ||
+    JSON.stringify(variable.name) ===
+      JSON.stringify(["previousSiblingWinningStateName"])
   ) {
     console.log("here insertVariableState");
     // graph.statesObject.states[graph.statesObject.maxStateId] = numberWrapper();
     if (isNumber(variable.value)) {
       graph.statesObject.states[graph.statesObject.maxStateId] =
         numberWrapper();
+    } else if (isString(variable.value)) {
+      graph.statesObject.states[graph.statesObject.maxStateId] =
+        stringWrapper();
     } else if (isArray(variable.value)) {
-      console.log({ stateName: variable.name, stateTree });
+      // console.log({ stateName: variable.name, stateTree });
       graph.statesObject.states[graph.statesObject.maxStateId] = arrayWrapper();
     }
     let x = graph.statesObject.states[graph.statesObject.maxStateId];
@@ -404,6 +431,12 @@ const deleteNodesHelper = (namesTrie: any, states: any, name: any) => {
 };
 
 export {
+  nullWrapper,
+  booleanWrapper,
+  numberWrapper,
+  stringWrapper,
+  arrayWrapper,
+  objectWrapper,
   stateTree,
   getStateId,
   getState,

@@ -69,8 +69,8 @@ const moveDown1Level = (
     },
     {
       nextStates: winningState.start, //[winningState.name],
-      winningStateName: null,
-      previousSiblingWinningStateName: null,
+      winningStateName: [],
+      previousSiblingWinningStateName: [],
       j: 0,
     }
   );
@@ -88,12 +88,19 @@ const moveDown1Level = (
   //   winningState.start
   // );
   console.log({ nextStates });
-  updateVariableVisitor(
+  let previousSiblingWinningStateName = getVariableVisitor(
     graph,
     currentTracker.name,
-    "previousSiblingWinningStateName",
-    null
+    "previousSiblingWinningStateName"
   );
+
+  previousSiblingWinningStateName.setValue([]);
+  // updateVariableVisitor(
+  //   graph,
+  //   currentTracker.name,
+  //   "previousSiblingWinningStateName",
+  //   []
+  // );
   // nextStates = getVariableVisitor(graph, currentTracker.name, "nextStates");
   // nextStates = getVariableVisitor(
   //   graph,
@@ -116,14 +123,27 @@ const moveAcross1Level = (
   //   "nextStates",
   //   winningState.next
   // );
-  updateVariableVisitor(
+  let winningStateName = getVariableVisitor(
     graph,
     currentTracker.name,
-    "previousSiblingWinningStateName",
-    getVariableVisitor(graph, currentTracker.name, "winningStateName").value
+    "winningStateName"
   );
+  let previousSiblingWinningStateName = getVariableVisitor(
+    graph,
+    currentTracker.name,
+    "previousSiblingWinningStateName"
+  );
+  previousSiblingWinningStateName.setValue(winningStateName.value);
+  // updateVariableVisitor(
+  //   graph,
+  //   currentTracker.name,
+  //   "previousSiblingWinningStateName",
+  //   winningStateName.value
+  //   // getVariableVisitor(graph, currentTracker.name, "winningStateName").value
+  // );
   // previousSiblingWinningStateName
-  updateVariableVisitor(graph, currentTracker.name, "winningStateName", null);
+  winningStateName.setValue([]);
+  // updateVariableVisitor(graph, currentTracker.name, "winningStateName", []);
   console.log({ currentTracker });
   console.log({ graph });
   nextStates = getVariableVisitor(graph, currentTracker.name, "nextStates");
@@ -347,7 +367,8 @@ const runState = (graph: any, winningStateName: any) => {
   // make a single data change js object to record all changes
   // made by running functionCode()
   if (state.functionCode(graph)) {
-    winningStateName.value = currentRunningStateName;
+    winningStateName.setValue(currentRunningStateName);
+    // winningStateName.value = currentRunningStateName;
     graph["changes"]["pass"] = true;
     // parse through change data here
     // move it to the record states
@@ -537,7 +558,7 @@ const visitor = (startStateName: string[], graph: any) => {
         );
         // visiting all the states
         while (j.value < nextStates.value.length) {
-          if (winningStateName.value !== null) {
+          if (winningStateName.value.length > 0) {
             break;
           }
           setupRecordingFlag(graph);
@@ -581,7 +602,7 @@ const visitor = (startStateName: string[], graph: any) => {
            */
         }
 
-        if (winningStateName.value === null) {
+        if (winningStateName.value.length === 0) {
           // all of the states failed
           console.log("all the states failed");
           // make a list of record state trees for each failed state

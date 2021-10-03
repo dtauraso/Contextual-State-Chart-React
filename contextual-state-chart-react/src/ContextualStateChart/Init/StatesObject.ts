@@ -1,5 +1,12 @@
 import { State, StatesObject } from "../../App.types";
-import { numberWrapper, arrayWrapper } from "../StateTree";
+import {
+  nullWrapper,
+  booleanWrapper,
+  numberWrapper,
+  stringWrapper,
+  arrayWrapper,
+  objectWrapper,
+} from "../StateTree";
 const isBoolean = (json: any) => {
   return Object.prototype.toString.call(json) === "[object Boolean]";
 };
@@ -66,10 +73,15 @@ const addState = (
     JSON.stringify(stateName) === JSON.stringify(["j"]) ||
     JSON.stringify(stateName) === JSON.stringify(["i"]) ||
     JSON.stringify(stateName) === JSON.stringify(["i1"]) ||
-    JSON.stringify(stateName) === JSON.stringify(["nextStates"])
+    JSON.stringify(stateName) === JSON.stringify(["nextStates"]) ||
+    JSON.stringify(stateName) === JSON.stringify(["winningStateName"]) ||
+    JSON.stringify(stateName) ===
+      JSON.stringify(["previousSiblingWinningStateName"])
   ) {
     if (isNumber(stateTree.value)) {
       statesObject.states[statesObject.maxStateId] = numberWrapper();
+    } else if (isString(stateTree.value)) {
+      statesObject.states[statesObject.maxStateId] = stringWrapper();
     } else if (isArray(stateTree.value)) {
       console.log({ stateName, stateTree });
       statesObject.states[statesObject.maxStateId] = arrayWrapper();

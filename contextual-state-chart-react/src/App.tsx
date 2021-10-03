@@ -627,6 +627,7 @@ const App = (props: any) => {
   console.log({ namesTrie, statesObject });
   let graph: Graph = { namesTrie, statesObject };
   visitor(["calculator"], graph);
+  console.log(Object.prototype.toString.call(null));
   // myObject.generic(myObject.value.push, 10);
   // console.log({ myObject: JSON.parse(JSON.stringify(myObject)) });
   // myObject.generic(myObject.value.pop);
