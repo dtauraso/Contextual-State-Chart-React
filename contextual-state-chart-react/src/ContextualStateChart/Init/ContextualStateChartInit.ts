@@ -7,27 +7,48 @@ import {
   getSubStatePaths,
   addState,
   specialPrint,
+  setIds,
+  getStateNames2,
+  getStates,
   getStateNames,
 } from "./StatesObject";
+
 const makeArrays = (stateTree: any) => {
   // get the state names
   let names: string[][] = [];
   // needs to be {} for O(1) adding, updating, and deleting
   let statesObject: StatesObject = { maxStateId: -1, states: {} };
-  getStateNames(stateTree, [], names, statesObject);
-  console.log({ names, states: statesObject.states });
+
+  // getStateNames(stateTree, [], names, statesObject);
+  // console.log({ names, states: statesObject.states });
   // console.log({ keys: Object.keys(names) });
   let namesTrie: any = {};
-  names.forEach((nameArray: any, i: number) => {
-    namesTrie = insertName({
-      names: namesTrie,
-      name: nameArray,
-      stateId: i,
-    });
-    // console.log({ updatedName });
-    // console.log({ tree, updatedName });
+  // names.forEach((nameArray: any, i: number) => {
+  //   namesTrie = insertName({
+  //     names: namesTrie,
+  //     name: nameArray,
+  //     stateId: i,
+  //   });
+  //   // console.log({ updatedName });
+  //   // console.log({ tree, updatedName });
+  // });
+  // console.log({ namesTrie, statesObject });
+  console.log("start");
+  setIds({
+    stateTree,
+    idObject: { id: 0 },
   });
-  console.log({ namesTrie, statesObject });
+  console.log("end");
+
+  console.log({ stateTree });
+  let stateNames: any = [];
+  getStateNames2({ stateTree, stateName: [], stateNames });
+  console.log({ stateNames });
+
+  // messing up code that runs before this runs
+  let states: State[] = [];
+  getStates({ stateTree, states });
+  console.log({ states });
   return { namesTrie, statesObject };
 };
 /*

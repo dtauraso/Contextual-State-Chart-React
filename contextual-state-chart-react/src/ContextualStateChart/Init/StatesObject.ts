@@ -223,8 +223,127 @@ const setIdsToStates = ({
   //     addState(statesObject, stateTree, stateName, [], {}, false);
   //   }
 };
-interface SetIdsParameters {}
-const setIds = ({}) => {};
+interface SetIdsParameters {
+  stateTree: any;
+  idObject: any;
+}
+
+const setIds = ({ stateTree, idObject }: SetIdsParameters) => {
+  // console.log({ stateTree, idObject });
+  // each state is the value after the state key
+
+  if ("state" in stateTree) {
+    stateTree["state"].id = idObject.id;
+    idObject.id += 1;
+    if ("variables" in stateTree["state"]) {
+      Object.keys(stateTree["state"].variables).forEach((variableName) => {
+        stateTree["state"].variables[variableName].id = idObject.id;
+        idObject.id += 1;
+      });
+    }
+    if ("children" in stateTree["state"]) {
+      setIds({ stateTree: stateTree["state"].children, idObject });
+    }
+  }
+  const stateContextNames = Object.keys(stateTree).filter(
+    (key) => key !== "state"
+  );
+
+  stateContextNames.forEach((stateContextName) => {
+    setIds({ stateTree: stateTree[stateContextName], idObject });
+  });
+};
+
+const notState = (key: string) => {
+  return key !== "state";
+};
+interface GetStateNames2Parameters {
+  stateTree: any;
+  stateName: string[];
+  stateNames: any[];
+}
+const getStateNames2 = ({
+  stateTree,
+  stateName,
+  stateNames,
+}: GetStateNames2Parameters) => {
+  // console.log({ stateTree, stateName, stateNames });
+  if ("state" in stateTree) {
+    stateNames.push({ stateName, id: stateTree["state"].id });
+    if ("children" in stateTree["state"]) {
+      getStateNames2({
+        stateTree: stateTree["state"].children,
+        stateName: [],
+        stateNames,
+      });
+    }
+  }
+  const stateContextNames = Object.keys(stateTree).filter((key) =>
+    notState(key)
+  );
+
+  stateContextNames.forEach((stateContextName) => {
+    getStateNames2({
+      stateTree: stateTree[stateContextName],
+      stateName: [...stateName, stateContextName],
+      stateNames,
+    });
+  });
+};
+
+interface GetSubStatePaths2Parameters {
+  node: any;
+  paths: string[][];
+  currentPath: string[];
+}
+const getSubStatePaths2 = ({
+  node,
+  paths,
+  currentPath,
+}: GetSubStatePaths2Parameters) => {
+  // console.log({ node, paths, currentPath });
+  if ("state" in node) {
+    paths.push(currentPath);
+  }
+  const stateContextNames = Object.keys(node).filter((key) => notState(key));
+  // console.log({ stateContextNames });
+  stateContextNames.forEach((stateContextName) => {
+    getSubStatePaths2({
+      node: node[stateContextName],
+      paths,
+      currentPath: [...currentPath, stateContextName],
+    });
+  });
+};
+interface GetStatesParameters {
+  stateTree: any;
+  states: any;
+}
+
+const getStates = ({ stateTree, states }: GetStatesParameters) => {
+  // console.log({ stateTree, states });
+  if ("state" in stateTree) {
+    // make new copy so this function doesn't interfere with getStateNames2
+    states[stateTree["state"].id] = { ...stateTree["state"] };
+    if ("children" in stateTree["state"]) {
+      let childrenPaths: string[][] = [];
+      getSubStatePaths2({
+        node: stateTree["state"].children,
+        paths: childrenPaths,
+        currentPath: [],
+      });
+      states[stateTree["state"].id].children = childrenPaths;
+      getStates({ stateTree: stateTree["state"].children, states });
+    }
+  }
+  const stateContextNames = Object.keys(stateTree).filter((key) =>
+    notState(key)
+  );
+
+  stateContextNames.forEach((stateContextName) => {
+    getStates({ stateTree: stateTree[stateContextName], states });
+  });
+};
 const getStateNames = (
   stateTree: any,
   stateName: any,
@@ -336,5 +455,8 @@ export {
   getSubStatePaths,
   addState,
   specialPrint,
+  setIds,
+  getStateNames2,
+  getStates,
   getStateNames,
 };

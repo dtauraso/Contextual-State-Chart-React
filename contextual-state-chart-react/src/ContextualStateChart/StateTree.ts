@@ -125,45 +125,51 @@ const objectWrapper = function () {
 // import { numberWrapper } from "../App";
 let stateTree = {
   tree: {
-    functionCode: returnTrue,
-    start: ["calculator"],
-    children: {
-      ...calculatorStateTree,
-      "run state machine": {
-        calculator: {
-          bottom: {
-            // reinterpret as a variable data structure
-            children: {
-              "level 0": {
-                "timeLine 0": {
-                  children: {},
-                  variables: {
-                    nextStates: { value: [] },
-                    winningStateName: { value: [] },
-                    previousSiblingWinningStateName: { value: [] },
-                    j: { value: 0 },
+    state: {
+      functionCode: returnTrue,
+      start: ["calculator"],
+      children: {
+        ...calculatorStateTree,
+        "run state machine": {
+          calculator: {
+            bottom: {
+              state: {
+                children: {
+                  "level 0": {
+                    "timeLine 0": {
+                      state: {
+                        children: {},
+                        variables: {
+                          nextStates: { value: [] },
+                          winningStateName: { value: [] },
+                          previousSiblingWinningStateName: { value: [] },
+                          j: { value: 0 },
+                        },
+                      },
+                    },
                   },
                 },
+                variables: {
+                  i: { value: 0 },
+                },
               },
-            },
-            variables: {
-              i: { value: 0 },
+              // reinterpret as a variable data structure
             },
           },
         },
       },
-    },
-    variables: {
-      levelId: { value: 0 },
-      timeLineId: { value: 0 },
-      machineRunId: { value: 0 },
-      startRecordingStates: { value: ["calculator"] },
-      stopRecordingStates: { value: ["test", "evaluateExpression"] },
-      recordingActive: { value: false },
-      // changes made to bottom can still be recorded while the recordingActive flag is on
-      // will need to check against internal states holding the variables
-      visitorDataStructureRecordingActive: { value: false },
-      bottomName: { value: ["run state machine", "calculator", "bottom"] },
+      variables: {
+        levelId: { value: 0 },
+        timeLineId: { value: 0 },
+        machineRunId: { value: 0 },
+        startRecordingStates: { value: ["calculator"] },
+        stopRecordingStates: { value: ["test", "evaluateExpression"] },
+        recordingActive: { value: false },
+        // changes made to bottom can still be recorded while the recordingActive flag is on
+        // will need to check against internal states holding the variables
+        visitorDataStructureRecordingActive: { value: false },
+        bottomName: { value: ["run state machine", "calculator", "bottom"] },
+      },
     },
   },
 };

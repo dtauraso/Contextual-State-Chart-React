@@ -2,12 +2,14 @@ type Variables = {
   [key: string]: number;
 };
 type State = {
+  parents?: string[][];
   name?: string[];
   functionCode?: (graph: any, currentState: any) => boolean;
   functionName?: string;
   start?: string[][];
   children?: string[][];
   next?: string[][];
+  prev?: string[];
   variables?: Variables;
   value?: any;
   stateRunCount?: number;

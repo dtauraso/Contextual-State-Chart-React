@@ -42,37 +42,51 @@ import {
 // convenient way to set the tree up
 let calculatorStateTree = {
   calculator: {
-    functionCode: returnTrue,
-    start: [["createExpression"]],
-    children: {
-      createExpression: {
-        functionCode: returnTrue,
-        next: [["test", "evaluateExpression"]],
-        start: [["number"]],
-        children: {
-          number: {
+    state: {
+      functionCode: returnTrue,
+      start: [["createExpression"]],
+      children: {
+        createExpression: {
+          state: {
             functionCode: returnTrue,
-            next: [["is input valid"], ["operator"]],
-            // children: ["number get digit"],
-            start: [["number get digit"]],
+            next: [["test", "evaluateExpression"]],
+            start: [["number"]],
             children: {
-              "number get digit": {
-                functionCode: numberGetDigit,
-                next: [["number get digit"], ["save number"]],
-              },
-              "save number": {
-                functionCode: saveNumber,
-                start: [["fake", "endState1"]],
-                children: {
-                  fake: {
-                    endState1: {
-                      functionCode: returnTrue,
-                      start: [["fake", "endState2"]],
+              number: {
+                state: {
+                  functionCode: returnTrue,
+                  next: [["is input valid"], ["operator"]],
+                  // children: ["number get digit"],
+                  start: [["number get digit"]],
+                  children: {
+                    "number get digit": {
+                      state: {
+                        functionCode: numberGetDigit,
+                        next: [["number get digit"], ["save number"]],
+                      },
+                    },
+                    "save number": {
+                      state: {
+                        functionCode: saveNumber,
+                        start: [["fake", "endState1"]],
+                        children: {
+                          fake: {
+                            endState1: {
+                              state: {
+                                functionCode: returnTrue,
+                                start: [["fake", "endState2"]],
 
-                      children: {
-                        fake: {
-                          endState2: {
-                            functionCode: returnTrue,
+                                children: {
+                                  fake: {
+                                    endState2: {
+                                      state: {
+                                        functionCode: returnTrue,
+                                      },
+                                    },
+                                  },
+                                },
+                              },
+                            },
                           },
                         },
                       },
@@ -80,116 +94,145 @@ let calculatorStateTree = {
                   },
                 },
               },
+              "is input valid": {
+                state: {
+                  functionCode: isInputValid,
+                  // returns true if we hit end of input and it's a valid expression
+                },
+              },
+              operator: {
+                state: {
+                  functionCode: returnTrue,
+                  next: [["number"]],
+                  start: [["operator", "get"]],
+                  // children: ["operator get operator"],
+                  children: {
+                    operator: {
+                      get: {
+                        state: {
+                          // getOperator
+                          functionCode: operatorGetOperator,
+                          next: [["operator", "save"]],
+                        },
+                      },
+                      save: {
+                        state: {
+                          functionCode: saveOperator,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            variables: { token: { value: "" } },
+          },
+        },
+        test: {
+          evaluateExpression: {
+            state: {
+              functionCode: returnTrue,
+              next: [["inputHas1Value"] /*,'evaluateExpression'*/],
+              start: [["a0"]],
+              children: {
+                // get, save, increment or update the array
+                a0: {
+                  state: {
+                    functionCode: "getA2", // increment
+                    next: [["resetForNextRoundOfInput"], ["op"], ["opIgnore"]],
+                  },
+                },
+
+                op: {
+                  state: {
+                    functionCode: "isOp2", // increment
+                    next: [["b evaluate"]],
+                  },
+                },
+                // add new step to save b?
+                // make a result variable to show the result?
+                // the item 'b evaluate' put in is the same item 'a0' starts on
+                "b evaluate": {
+                  state: {
+                    functionCode: "evaluate2", // updates the array
+                    next: [["a0"]],
+                  },
+                },
+
+                opIgnore: {
+                  state: {
+                    functionCode: "ignoreOp2", // increment
+                    next: [["a0"]],
+                  },
+                },
+
+                // some of this is wrong
+                resetForNextRoundOfInput: {
+                  state: {
+                    functionCode: "resetForNextRound2",
+                    next: [/*'endOfEvaluating'*/ ["inputHas1Value"], ["a0"]],
+                  },
+                },
+              },
+              variables: {
+                i2: {
+                  value: 0,
+                },
+                a: {
+                  value: 0,
+                },
+                b: {
+                  value: 0,
+                },
+                operators: {
+                  value: ["*", "/", "-", "+"],
+                },
+                j: {
+                  value: 0,
+                },
+                operatorFunctions: {
+                  value: {
+                    "*": "mult",
+                    "/": "divide",
+                    "+": "plus",
+                    "-": "minus",
+                  },
+                },
+              },
             },
           },
-          "is input valid": {
-            functionCode: isInputValid,
-            // returns true if we hit end of input and it's a valid expression
-          },
-          operator: {
-            functionCode: returnTrue,
-            next: [["number"]],
-            start: [["operator", "get"]],
-            // children: ["operator get operator"],
-            children: {
-              operator: {
-                get: {
-                  // getOperator
-                  functionCode: operatorGetOperator,
-                  next: [["operator", "save"]],
-                },
-                save: {
-                  functionCode: saveOperator,
+          anotherTest: {
+            state: { functionCode: "yes" },
+            testing: {
+              test: {
+                state: {
+                  functionCode: "yes",
                 },
               },
             },
           },
         },
-        variables: { token: { value: "" } },
-      },
-      test: {
-        evaluateExpression: {
-          functionCode: returnTrue,
-          next: [["inputHas1Value"] /*,'evaluateExpression'*/],
-          start: [["a0"]],
-          children: {
-            // get, save, increment or update the array
-            a0: {
-              functionCode: "getA2", // increment
-              next: [["resetForNextRoundOfInput"], ["op"], ["opIgnore"]],
-            },
-
-            op: {
-              functionCode: "isOp2", // increment
-              next: [["b evaluate"]],
-            },
-            // add new step to save b?
-            // make a result variable to show the result?
-            // the item 'b evaluate' put in is the same item 'a0' starts on
-            "b evaluate": {
-              functionCode: "evaluate2", // updates the array
-              next: [["a0"]],
-            },
-
-            opIgnore: {
-              functionCode: "ignoreOp2", // increment
-              next: [["a0"]],
-            },
-
-            // some of this is wrong
-            resetForNextRoundOfInput: {
-              functionCode: "resetForNextRound2",
-              next: [/*'endOfEvaluating'*/ ["inputHas1Value"], ["a0"]],
-            },
-          },
-          variables: {
-            i2: {
-              value: 0,
-            },
-            a: {
-              value: 0,
-            },
-            b: {
-              value: 0,
-            },
-            operators: {
-              value: ["*", "/", "-", "+"],
-            },
-            j: {
-              value: 0,
-            },
-            operatorFunctions: {
-              value: { "*": "mult", "/": "divide", "+": "plus", "-": "minus" },
+        "another test": {
+          inputHas1Value: {
+            state: {
+              functionCode: "showAndExit2",
             },
           },
         },
-        anotherTest: {
-          testing: {
-            test: {
-              functionCode: "yes",
-            },
-          },
-          functionCode: "yes",
+      },
+      variables: {
+        i1: {
+          value: 0,
         },
-      },
-      "another test": {
-        inputHas1Value: {
-          functionCode: "showAndExit2",
+        input: {
+          value: "1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12",
         },
-      },
-    },
-    variables: {
-      i1: {
-        value: 0,
-      },
-      input: {
-        value: "1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12",
-      },
-      expression: {
-        value: [],
-      },
+        expression: {
+          value: [],
+        },
 
-      // read through the input and makes an expression if one can be made
+        // read through the input and makes an expression if one can be made
+      },
     },
   },
 };
