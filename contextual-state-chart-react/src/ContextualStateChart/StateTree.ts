@@ -102,15 +102,15 @@ const arrayWrapper = function () {
       this.newIndex = this.value.push(_this);
       return this;
     },
-    generic: function generic(this: any, callback: any, _this?: any) {
-      console.log(this, callback, _this);
-      console.log(callback.name);
+    generic: function generic(this: any, callbackName: any, _this?: any) {
+      console.log(this, callbackName, _this);
+      console.log(callbackName);
       let a = this.value;
       // let v: Array<any> = [];
       if (_this === undefined) {
-        a[callback.name]();
+        a[callbackName]();
       } else {
-        a[callback.name](_this);
+        a[callbackName](_this);
       }
       // console.log(a);
       return this;
@@ -132,6 +132,7 @@ let stateTree = {
       "run state machine": {
         calculator: {
           bottom: {
+            // reinterpret as a variable data structure
             children: {
               "level 0": {
                 "timeLine 0": {
@@ -204,7 +205,9 @@ const getState = (graph: any, stateName: string[]) => {
   }
   const stateId = getStateId(graph.namesTrie, stateName);
   if (!(stateId in graph.statesObject.states)) {
-    console.log(`stateId = ${stateId} is not in graph.statesObject.states`);
+    console.log(
+      `stateId = ${stateId}, stateName = ${stateName} is not in graph.statesObject.states`
+    );
     return false;
   }
   return graph.statesObject.states[stateId];
@@ -378,12 +381,13 @@ const insertVariableState = (graph: any, state: any, variable: any) => {
   }
 };
 const insertState = (graph: any, state: any, variables: any = {}) => {
+  // inserts state and variables
   graph.statesObject.maxStateId += 1;
-  const { tree, updatedName } = insertName(
-    graph.namesTrie,
-    state.name,
-    graph.statesObject.maxStateId
-  );
+  const { tree, updatedName } = insertName({
+    names: graph.namesTrie,
+    name: state.name,
+    stateId: graph.statesObject.maxStateId,
+  });
   // console.log({ graph });
   graph.namesTrie = tree;
   // console.log({ updatedName });

@@ -581,15 +581,15 @@ let arrayWrapper = function (value: any) {
       // containing our transformed items.
       return newArray;
     },
-    generic: function generic(this: any, callback: any, _this?: any) {
-      console.log(this, callback, _this);
-      console.log(callback.name);
+    generic: function generic(this: any, callbackName: any, _this?: any) {
+      // console.log(this, callbackName, _this);
+      // console.log(callbackName);
       let a = this.value;
       // let v: Array<any> = [];
       if (_this === undefined) {
-        a[callback.name]();
+        a[callbackName]();
       } else {
-        a[callback.name](_this);
+        a[callbackName](_this);
       }
       // console.log(a);
       return this;
@@ -625,13 +625,21 @@ const App = (props: any) => {
   console.log({ i });
   const { namesTrie, statesObject } = makeArrays(stateTree);
   console.log({ namesTrie, statesObject });
-  let graph: Graph = { namesTrie, statesObject };
-  visitor(["calculator"], graph);
+  // let graph: Graph = { namesTrie, statesObject };
+  // visitor(["calculator"], graph);
+  /**
+   *
+   * clean up jobs before redesigning the old record system
+   * 1 way to convert json to state objects(currently 2 ways to do this)
+   * convert variable data structure to state objects
+   * convert remaining simple data structures(string, flat array) to wrapper object
+   * convert the ["run state machine", "calculator", "bottom"] state to a nested data structure
+   */
   console.log(Object.prototype.toString.call(null));
-  // myObject.generic(myObject.value.push, 10);
-  // console.log({ myObject: JSON.parse(JSON.stringify(myObject)) });
-  // myObject.generic(myObject.value.pop);
-  // console.log({ myObject });
+  myObject.generic("push", 10);
+  console.log({ myObject: JSON.parse(JSON.stringify(myObject)) });
+  myObject.generic("pop");
+  console.log({ myObject });
   // jsonToStateObjects({}, []);
   // jsonToStateObjects([], []);
   // jsonToStateObjects(5, []);

@@ -64,6 +64,7 @@ const addState = (
   variables: any,
   isVariable: boolean
 ) => {
+  // inserts state only
   statesObject.maxStateId += 1;
   // console.log(stateName);
   if (
@@ -129,14 +130,108 @@ const specialPrint = (object: any) => {
   // console.log({ object });
   console.log(JSON.parse(JSON.stringify(object)));
 };
+/*
+redesign getStateNames
+relationships are being captured by accessing things at the right time
+there are no data structures being returned that represent the relationships
+
+each state in the tree should be given an id
+*/
+const setIdsToStates = ({
+  stateTree,
+  idObject,
+  stateNamesHaveLength1,
+}: any) => {
+  // console.log({ stateTree, stateName });
+  // const keys = Object.keys(stateTree);
+  // // const keyMapsToObject = keys.find(
+  // //   (key) =>
+  // //     Object.prototype.toString.call(stateTree[key]) === "[object Object]"
+  // // );
+  // /*
+  //   if any of the below keys is inside stateTree
+  //     we have reached a stop conditin
+  //   */
+  // let foundStop = false;
+  // const stopKeys = ["functionCode", "start", "next", "children", "variables"];
+  // stopKeys.forEach((stopKey) => {
+  //   if (stopKey in stateTree) {
+  //     foundStop = true;
+  //   }
+  // });
+  // if (foundStop) {
+  //   // console.log("at stop condition");
+  //   // stop conditions for the full state name
+  //   if ("children" in stateTree || "variables" in stateTree) {
+  //     // console.log("at stop condition");
+  //     // add state
+  //     // collect data for state
+  //     // names.push(stateName);
+  //     // addState(statesObject, stateTree, stateName);
+  //     // console.log("statesObject", JSON.parse(JSON.stringify(statesObject)));
+  //     let variableData: any = {};
+  //     if ("variables" in stateTree) {
+  //       // variable states are added here
+  //       // save variable names and id's for state
+  //       Object.keys(stateTree.variables).forEach((variableName) => {
+  //         names.push([variableName]);
+  //         // console.log({
+  //         //   variableName,
+  //         //   variable: stateTree.variables[variableName],
+  //         // });
+  //         addState(
+  //           statesObject,
+  //           stateTree.variables[variableName],
+  //           [variableName],
+  //           [],
+  //           {},
+  //           true
+  //         );
+  //         const variableId = statesObject.maxStateId;
+  //         variableData[variableName] = variableId;
+  //       });
+  //     }
+  //     let childrenPaths: string[][] = [];
+  //     if ("children" in stateTree) {
+  //       // add state names from children into state's children list
+  //       getSubStatePaths(stateTree.children, childrenPaths, []);
+  //     }
+  //     // add state here
+  //     // console.log("variableData", JSON.parse(JSON.stringify(variableData)));
+  //     // console.log("paths", JSON.parse(JSON.stringify(childrenPaths)));
+  //     names.push(stateName);
+  //     addState(
+  //       statesObject,
+  //       stateTree,
+  //       stateName,
+  //       childrenPaths,
+  //       variableData,
+  //       false
+  //     );
+  //     if ("children" in stateTree) {
+  //       Object.keys(stateTree.children).forEach((child) => {
+  //         getStateNames(
+  //           stateTree.children[child],
+  //           [child],
+  //           names,
+  //           statesObject
+  //         );
+  //       });
+  //     }
+  //   } else if (!("variables" in stateTree) && !("children" in stateTree)) {
+  //     names.push(stateName);
+  //     addState(statesObject, stateTree, stateName, [], {}, false);
+  //   }
+};
+interface SetIdsParameters {}
+const setIds = ({}) => {};
 const getStateNames = (
   stateTree: any,
   stateName: any,
   names: any,
-  statesObject: any,
-  stateNameToStateIdAndVarCount: any
+  statesObject: any
 ) => {
-  // console.log({ stateName, stateTree });
+  console.log({ stateTree, stateName });
   const keys = Object.keys(stateTree);
   // const keyMapsToObject = keys.find(
   //   (key) =>
@@ -209,8 +304,7 @@ const getStateNames = (
             stateTree.children[child],
             [child],
             names,
-            statesObject,
-            stateNameToStateIdAndVarCount
+            statesObject
           );
         });
       }
@@ -227,13 +321,7 @@ const getStateNames = (
   );
   if (filteredKeys.length > 0) {
     filteredKeys.forEach((key) => {
-      getStateNames(
-        stateTree[key],
-        [...stateName, key],
-        names,
-        statesObject,
-        stateNameToStateIdAndVarCount
-      );
+      getStateNames(stateTree[key], [...stateName, key], names, statesObject);
     });
   }
 };

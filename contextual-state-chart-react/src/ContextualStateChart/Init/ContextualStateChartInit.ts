@@ -14,15 +14,18 @@ const makeArrays = (stateTree: any) => {
   let names: string[][] = [];
   // needs to be {} for O(1) adding, updating, and deleting
   let statesObject: StatesObject = { maxStateId: -1, states: {} };
-  getStateNames(stateTree, [], names, statesObject, {});
+  getStateNames(stateTree, [], names, statesObject);
   console.log({ names, states: statesObject.states });
   // console.log({ keys: Object.keys(names) });
   let namesTrie: any = {};
-  names.forEach((nameArray: any, i: Number) => {
-    const { tree, updatedName } = insertName(namesTrie, nameArray, i);
+  names.forEach((nameArray: any, i: number) => {
+    namesTrie = insertName({
+      names: namesTrie,
+      name: nameArray,
+      stateId: i,
+    });
     // console.log({ updatedName });
     // console.log({ tree, updatedName });
-    namesTrie = tree;
   });
   console.log({ namesTrie, statesObject });
   return { namesTrie, statesObject };

@@ -11,6 +11,8 @@ import {
 } from "./StateTree";
 import { makeArrays } from "./Init/ContextualStateChartInit";
 import { idText } from "typescript";
+import { addState, getStateNames } from "./Init/StatesObject";
+import { insertName } from "./Init/ContextualStateChartInit";
 
 let initEntry = {
   currentStateNameConcatenated: {
@@ -60,6 +62,7 @@ const moveDown1Level = (
 ) => {
   // make new level tracker node and doubly link it with the current level
   // tracker node
+  // inserts state and variables
   insertState(
     graph,
     {
@@ -74,10 +77,61 @@ const moveDown1Level = (
       j: 0,
     }
   );
+  // console.log(graph);
+  // let names: string[][] = [];
+  // console.log("here", newTrackerName);
+  // getStateNames(
+  //   {
+  //     // parent: currentTracker.name,
+  //     start: [],
+  //     children: {}, // is updated each loop on line 193
+  //     variables: {
+  //       nextStates: { value: winningState.start }, //[winningState.name],
+  //       winningStateName: { value: [] },
+  //       previousSiblingWinningStateName: { value: [] },
+  //       j: { value: 0 },
+  //     },
+  //   },
+  //   newTrackerName,
+  //   names,
+  //   graph.statesObject
+  // );
+  // console.log({ names });
+  // names.forEach((nameArray: any, i: Number) => {
+  //   const { tree, updatedName } = insertName(graph.namesTrie, nameArray, i);
+  //   // console.log({ updatedName });
+  //   // console.log({ tree, updatedName });
+  //   graph.namesTrie = tree;
+  // });
+
+  // getStateNames = (
+  //   stateTree: any,
+  //   stateName: any,
+  //   names: any,
+  //   statesObject: any
+  // )
+
+  /**
+  {
+      parent: currentTracker.name,
+      children: [], // is updated each loop on line 193
+      variables: {
+        nextStates: winningState.start, //[winningState.name],
+        winningStateName: [],
+        previousSiblingWinningStateName: [],
+        j: 0,
+      }
+  },
+  [newTrackerName],
+  graph.names
+  graph.statesObject
+   */
   // adds to the end
   currentTracker.children.push(newTrackerName);
 
   bottom.children[i.value] = newTrackerName;
+  console.log({ graph });
+
   currentTracker = getState(graph, newTrackerName);
   nextStates = getVariableVisitor(graph, currentTracker.name, "nextStates");
   // nextStates.setValue(winningState.start);
@@ -93,7 +147,7 @@ const moveDown1Level = (
     currentTracker.name,
     "previousSiblingWinningStateName"
   );
-
+  console.log({ previousSiblingWinningStateName });
   previousSiblingWinningStateName.setValue([]);
   // updateVariableVisitor(
   //   graph,
