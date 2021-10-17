@@ -1,5 +1,5 @@
 import { Children } from "react";
-import { NamesTrie, State, StatesObject } from "../../App.types";
+import { NamesTrie, State, StatesObject, States } from "../../App.types";
 // f(stateTree) => names and states arrays
 import { insertName } from "./TrieTree";
 import {
@@ -105,8 +105,11 @@ const makeArrays = (stateTree: any) => {
   //   variables,
   // });
   // console.log({ variables });
-  let x: any = {};
-  let statesObjects2 = { states: x, maxStateId: states.length - 1 };
+  // let x: States = {};
+  let statesObjects2: StatesObject = {
+    states: {},
+    maxStateId: states.length - 1,
+  };
   // console.log({ length: states.length });
   states.forEach((state: State, i: number) => {
     // add state
