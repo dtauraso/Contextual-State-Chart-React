@@ -1,6 +1,6 @@
-type Variables = {
-  [key: string]: number;
-};
+// type Variables = {
+//   [key: string]: number;
+// };
 type State = {
   parents?: string[][];
   name?: string[];
@@ -10,7 +10,7 @@ type State = {
   children?: string[][];
   next?: string[][];
   prev?: string[];
-  variables?: Variables;
+  variables?: any;
   value?: any;
   stateRunCount?: number;
   id?: number;

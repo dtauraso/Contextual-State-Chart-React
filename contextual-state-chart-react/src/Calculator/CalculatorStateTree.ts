@@ -125,7 +125,7 @@ let calculatorStateTree = {
                 },
               },
             },
-            variables: { token: { value: "" } },
+            variables: { token: "" },
           },
         },
         test: {
@@ -175,28 +175,16 @@ let calculatorStateTree = {
                 },
               },
               variables: {
-                i2: {
-                  value: 0,
-                },
-                a: {
-                  value: 0,
-                },
-                b: {
-                  value: 0,
-                },
-                operators: {
-                  value: ["*", "/", "-", "+"],
-                },
-                j: {
-                  value: 0,
-                },
+                i2: 0,
+                a: 0,
+                b: 0,
+                operators: ["*", "/", "-", "+"],
+                j: 0,
                 operatorFunctions: {
-                  value: {
-                    "*": "mult",
-                    "/": "divide",
-                    "+": "plus",
-                    "-": "minus",
-                  },
+                  "*": "mult",
+                  "/": "divide",
+                  "+": "plus",
+                  "-": "minus",
                 },
               },
             },
@@ -221,15 +209,9 @@ let calculatorStateTree = {
         },
       },
       variables: {
-        i1: {
-          value: 0,
-        },
-        input: {
-          value: "1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12",
-        },
-        expression: {
-          value: [],
-        },
+        i1: 0,
+        input: "1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12",
+        expression: [],
 
         // read through the input and makes an expression if one can be made
       },

@@ -1,5 +1,5 @@
 import { Children } from "react";
-import { State, StatesObject } from "../../App.types";
+import { NamesTrie, State, StatesObject } from "../../App.types";
 // f(stateTree) => names and states arrays
 import { insertName } from "./TrieTree";
 import {
@@ -9,7 +9,9 @@ import {
   specialPrint,
   setIds,
   getStateNames2,
+  setNames,
   getStates,
+  getVariables,
   getStateNames,
 } from "./StatesObject";
 
@@ -22,7 +24,6 @@ const makeArrays = (stateTree: any) => {
   // getStateNames(stateTree, [], names, statesObject);
   // console.log({ names, states: statesObject.states });
   // console.log({ keys: Object.keys(names) });
-  let namesTrie: any = {};
   // names.forEach((nameArray: any, i: number) => {
   //   namesTrie = insertName({
   //     names: namesTrie,
@@ -41,14 +42,103 @@ const makeArrays = (stateTree: any) => {
   console.log("end");
 
   console.log({ stateTree });
+
+  // trie tree
+  // states array
+  // variables added to states array
+
   let stateNames: any = [];
   getStateNames2({ stateTree, stateName: [], stateNames });
   console.log({ stateNames });
+  // put in trie tree
+  let namesTrie: any = {};
 
+  stateNames.forEach((name: any) => {
+    namesTrie = insertName({
+      names: namesTrie,
+      name: name.stateName,
+      stateId: name.id,
+    });
+  });
+  console.log({ namesTrie });
   // messing up code that runs before this runs
   let states: State[] = [];
   getStates({ stateTree, states });
   console.log({ states });
+
+  setNames({ names: stateNames, states });
+  console.log("states with names", { states });
+  let json = {
+    "run state machine": {
+      calculator: {
+        bottom: {
+          state: {
+            children: {
+              x: [{ something: { y: 0 } }, { a: { b: {} } }],
+              "level 0": {
+                "timeLine 0": {
+                  state: {
+                    children: {},
+                    variables: {
+                      nextStates: [],
+                      winningStateName: [],
+                      previousSiblingWinningStateName: [],
+                      j: 0,
+                    },
+                  },
+                },
+              },
+            },
+            variables: {
+              i: 0,
+            },
+          },
+          // reinterpret as a variable data structure
+        },
+      },
+    },
+  };
+  let variables: any = { maxStateId: -1, states: {} };
+  // getVariables({
+  //   json: json["run state machine"],
+  //   jsonName: "run state machine",
+  //   variables,
+  // });
+  // console.log({ variables });
+  let x: any = {};
+  let statesObjects2 = { states: x, maxStateId: states.length - 1 };
+  // console.log({ length: states.length });
+  states.forEach((state: State, i: number) => {
+    // add state
+    let stateVariables: any = {};
+    statesObjects2.states = {
+      ...statesObjects2.states,
+      [i]: { ...state, variables: stateVariables },
+    };
+    // maxId counts ahead of i, then i catches up, then maxId catches up
+    // statesObjects2.maxStateId += 1;
+    // all the states are being replaced by all of the variables
+    // console.log({ vars: state.variables, type: typeof state.variables });
+    if (state.variables) {
+      let variables: any = {};
+
+      Object.keys(state.variables).forEach((variableName) => {
+        variables = {
+          ...variables,
+          [variableName]: getVariables({
+            json: state.variables[variableName],
+            jsonName: variableName,
+            variables: statesObjects2,
+          }),
+        };
+      });
+      // console.log({ variables, states: statesObjects2.states });
+      // getKeyValue(i)(statesObjects2.states)
+      // console.log(statesObjects2.states[i]);
+      statesObjects2.states[i].variables = variables;
+    }
+  });
+  console.log({ statesObjects2 });
   return { namesTrie, statesObject };
 };
 /*

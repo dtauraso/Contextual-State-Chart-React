@@ -140,17 +140,17 @@ let stateTree = {
                       state: {
                         children: {},
                         variables: {
-                          nextStates: { value: [] },
-                          winningStateName: { value: [] },
-                          previousSiblingWinningStateName: { value: [] },
-                          j: { value: 0 },
+                          nextStates: [],
+                          winningStateName: [],
+                          previousSiblingWinningStateName: [],
+                          j: 0,
                         },
                       },
                     },
                   },
                 },
                 variables: {
-                  i: { value: 0 },
+                  i: 0,
                 },
               },
               // reinterpret as a variable data structure
@@ -159,16 +159,16 @@ let stateTree = {
         },
       },
       variables: {
-        levelId: { value: 0 },
-        timeLineId: { value: 0 },
-        machineRunId: { value: 0 },
-        startRecordingStates: { value: ["calculator"] },
-        stopRecordingStates: { value: ["test", "evaluateExpression"] },
-        recordingActive: { value: false },
+        levelId: 0,
+        timeLineId: 0,
+        machineRunId: 0,
+        startRecordingStates: ["calculator"],
+        stopRecordingStates: ["test", "evaluateExpression"],
+        recordingActive: false,
         // changes made to bottom can still be recorded while the recordingActive flag is on
         // will need to check against internal states holding the variables
-        visitorDataStructureRecordingActive: { value: false },
-        bottomName: { value: ["run state machine", "calculator", "bottom"] },
+        visitorDataStructureRecordingActive: false,
+        bottomName: ["run state machine", "calculator", "bottom"],
       },
     },
   },

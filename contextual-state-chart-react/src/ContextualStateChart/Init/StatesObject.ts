@@ -7,6 +7,9 @@ import {
   arrayWrapper,
   objectWrapper,
 } from "../StateTree";
+const isNull = (json: any) => {
+  return Object.prototype.toString.call(json) === "[object Null]";
+};
 const isBoolean = (json: any) => {
   return Object.prototype.toString.call(json) === "[object Boolean]";
 };
@@ -235,12 +238,12 @@ const setIds = ({ stateTree, idObject }: SetIdsParameters) => {
   if ("state" in stateTree) {
     stateTree["state"].id = idObject.id;
     idObject.id += 1;
-    if ("variables" in stateTree["state"]) {
-      Object.keys(stateTree["state"].variables).forEach((variableName) => {
-        stateTree["state"].variables[variableName].id = idObject.id;
-        idObject.id += 1;
-      });
-    }
+    // if ("variables" in stateTree["state"]) {
+    //   Object.keys(stateTree["state"].variables).forEach((variableName) => {
+    //     stateTree["state"].variables[variableName].id = idObject.id;
+    //     idObject.id += 1;
+    //   });
+    // }
     if ("children" in stateTree["state"]) {
       setIds({ stateTree: stateTree["state"].children, idObject });
     }
@@ -344,6 +347,109 @@ const getStates = ({ stateTree, states }: GetStatesParameters) => {
     getStates({ stateTree: stateTree[stateContextName], states });
   });
 };
+
+interface SetNamesParameters {
+  names: any[];
+  states: any[];
+}
+
+const setNames = ({ names, states }: SetNamesParameters) => {
+  names.forEach((stateNameId) => {
+    const i = stateNameId.id;
+    states[i]["name"] = stateNameId.stateName;
+  });
+};
+
+interface GetVariablesParameters {
+  json: any;
+  jsonName: string;
+  variables: any;
+}
+
+const getVariables = ({
+  json,
+  jsonName,
+  variables,
+}: GetVariablesParameters) => {
+  // console.log({ maxId: variables.maxStateId });
+  // variables.maxStateId += lastStateId;
+  if (isNull(json)) {
+    let newVariable = nullWrapper();
+    newVariable.setValue(json);
+    newVariable.setName(jsonName);
+    variables.maxStateId += 1;
+    variables.states[variables.maxStateId] = newVariable;
+    // variables.push(newVariable);
+    // newVariable.setId(variables.length - 1);
+    return variables.maxStateId;
+  } else if (isBoolean(json)) {
+    let newVariable = booleanWrapper();
+    newVariable.setValue(json);
+    newVariable.setName(jsonName);
+    // variables.push(newVariable);
+    // newVariable.setId(variables.length - 1);
+    // return variables.length - 1;
+    variables.maxStateId += 1;
+    variables.states[variables.maxStateId] = newVariable;
+    return variables.maxStateId;
+  } else if (isNumber(json)) {
+    let newVariable = numberWrapper();
+    newVariable.setValue(json);
+    newVariable.setName(jsonName);
+    // variables.push(newVariable);
+    // newVariable.setId(variables.length - 1);
+    // return variables.length - 1;
+    variables.maxStateId += 1;
+    variables.states[variables.maxStateId] = newVariable;
+    return variables.maxStateId;
+  } else if (isString(json)) {
+    let newVariable = stringWrapper();
+    newVariable.setValue(json);
+    newVariable.setName(jsonName);
+    // variables.push(newVariable);
+    // newVariable.setId(variables.length - 1);
+    // return variables.length - 1;
+    variables.maxStateId += 1;
+    variables.states[variables.maxStateId] = newVariable;
+    return variables.maxStateId;
+  } else if (isArray(json)) {
+    let newVariable = arrayWrapper();
+    newVariable.setValue([]);
+    newVariable.setName(jsonName);
+    json.forEach((element: any, i: number) => {
+      newVariable.value.push(
+        getVariables({
+          json: element,
+          jsonName: `${i}`,
+          variables,
+        })
+      );
+    });
+    // variables.push(newVariable);
+    // newVariable.setId(variables.length - 1);
+    // return variables.length - 1;
+    variables.maxStateId += 1;
+    variables.states[variables.maxStateId] = newVariable;
+    return variables.maxStateId;
+  } else if (isObject(json)) {
+    let newVariable = objectWrapper();
+    newVariable.setValue({});
+    newVariable.setName(jsonName);
+    Object.keys(json).forEach((key) => {
+      newVariable.value[key] = getVariables({
+        json: json[key],
+        jsonName: key,
+        variables,
+      });
+    });
+    // variables.push(newVariable);
+    // newVariable.setId(variables.length - 1);
+    // return variables.length - 1;
+    variables.maxStateId += 1;
+    variables.states[variables.maxStateId] = newVariable;
+    return variables.maxStateId;
+  }
+};
 const getStateNames = (
   stateTree: any,
   stateName: any,
@@ -446,6 +552,7 @@ const getStateNames = (
 };
 
 export {
+  isNull,
   isBoolean,
   isNumber,
   isString,
@@ -457,6 +564,8 @@ export {
   specialPrint,
   setIds,
   getStateNames2,
+  setNames,
   getStates,
+  getVariables,
   getStateNames,
 };
