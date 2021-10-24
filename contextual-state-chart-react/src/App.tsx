@@ -596,40 +596,42 @@ let arrayWrapper = function (value: any) {
     },
   });
 };
+// import { calculatorStateTree } from "./Calculator/CalculatorStateTree";
 
 const App = (props: any) => {
   var json2 = {
-    "run state machine": {
-      calculator: {
-        bottom: {
-          state: {
-            children: {
-              "level 0": {
-                "timeLine 0": {
-                  state: {
-                    children: {},
-                    variables: {
-                      nextStates: { value: [] },
-                      winningStateName: { value: [] },
-                      previousSiblingWinningStateName: { value: [] },
-                      j: { value: 0 },
-                    },
-                  },
-                },
-              },
-            },
-            variables: {
-              i: { value: 0 },
-              x: [
-                { something: { y: { value: 0 } } },
-                { a: { b: { variable: {} } } },
-              ],
-            },
-          },
-          // reinterpret as a variable data structure
-        },
-      },
-    },
+    // "run state machine": {
+    //   calculator: {
+    //     bottom: {
+    //       state: {
+    //         children: {
+    //           "level 0": {
+    //             "timeLine 0": {
+    //               state: {
+    //                 children: {},
+    //                 variables: {
+    //                   nextStates: { value: [] },
+    //                   winningStateName: { value: [] },
+    //                   previousSiblingWinningStateName: { value: [] },
+    //                   j: { value: 0 },
+    //                 },
+    //               },
+    //             },
+    //           },
+    //         },
+    //         variables: {
+    //           i: { value: 0 },
+    //           x: [
+    //             { something: { y: { value: 0 } } },
+    //             { a: { b: { variable: {} } } },
+    //           ],
+    //         },
+    //       },
+    //       // reinterpret as a variable data structure
+    //     },
+    //   },
+    // },
+    calculatorStateTree,
   };
   // test();
   // console.log(x.prototype, x);

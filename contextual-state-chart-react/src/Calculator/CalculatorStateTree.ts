@@ -125,7 +125,7 @@ let calculatorStateTree = {
                 },
               },
             },
-            variables: { token: "" },
+            variables: { token: { value: "" } },
           },
         },
         test: {
@@ -175,26 +175,36 @@ let calculatorStateTree = {
                 },
               },
               variables: {
-                i2: 0,
-                a: 0,
-                b: 0,
-                operators: ["*", "/", "-", "+"],
-                j: 0,
+                i2: { value: 0 },
+                a: { value: 0 },
+                b: { value: 0 },
+                operators: [
+                  { value: "*" },
+                  { value: "/" },
+                  { value: "-" },
+                  { value: "+" },
+                ],
+                j: { value: 0 },
                 operatorFunctions: {
-                  "*": "mult",
-                  "/": "divide",
-                  "+": "plus",
-                  "-": "minus",
+                  "*": { value: "mult" },
+                  "/": { value: "divide" },
+                  "+": { value: "plus" },
+                  "-": { value: "minus" },
                 },
               },
             },
+          },
+          state: {
+            functionCode: "yes",
           },
           anotherTest: {
             state: { functionCode: "yes" },
             testing: {
               test: {
-                state: {
-                  functionCode: "yes",
+                testAgain: {
+                  state: {
+                    functionCode: "yes",
+                  },
                 },
               },
             },
@@ -214,9 +224,9 @@ let calculatorStateTree = {
         },
       },
       variables: {
-        i1: 0,
-        input: "1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12",
-        expression: [],
+        i1: { value: 0 },
+        input: { value: "1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12" },
+        expression: { value: [] },
 
         // read through the input and makes an expression if one can be made
       },
