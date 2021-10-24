@@ -6,6 +6,7 @@ import {
   stringWrapper,
   arrayWrapper,
   objectWrapper,
+  stateWrapper,
 } from "../StateTree";
 const isNull = (json: any) => {
   return Object.prototype.toString.call(json) === "[object Null]";
@@ -102,7 +103,9 @@ const addState = (
     console.log({ x });
     // x.name = stateName;
   } else {
-    let newState: State = {};
+    // make state structure an object wrapper
+    let newState: State = {}; //stateWrapper(),
+
     newState["name"] = stateName;
 
     if (!isVariable) {
@@ -369,7 +372,7 @@ interface GetVariablesParameters {
 const getVariables = ({
   json,
   jsonName,
-  variables,
+  variables, // collection, collection.push(newVariable)
 }: GetVariablesParameters) => {
   // console.log({ maxId: variables.maxStateId });
   // variables.maxStateId += lastStateId;
@@ -416,14 +419,12 @@ const getVariables = ({
     let newVariable = arrayWrapper();
     newVariable.setValue([]);
     newVariable.setName(jsonName);
-    json.forEach((element: any, i: number) => {
-      newVariable.value.push(
-        getVariables({
-          json: element,
-          jsonName: `${i}`,
-          variables,
-        })
-      );
+    newVariable.value = json.map((element: any, i: number) => {
+      getVariables({
+        json: element,
+        jsonName: `${i}`,
+        variables,
+      });
     });
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);

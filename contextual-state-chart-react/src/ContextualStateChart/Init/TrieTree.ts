@@ -10,6 +10,7 @@ const insertName = ({ names, name, stateId }: InsertNameParameters): any => {
   if (name.length === 0) {
     // console.log("base case");
     if ("id" in names) {
+      // console.log("names duplicate key", { names });
       // it's the same key
       return names;
     }

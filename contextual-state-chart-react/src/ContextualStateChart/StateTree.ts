@@ -77,10 +77,11 @@ const arrayWrapper = function () {
     __proto__: wrapper,
     get: function get(this: any, i: any) {
       const length = this.value.length;
+      // console.log(this, i);
       if (i.value < 0 || i.value >= length) {
         return this;
       }
-      return this.value[i.value];
+      return this.value[i];
     },
     mapWrapper: function mapWrapper(this: any, callback: any, _this: any) {
       // const newArray = [];
@@ -96,6 +97,28 @@ const arrayWrapper = function () {
       this.value = this.value.map((x: any, i: number, m: any) =>
         callback(x, i, m)
       );
+      return this;
+    },
+    mapWrapperState: function mapWrapperState(
+      this: any,
+      callback: any,
+      _this: any
+    ) {
+      // const newArray = [];
+      // console.log("this", this.value, "callback", callback, "_this", _this);
+      let m = this.value;
+      let graph = _this;
+      // console.log("prior records", JSON.parse(JSON.stringify(this.records)));
+      m.forEach((a: any, i: number, m: any) => {
+        this.records[i] = {
+          value: callback(a, i, m),
+          changedStatus: "modified",
+        };
+      });
+      this.value = this.value.map((x: any, i: number, m: any) =>
+        callback(graph[this.value[i]], i, m)
+      );
+      // console.log(this.value);
       return this;
     },
     pushWrapper: function pushWrapper(this: any, _this: any) {
@@ -122,6 +145,12 @@ const objectWrapper = function () {
     __proto__: wrapper,
   });
 };
+const stateWrapper = function () {
+  return Object.create({
+    __proto__: wrapper,
+  });
+};
+
 // import { numberWrapper } from "../App";
 let stateTree = {
   tree: {
@@ -447,6 +476,7 @@ export {
   stringWrapper,
   arrayWrapper,
   objectWrapper,
+  stateWrapper,
   stateTree,
   getStateId,
   getState,

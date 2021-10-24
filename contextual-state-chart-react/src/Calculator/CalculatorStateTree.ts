@@ -206,6 +206,11 @@ let calculatorStateTree = {
               functionCode: "showAndExit2",
             },
           },
+          fakeState: {
+            state: {
+              functionCode: "yes",
+            },
+          },
         },
       },
       variables: {

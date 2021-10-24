@@ -14,6 +14,9 @@ type State = {
   value?: any;
   stateRunCount?: number;
   id?: number;
+  mapWrapperState?: (this: any, callback: any, _this: any) => this;
+  get?: (this: any, i: any) => this;
+  setValue?: (this: any, value: any) => void;
 };
 type States = {
   [key: number]: State;

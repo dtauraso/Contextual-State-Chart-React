@@ -598,6 +598,39 @@ let arrayWrapper = function (value: any) {
 };
 
 const App = (props: any) => {
+  var json2 = {
+    "run state machine": {
+      calculator: {
+        bottom: {
+          state: {
+            children: {
+              "level 0": {
+                "timeLine 0": {
+                  state: {
+                    children: {},
+                    variables: {
+                      nextStates: { value: [] },
+                      winningStateName: { value: [] },
+                      previousSiblingWinningStateName: { value: [] },
+                      j: { value: 0 },
+                    },
+                  },
+                },
+              },
+            },
+            variables: {
+              i: { value: 0 },
+              x: [
+                { something: { y: { value: 0 } } },
+                { a: { b: { variable: {} } } },
+              ],
+            },
+          },
+          // reinterpret as a variable data structure
+        },
+      },
+    },
+  };
   // test();
   // console.log(x.prototype, x);
   let myObject = arrayWrapper([7, 8, 3, 4]);
@@ -610,8 +643,11 @@ const App = (props: any) => {
   let y = myObject.value;
 
   myObject.value = myObject
-    .mapWrapper((x: any, i: number, y: any) => ({ [i]: { x, y: y[i] + 3 } }))
-    .mapWrapper((x: any, i: number, y: any) => ({ x, i, y: y[i] }))
+    .mapWrapper(
+      (x: any, i: number, y: any) => ({ [i]: { x, y: y[i] + 3 } }),
+      "test"
+    )
+    .mapWrapper((x: any, i: number, y: any) => ({ x, i, y: y[i] }), "test 2")
     .mapWrapper((x: any) => x.i * 7).value;
 
   console.log(myObject.mappy2);
@@ -623,7 +659,7 @@ const App = (props: any) => {
   i.add(i.value + 1).add(1);
 
   console.log({ i });
-  const { namesTrie, statesObject } = makeArrays(stateTree);
+  const { namesTrie, statesObject } = makeArrays(json2);
   console.log({ namesTrie, statesObject });
   // let graph: Graph = { namesTrie, statesObject };
   // visitor(["calculator"], graph);
