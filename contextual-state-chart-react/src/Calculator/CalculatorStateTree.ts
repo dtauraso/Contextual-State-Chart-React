@@ -201,10 +201,8 @@ let calculatorStateTree = {
             state: { functionCode: "yes" },
             testing: {
               test: {
-                testAgain: {
-                  state: {
-                    functionCode: "yes",
-                  },
+                state: {
+                  functionCode: "yes",
                 },
               },
             },

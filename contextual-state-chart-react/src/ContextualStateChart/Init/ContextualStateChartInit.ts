@@ -16,6 +16,63 @@ import {
 } from "./StatesObject";
 
 import { arrayWrapper, objectWrapper } from "../StateTree";
+
+interface GetSubStatePaths2Parameters {
+  node: any;
+  paths: string[][];
+  currentPath: string[];
+}
+const getSubStatePaths2 = ({
+  node,
+  paths,
+  currentPath,
+}: GetSubStatePaths2Parameters) => {
+  if (typeof node === "string") {
+    return;
+  } else if ("value" in node) {
+    paths.push(currentPath);
+  }
+  if ("state" in node) {
+    paths.push(currentPath);
+  }
+  Object.keys(node)
+    .filter((key) => key !== "state")
+    .forEach((stateNamePart: string) => {
+      getSubStatePaths2({
+        node: node[stateNamePart],
+        paths,
+        currentPath: [...currentPath, stateNamePart],
+      });
+    });
+};
+const traverseContexts = ({
+  trieTreeCollection,
+  stateTree,
+  states,
+  isVariable,
+}: any) => {
+  let paths: string[][] = [];
+  getSubStatePaths2({
+    node: stateTree,
+    paths,
+    currentPath: [],
+  });
+
+  paths.forEach((path: string[]) => {
+    let tracker = stateTree;
+    path.forEach((contextName: string) => {
+      tracker = tracker[contextName];
+    });
+    makeState({
+      trieTreeCollection,
+      stateTree: tracker,
+      currentStateName: path,
+      states,
+      isVariable,
+    });
+  });
+  return paths;
+};
 const makeState = ({
   trieTreeCollection,
   stateTree,
@@ -30,6 +87,7 @@ const makeState = ({
     isVariable,
     length: Object.keys(states).length,
   });
+  // what if state is not the first key found
   if (isVariable) {
     console.log("here", { stateTree });
     // returns to makeState called with "variables" key
@@ -65,27 +123,16 @@ const makeState = ({
     }
     states[stateId] = { ...states[stateId], id: stateId };
     if ("children" in currentState) {
+      let paths: string[][] = traverseContexts({
+        trieTreeCollection,
+        stateTree: currentState?.children,
+        states,
+        isVariable,
+      });
+
       states[stateId] = {
         ...states[stateId],
-        children: Object.keys(currentState?.children).reduce(
-          (acc: any, childName: string) => {
-            // wrong
-            // there is no ['test', 'anotherTest', 'testing'] state
-            // incrementally saving each next context as a state
-            acc = [
-              acc,
-              makeState({
-                trieTreeCollection,
-                stateTree: currentState?.children?.[childName],
-                currentStateName: [childName],
-                states,
-                isVariable,
-              }),
-            ];
-            return acc;
-          },
-          []
-        ),
+        children: paths,
       };
     }
     if ("variables" in currentState) {
@@ -106,36 +153,14 @@ const makeState = ({
         ),
       };
     }
+  } else {
+    traverseContexts({
+      trieTreeCollection,
+      stateTree,
+      states,
+      isVariable,
+    });
   }
-
-  // read by "children" key
-  let childNames = [currentStateName];
-  const extraContexts = Object.keys(stateTree).filter((key) => key !== "state");
-  if (extraContexts.length > 0) {
-    // making a new collection level for each context(incorrect)
-    // do by hand
-    // get the paths
-    // visit end of each path with makeState({})
-    childNames = [
-      ...childNames,
-      ...extraContexts.reduce((acc: any, contextName: string) => {
-        // each makeState returns an array
-        acc = [
-          ...acc,
-          makeState({
-            trieTreeCollection,
-            stateTree: stateTree[contextName],
-            currentStateName: [...currentStateName, contextName],
-            states,
-            isVariable,
-          }),
-        ];
-        return acc;
-      }, []),
-    ];
-  }
-  // returns to makeState called with "children" key
-  return childNames;
 };
 const makeArrays = (stateTree: any) => {
   /*
@@ -153,11 +178,12 @@ const makeArrays = (stateTree: any) => {
     isVariable: false,
   });
   console.log({ states2, trieTreeCollection });
-  trieTreeCollection.forEach((trieEntryItem: any) => {
-    console.log(
-      `${trieEntryItem.name.join(" | ")} id: ${trieEntryItem.stateId}`
-    );
-  });
+
+  // trieTreeCollection.forEach((trieEntryItem: any) => {
+  //   console.log(
+  //     `${trieEntryItem.name.join(" | ")} id: ${trieEntryItem.stateId}`
+  //   );
+  // });
   return {};
   // get the state names
   let names: string[][] = [];
