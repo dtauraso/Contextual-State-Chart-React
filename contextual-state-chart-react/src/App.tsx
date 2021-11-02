@@ -661,7 +661,7 @@ const App = (props: any) => {
   i.add(i.value + 1).add(1);
 
   console.log({ i });
-  const { namesTrie, statesObject } = makeArrays(json2);
+  const { namesTrie, statesObject } = makeArrays(json2["calculatorStateTree"]);
   console.log({ namesTrie, statesObject });
   // let graph: Graph = { namesTrie, statesObject };
   // visitor(["calculator"], graph);

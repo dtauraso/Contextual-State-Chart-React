@@ -225,7 +225,10 @@ let calculatorStateTree = {
         i1: { value: 0 },
         input: { value: "1 + 2 + 3 + 4 - 5 + 6 * 7 - 8 - 9 + 10 * 11 + 12" },
         expression: { value: [] },
-
+        x: [
+          { something: { y: { value: 0 } } },
+          { a: { b: { variable: { value: {} } } } },
+        ],
         // read through the input and makes an expression if one can be made
       },
     },
