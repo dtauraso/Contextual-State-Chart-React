@@ -112,7 +112,6 @@ const makeVariable = ({
     );
     return variableId;
   } else if (isObject(stateTree)) {
-    // console.log("only one");
     states[variableId] = Object.keys(stateTree).reduce(
       (acc: any, curr: string) => {
         acc[curr] = makeState({
