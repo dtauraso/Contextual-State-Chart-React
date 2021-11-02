@@ -79,6 +79,60 @@ const traverseContexts = ({
   });
   return paths;
 };
+
+const makeVariable = ({
+  trieTreeCollection,
+  stateTree,
+  states,
+  isVariable,
+  variableId,
+}: any): any => {
+  if ("value" in stateTree) {
+    const value = stateTree["value"];
+    if (
+      isNull(value) ||
+      isBoolean(value) ||
+      isNumber(value) ||
+      isString(value) ||
+      (isArray(value) && value.length === 0) ||
+      (isObject(value) && Object.keys(value).length === 0)
+    ) {
+      states[variableId] = { ...states[variableId], value };
+      return variableId;
+    }
+  } else if (isArray(stateTree)) {
+    states[variableId] = stateTree.map((element: any, i: number) =>
+      makeState({
+        trieTreeCollection,
+        stateTree: stateTree[i],
+        currentStateName: `${i}`,
+        states,
+        isVariable,
+      })
+    );
+    return variableId;
+  } else if (isObject(stateTree)) {
+    // console.log("only one");
+    states[variableId] = Object.keys(stateTree).reduce(
+      (acc: any, curr: string) => {
+        acc[curr] = makeState({
+          trieTreeCollection,
+          stateTree: stateTree[curr],
+          currentStateName: curr,
+          states,
+          isVariable,
+        });
+        return acc;
+      },
+      {}
+    );
+    return variableId;
+  } else {
+    return -1;
+  }
+  // returns to makeState called with "variables" key
+};
+
 const makeState = ({
   trieTreeCollection,
   stateTree,
@@ -86,91 +140,29 @@ const makeState = ({
   states,
   isVariable,
 }: any): any => {
-  console.log({
-    trieTreeCollection,
-    stateTree,
-    states,
-    isVariable,
-    length: Object.keys(states).length,
-  });
-  // what if state is not the first key found
   if (isVariable) {
-    console.log("here", {
-      currentStateName,
-      stateTree,
-      length: Object.keys(states).length,
-    });
     const variableId = Object.keys(states).length;
     trieTreeCollection.push({
       name: currentStateName,
       variableId,
     });
     states[variableId] = { name: currentStateName };
-
-    if ("value" in stateTree) {
-      const value = stateTree["value"];
-      console.log("at value");
-      if (
-        isNull(value) ||
-        isBoolean(value) ||
-        isNumber(value) ||
-        isString(value)
-      ) {
-        console.log("primitive type");
-        // console.log(currentStateName, stateTree);
-
-        states[variableId] = { ...states[variableId], value };
-        return variableId;
-      } else if (
-        (isArray(value) && value.length === 0) ||
-        (isObject(value) && Object.keys(value).length === 0)
-      ) {
-        console.log("init array or init object");
-        states[variableId] = { ...states[variableId], value };
-        return variableId;
-      }
-    } else if (isArray(stateTree)) {
-      states[variableId] = stateTree.map((element: any, i: number) =>
-        makeState({
-          trieTreeCollection,
-          stateTree: stateTree[i],
-          currentStateName: `${i}`,
-          states,
-          isVariable,
-        })
-      );
-      return variableId;
-    } else if (isObject(stateTree)) {
-      console.log("only one");
-      states[variableId] = Object.keys(stateTree).reduce(
-        (acc: any, curr: string) => {
-          acc[curr] = makeState({
-            trieTreeCollection,
-            stateTree: stateTree[curr],
-            currentStateName: curr,
-            states,
-            isVariable,
-          });
-          return acc;
-        },
-        {}
-      );
-      return variableId;
-    }
+    return makeVariable({
+      trieTreeCollection,
+      stateTree,
+      states,
+      isVariable,
+      variableId,
+    });
     // returns to makeState called with "variables" key
   }
   if ("state" in stateTree) {
     const currentState = stateTree["state"];
-    console.log({ currentState });
-    // console.log({ children: Object.keys(currentState?.children) });
-    // console.log({ variables: Object.keys(currentState?.variables) });
-    // console.log({ states });
     const stateId = Object.keys(states).length;
     trieTreeCollection.push({
       name: currentStateName,
       stateId,
     });
-    // console.log({ trieTreeCollection });
     states[stateId] = { name: currentStateName };
     if ("functionCode" in currentState) {
       states[stateId] = {
