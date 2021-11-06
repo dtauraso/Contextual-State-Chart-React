@@ -79,7 +79,22 @@ const traverseContexts = ({
   });
   return paths;
 };
-
+const returnTrueShort = (value: any) => true;
+const variableTypes: any = {
+  "[object Null]": { cb: returnTrueShort, typeName: "null" },
+  "[object Boolean]": { cb: returnTrueShort, typeName: "boolean" },
+  "[object Number]": { cb: returnTrueShort, typeName: "number" },
+  "[object String]": { cb: returnTrueShort, typeName: "string" },
+  "[object Array]": {
+    cb: (value: any) => value.length === 0,
+    typeName: "array",
+  },
+  "[object Object]": {
+    cb: (value: any) => Object.keys(value).length === 0,
+    typeName: "object",
+  },
+};
+const getTypeName = (item: any) => Object.prototype.toString.call(item);
 const makeVariable = ({
   trieTreeCollection,
   stateTree,
@@ -87,33 +102,39 @@ const makeVariable = ({
   isVariable,
   variableId,
 }: any): any => {
+  console.log("making variable", { stateTree });
   if ("value" in stateTree) {
     const value = stateTree["value"];
-    if (
-      isNull(value) ||
-      isBoolean(value) ||
-      isNumber(value) ||
-      isString(value) ||
-      (isArray(value) && value.length === 0) ||
-      (isObject(value) && Object.keys(value).length === 0)
-    ) {
-      states[variableId] = { ...states[variableId], value };
-      return variableId;
-    }
+    const typeNameString = Object.prototype.toString.call(value);
+    console.log({ typeNameString });
+    states[variableId] = {
+      ...states[variableId],
+      ...(typeNameString in variableTypes &&
+      variableTypes[typeNameString].cb(value)
+        ? { value, typeName: variableTypes[typeNameString].typeName }
+        : {}),
+    };
+
+    return variableId;
   } else if (isArray(stateTree)) {
-    states[variableId] = stateTree.map((element: any, i: number) =>
-      makeState({
-        trieTreeCollection,
-        stateTree: stateTree[i],
-        currentStateName: `${i}`,
-        states,
-        isVariable,
-      })
-    );
+    states[variableId] = {
+      ...states[variableId],
+      value: stateTree.map((element: any, i: number) =>
+        makeState({
+          trieTreeCollection,
+          stateTree: stateTree[i],
+          currentStateName: `${i}`,
+          states,
+          isVariable,
+        })
+      ),
+      typeName: variableTypes[getTypeName(stateTree)].typeName,
+    };
     return variableId;
   } else if (isObject(stateTree)) {
-    states[variableId] = Object.keys(stateTree).reduce(
-      (acc: any, curr: string) => {
+    states[variableId] = {
+      ...states[variableId],
+      value: Object.keys(stateTree).reduce((acc: any, curr: string) => {
         acc[curr] = makeState({
           trieTreeCollection,
           stateTree: stateTree[curr],
@@ -122,9 +143,9 @@ const makeVariable = ({
           isVariable,
         });
         return acc;
-      },
-      {}
-    );
+      }, {}),
+      typeName: variableTypes[getTypeName(stateTree)].typeName,
+    };
     return variableId;
   } else {
     return -1;
@@ -162,7 +183,7 @@ const makeState = ({
       name: currentStateName,
       stateId,
     });
-    states[stateId] = { name: currentStateName };
+    states[stateId] = { name: currentStateName, typeName: "state" };
     if ("functionCode" in currentState) {
       states[stateId] = {
         ...states[stateId],
