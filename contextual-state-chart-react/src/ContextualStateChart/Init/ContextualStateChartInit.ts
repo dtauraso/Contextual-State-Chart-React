@@ -105,11 +105,9 @@ const makeVariable = ({
   if ("value" in stateTree) {
     const value = stateTree["value"];
     const typeNameString = Object.prototype.toString.call(value);
-    console.log({ typeNameString });
     states[variableId] = {
       ...states[variableId],
-      ...(typeNameString in variableTypes &&
-      variableTypes[typeNameString].cb(value)
+      ...(variableTypes?.[typeNameString]?.cb(value)
         ? { value, typeName: variableTypes[typeNameString].typeName }
         : {}),
     };
