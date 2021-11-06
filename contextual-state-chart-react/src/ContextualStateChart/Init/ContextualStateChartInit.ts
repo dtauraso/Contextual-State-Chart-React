@@ -180,54 +180,44 @@ const makeState = ({
       name: currentStateName,
       stateId,
     });
-    states[stateId] = { name: currentStateName, typeName: "state" };
-    if ("functionCode" in currentState) {
-      states[stateId] = {
-        ...states[stateId],
-        functionCode: currentState?.functionCode,
-      };
-    }
-    if ("next" in currentState) {
-      states[stateId] = { ...states[stateId], next: currentState?.next };
-    }
-    if ("start" in currentState) {
-      states[stateId] = { ...states[stateId], start: currentState?.start };
-    }
-    if ("value" in currentState) {
-      states[stateId] = { ...states[stateId], value: currentState?.value };
-    }
-    states[stateId] = { ...states[stateId], id: stateId };
-    if ("children" in currentState) {
-      let paths: string[][] = traverseContexts({
-        trieTreeCollection,
-        stateTree: currentState?.children,
-        states,
-        isVariable,
-      });
-
-      states[stateId] = {
-        ...states[stateId],
-        children: paths,
-      };
-    }
-    if ("variables" in currentState) {
-      states[stateId] = {
-        ...states[stateId],
-        variables: Object.keys(currentState?.variables).reduce(
-          (acc: any, variableName: string) => {
-            acc[variableName] = makeState({
+    states[stateId] = {
+      name: currentStateName,
+      id: stateId,
+      typeName: "state",
+      ...(currentState?.functionCode
+        ? { functionCode: currentState.functionCode }
+        : {}),
+      ...(currentState?.next ? { next: currentState.next } : {}),
+      ...(currentState?.start ? { start: currentState.start } : {}),
+      ...(currentState?.value ? { start: currentState.start } : {}),
+      ...(currentState?.children
+        ? {
+            children: traverseContexts({
               trieTreeCollection,
-              stateTree: currentState?.variables?.[variableName],
-              currentStateName: variableName,
+              stateTree: currentState?.children,
               states,
-              isVariable: true,
-            });
-            return acc;
-          },
-          {}
-        ),
-      };
-    }
+              isVariable,
+            }),
+          }
+        : {}),
+      ...(currentState?.variables
+        ? {
+            variables: Object.keys(currentState?.variables).reduce(
+              (acc: any, variableName: string) => {
+                acc[variableName] = makeState({
+                  trieTreeCollection,
+                  stateTree: currentState?.variables?.[variableName],
+                  currentStateName: variableName,
+                  states,
+                  isVariable: true,
+                });
+                return acc;
+              },
+              {}
+            ),
+          }
+        : {}),
+    };
   } else {
     traverseContexts({
       trieTreeCollection,
