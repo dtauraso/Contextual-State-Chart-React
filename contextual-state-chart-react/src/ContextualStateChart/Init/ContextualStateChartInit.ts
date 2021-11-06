@@ -194,7 +194,7 @@ const makeState = ({
         ? {
             children: traverseContexts({
               trieTreeCollection,
-              stateTree: currentState?.children,
+              stateTree: currentState.children,
               states,
               isVariable,
             }),
@@ -202,11 +202,11 @@ const makeState = ({
         : {}),
       ...(currentState?.variables
         ? {
-            variables: Object.keys(currentState?.variables).reduce(
+            variables: Object.keys(currentState.variables).reduce(
               (acc: any, variableName: string) => {
                 acc[variableName] = makeState({
                   trieTreeCollection,
-                  stateTree: currentState?.variables?.[variableName],
+                  stateTree: currentState.variables?.[variableName],
                   currentStateName: variableName,
                   states,
                   isVariable: true,
