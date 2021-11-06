@@ -131,11 +131,11 @@ const makeVariable = ({
   } else if (isObject(stateTree)) {
     states[variableId] = {
       ...states[variableId],
-      value: Object.keys(stateTree).reduce((acc: any, curr: string) => {
-        acc[curr] = makeState({
+      value: Object.keys(stateTree).reduce((acc: any, variableName: string) => {
+        acc[variableName] = makeState({
           trieTreeCollection,
-          stateTree: stateTree[curr],
-          currentStateName: curr,
+          stateTree: stateTree[variableName],
+          currentStateName: variableName,
           states,
           isVariable,
         });
