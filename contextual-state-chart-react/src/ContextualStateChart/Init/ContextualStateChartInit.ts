@@ -102,7 +102,6 @@ const makeVariable = ({
   isVariable,
   variableId,
 }: any): any => {
-  console.log("making variable", { stateTree });
   if ("value" in stateTree) {
     const value = stateTree["value"];
     const typeNameString = Object.prototype.toString.call(value);
