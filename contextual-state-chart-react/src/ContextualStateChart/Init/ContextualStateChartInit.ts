@@ -1,5 +1,14 @@
 import { Children } from "react";
-import { NamesTrie, State, StatesObject, States } from "../../App.types";
+import {
+  Wrapper,
+  StringState,
+  Graph,
+  NamesTrie,
+  State,
+  StatesObject,
+  States,
+  Variables,
+} from "../../App.types";
 // f(stateTree) => names and states arrays
 import { insertName } from "./TrieTree";
 import {
@@ -227,6 +236,20 @@ const makeState = ({
     });
   }
 };
+const wrapper = {
+  setId: function setId(this: any, id: number) {
+    this.id = id;
+  },
+  setName: function setName(this: any, name: any) {
+    this.name = name;
+  },
+};
+
+const stringWrapper = function (): StringState {
+  return Object.create({
+    __proto__: wrapper,
+  });
+};
 const makeArrays = (stateTree: any) => {
   /*
   read the full state name
@@ -242,8 +265,22 @@ const makeArrays = (stateTree: any) => {
     states: states2,
     isVariable: false,
   });
+  const getKeyValue =
+    <T extends object, U extends keyof T>(key: U) =>
+    (obj: T) =>
+      obj[key];
   console.log({ states2, trieTreeCollection });
-
+  // let states3: States = Object.keys(states2).reduce((acc: any, curr: number) => {
+  //   let x: State = {}
+  //   x = getKeyValue<keyof states2, typeof states2>(0)(states2)
+  //   // states2[curr]
+  //   return acc[curr] = x
+  // }, {})
+  let x = stringWrapper(); // {value: "6", setId, setName};
+  x.value = "6";
+  x.setName("name");
+  // states2[50] = x
+  console.log(x);
   // trieTreeCollection.forEach((trieEntryItem: any) => {
   //   console.log(
   //     `${trieEntryItem.name.join(" | ")} id: ${trieEntryItem.stateId}`

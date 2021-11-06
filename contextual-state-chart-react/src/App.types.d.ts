@@ -1,6 +1,20 @@
 // type Variables = {
 //   [key: string]: number;
 // };
+type Wrapper = {
+  value: any;
+  id: number;
+  name: string;
+  setId: (this: any, id: number) => this;
+  setName: (this: any, name: string) => this;
+  setValue: (this: any, value: any) => this;
+  setReferenceToStatesObject: (this: any, statesObject: any) => this;
+};
+type NullState = Wrapper & {};
+type BooleanState = Wrapper & {};
+type NumberState = Wrapper & {};
+type StringState = Wrapper & {};
+
 type State = {
   parents?: string[][];
   name?: string[];
@@ -35,4 +49,13 @@ type Graph = {
   [key: string]: any;
 };
 
-export { Graph, NamesTrie, State, StatesObject, States, Variables };
+export {
+  Wrapper,
+  StringState,
+  Graph,
+  NamesTrie,
+  State,
+  StatesObject,
+  States,
+  Variables,
+};
