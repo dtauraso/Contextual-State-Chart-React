@@ -103,19 +103,20 @@ const variableTypes: any = {
     typeName: "object",
   },
 };
+// needs distintive type construction
 const getTypeName = (item: any) => Object.prototype.toString.call(item);
 const makeVariable = ({
   trieTreeCollection,
   stateTree,
   states,
-  isVariable,
-  variableId,
+  name,
 }: any): any => {
   if ("value" in stateTree) {
     const value = stateTree["value"];
     const typeNameString = getTypeName(value);
+    const variableId = Object.keys(states).length;
     states[variableId] = {
-      ...states[variableId],
+      name,
       ...(variableTypes?.[typeNameString]?.cb(value)
         ? { value, typeName: variableTypes[typeNameString].typeName }
         : {}),
@@ -123,40 +124,45 @@ const makeVariable = ({
 
     return variableId;
   } else if (isArray(stateTree)) {
+    const value = stateTree.map((element: any, i: number) =>
+      makeVariable({
+        trieTreeCollection,
+        stateTree: stateTree[i],
+        name: `${i}`,
+        states,
+      })
+    );
+    const variableId = Object.keys(states).length;
     states[variableId] = {
-      ...states[variableId],
-      value: stateTree.map((element: any, i: number) =>
-        makeState({
-          trieTreeCollection,
-          stateTree: stateTree[i],
-          currentStateName: `${i}`,
-          states,
-          isVariable,
-        })
-      ),
+      name,
+      value,
       typeName: variableTypes[getTypeName(stateTree)].typeName,
     };
     return variableId;
   } else if (isObject(stateTree)) {
-    states[variableId] = {
-      ...states[variableId],
-      value: Object.keys(stateTree).reduce((acc: any, variableName: string) => {
-        acc[variableName] = makeState({
+    const value = Object.keys(stateTree).reduce(
+      (acc: any, variableName: string) => {
+        acc[variableName] = makeVariable({
           trieTreeCollection,
           stateTree: stateTree[variableName],
-          currentStateName: variableName,
+          name: variableName,
           states,
-          isVariable,
         });
         return acc;
-      }, {}),
+      },
+      {}
+    );
+    const variableId = Object.keys(states).length;
+
+    states[variableId] = {
+      name,
+      value,
       typeName: variableTypes[getTypeName(stateTree)].typeName,
     };
     return variableId;
   } else {
     return -1;
   }
-  // returns to makeState called with "variables" key
 };
 
 const makeState = ({
@@ -164,24 +170,7 @@ const makeState = ({
   stateTree,
   currentStateName,
   states,
-  isVariable,
 }: any): any => {
-  if (isVariable) {
-    const variableId = Object.keys(states).length;
-    trieTreeCollection.push({
-      name: currentStateName,
-      variableId,
-    });
-    states[variableId] = { name: currentStateName };
-    return makeVariable({
-      trieTreeCollection,
-      stateTree,
-      states,
-      isVariable,
-      variableId,
-    });
-    // returns to makeState called with "variables" key
-  }
   if ("state" in stateTree) {
     const currentState = stateTree["state"];
     const stateId = Object.keys(states).length;
@@ -205,7 +194,6 @@ const makeState = ({
               trieTreeCollection,
               stateTree: currentState.children,
               states,
-              isVariable,
             }),
           }
         : {}),
@@ -213,12 +201,11 @@ const makeState = ({
         ? {
             variables: Object.keys(currentState.variables).reduce(
               (acc: any, variableName: string) => {
-                acc[variableName] = makeState({
+                acc[variableName] = makeVariable({
                   trieTreeCollection,
                   stateTree: currentState.variables?.[variableName],
-                  currentStateName: variableName,
+                  name: variableName,
                   states,
-                  isVariable: true,
                 });
                 return acc;
               },
@@ -232,7 +219,6 @@ const makeState = ({
       trieTreeCollection,
       stateTree,
       states,
-      isVariable,
     });
   }
 };
@@ -245,7 +231,7 @@ const wrapper = {
   },
 };
 
-const stringWrapper = function (): StringState {
+const stringWrapper = function () {
   return Object.create({
     __proto__: wrapper,
   });
@@ -263,7 +249,6 @@ const makeArrays = (stateTree: any) => {
     stateTree,
     currentStateName: [],
     states: states2,
-    isVariable: false,
   });
   const getKeyValue =
     <T extends object, U extends keyof T>(key: U) =>
