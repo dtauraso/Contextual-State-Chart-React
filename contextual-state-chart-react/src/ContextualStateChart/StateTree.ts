@@ -93,18 +93,18 @@ const arrayWrapper = function () {
     },
     mapWrapper: function mapWrapper(this: any, callback: any, _this: any) {
       // const newArray = [];
-      console.log("this", this.value, "callback", callback, "_this", _this);
+      console.log("this", this, "callback", callback, "_this", _this);
       let m = this.value;
       // console.log("prior records", JSON.parse(JSON.stringify(this.records)));
-      m.forEach((a: any, i: number, m: any) => {
-        this.records[i] = {
-          value: callback(a, i, m),
+      this.value.forEach((a: any, i: number, m: any) => {
+        _this[a].records[i] = {
+          value: callback(_this[a], i, m),
           changedStatus: "modified",
         };
       });
-      this.value = this.value.map((x: any, i: number, m: any) =>
-        callback(x, i, m)
-      );
+      this.value.forEach((x: any, i: number, m: any) => {
+        _this[x].value = callback(_this[x], i, m);
+      });
       return this;
     },
     mapWrapperState: function mapWrapperState(

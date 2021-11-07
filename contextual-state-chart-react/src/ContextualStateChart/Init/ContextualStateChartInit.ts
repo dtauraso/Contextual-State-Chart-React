@@ -243,7 +243,7 @@ const makeState = ({
     });
   }
 };
-
+const arrayState = (states: States, i: number) => states[i] as ArrayState;
 const makeArrays = (stateTree: any) => {
   /*
   read the full state name
@@ -270,11 +270,15 @@ const makeArrays = (stateTree: any) => {
   //   return acc[curr] = x
   // }, {})
 
-  let x = states2[40] as ArrayState;
-  x = x.mapWrapper((item: any, i: number, y: any) => {
-    return `${item} passes`;
-  }, x.value);
+  let x = arrayState(states2, 40)
+    .mapWrapper((item: any, i: number, y: any) => {
+      return { value: item.value, message: "passes" };
+    }, states2)
+    .mapWrapper((item: any, i: number, y: any) => {
+      return { value: item.value, message: "passes 2" };
+    }, states2);
   console.log(x);
+  console.log({ states2 });
   // trieTreeCollection.forEach((trieEntryItem: any) => {
   //   console.log(
   //     `${trieEntryItem.name.join(" | ")} id: ${trieEntryItem.stateId}`
