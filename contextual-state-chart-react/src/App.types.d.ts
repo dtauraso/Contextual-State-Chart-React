@@ -14,7 +14,13 @@ type NullState = Wrapper & {};
 type BooleanState = Wrapper & {};
 type NumberState = Wrapper & {};
 type StringState = Wrapper & {};
+type ArrayState = Wrapper & {
+  mapWrapper: (this: any, callback: any, _this: any) => this;
+};
 
+type Variable = {
+  [key: string]: number;
+};
 type State = {
   parents?: string[][];
   name?: string[];
@@ -24,16 +30,18 @@ type State = {
   children?: string[][];
   next?: string[][];
   prev?: string[];
-  variables?: any;
-  value?: any;
+  variables?: Variable;
   stateRunCount?: number;
   id?: number;
-  mapWrapperState?: (this: any, callback: any, _this: any) => this;
-  get?: (this: any, i: any) => this;
-  setValue?: (this: any, value: any) => void;
 };
 type States = {
-  [key: number]: State;
+  [key: number]:
+    | State
+    | NullState
+    | BooleanState
+    | NumberState
+    | StringState
+    | ArrayState;
 };
 type StatesObject = {
   maxStateId: number;
@@ -51,11 +59,15 @@ type Graph = {
 
 export {
   Wrapper,
+  NullState,
+  BooleanState,
+  NumberState,
   StringState,
-  Graph,
-  NamesTrie,
+  ArrayState,
+  Variable,
   State,
-  StatesObject,
   States,
-  Variables,
+  StatesObject,
+  NamesTrie,
+  Graph,
 };

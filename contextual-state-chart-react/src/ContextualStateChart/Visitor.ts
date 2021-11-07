@@ -2,8 +2,8 @@ import { Graph } from "../App.types";
 import {
   getStateId,
   getState,
-  insertVariableState,
-  insertState,
+  // insertVariableState,
+  // insertState,
   deleteNodes,
   deleteNodesHelper,
   printRecordTree,
@@ -63,20 +63,20 @@ const moveDown1Level = (
   // make new level tracker node and doubly link it with the current level
   // tracker node
   // inserts state and variables
-  insertState(
-    graph,
-    {
-      name: newTrackerName,
-      parent: currentTracker.name,
-      children: [], // is updated each loop on line 193
-    },
-    {
-      nextStates: winningState.start, //[winningState.name],
-      winningStateName: [],
-      previousSiblingWinningStateName: [],
-      j: 0,
-    }
-  );
+  // insertState(
+  //   graph,
+  //   {
+  //     name: newTrackerName,
+  //     parent: currentTracker.name,
+  //     children: [], // is updated each loop on line 193
+  //   },
+  //   {
+  //     nextStates: winningState.start, //[winningState.name],
+  //     winningStateName: [],
+  //     previousSiblingWinningStateName: [],
+  //     j: 0,
+  //   }
+  // );
   // console.log(graph);
   // let names: string[][] = [];
   // console.log("here", newTrackerName);
@@ -316,7 +316,7 @@ const updateVariableVisitor = (
     return;
   }
   const variableId: number = state.variables[variableName];
-  graph.statesObject.states[variableId].value = newValue;
+  // graph.statesObject.states[variableId].value = newValue;
 };
 const setupRecordingFlag = (graph: any) => {
   const currentRunningStateName = getRunningState(graph).name;
