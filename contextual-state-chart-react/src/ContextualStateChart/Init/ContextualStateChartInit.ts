@@ -147,7 +147,12 @@ const makeVariable = ({
     const variableId = Object.keys(states).length;
 
     states[variableId] = variableTypes?.[typeNameString]?.wrapper();
-    states[variableId].init(variableId, name, value);
+    states[variableId].init(
+      variableId,
+      name,
+      value,
+      variableTypes?.[typeNameString]?.typeName
+    );
 
     return variableId;
   } else if (isArray(stateTree)) {
@@ -161,7 +166,12 @@ const makeVariable = ({
     );
     const variableId = Object.keys(states).length;
     states[variableId] = arrayWrapper();
-    states[variableId].init(variableId, name, value);
+    states[variableId].init(
+      variableId,
+      name,
+      value,
+      variableTypes?.["[object Array]"]?.typeName
+    );
     return variableId;
   } else if (isObject(stateTree)) {
     const value = Object.keys(stateTree).reduce(
@@ -179,7 +189,12 @@ const makeVariable = ({
     const variableId = Object.keys(states).length;
 
     states[variableId] = objectWrapper();
-    states[variableId].init(variableId, name, value);
+    states[variableId].init(
+      variableId,
+      name,
+      value,
+      variableTypes?.["[object Object]"]?.typeName
+    );
     return variableId;
   } else {
     return -1;
@@ -269,15 +284,21 @@ const makeArrays = (stateTree: any) => {
   //   // states2[curr]
   //   return acc[curr] = x
   // }, {})
-
+  console.log({
+    number40: Object.prototype.toString.call(states2[40]),
+    states2,
+  });
   let x = arrayState(states2, 40)
     .mapWrapper((item: any, i: number, y: any) => {
-      return { value: item.value, message: "passes" };
+      return `${item.value} passes`;
     }, states2)
     .mapWrapper((item: any, i: number, y: any) => {
-      return { value: item.value, message: "passes 2" };
+      return `${item.value} passes 2`;
     }, states2);
   console.log(x);
+  console.log(states2[x.value[0]]);
+  console.log(states2[x.value[1]]);
+
   console.log({ states2 });
   // trieTreeCollection.forEach((trieEntryItem: any) => {
   //   console.log(

@@ -25,10 +25,17 @@ const wrapper = {
       [Object.keys(this.records).length]: value,
     };
   },
-  init: function init(this: any, id: number, name: any, value: any) {
+  init: function init(
+    this: any,
+    id: number,
+    name: any,
+    value: any,
+    typeName: string
+  ) {
     this.id = id;
     this.name = name;
     this.value = value;
+    this.typeName = typeName;
     this.records = {
       0: value,
     };
@@ -96,15 +103,39 @@ const arrayWrapper = function () {
       console.log("this", this, "callback", callback, "_this", _this);
       let m = this.value;
       // console.log("prior records", JSON.parse(JSON.stringify(this.records)));
+      // each function in call chain recorded
+      // each new arrayWrapper to have not have the total records of the previous arrayWrapper
+      // current record, record of last call
+      // last wrapper has record of all items
+      // do in O(n*chainLength) time
       this.value.forEach((a: any, i: number, m: any) => {
         _this[a].records[i] = {
           value: callback(_this[a], i, m),
           changedStatus: "modified",
         };
       });
-      this.value.forEach((x: any, i: number, m: any) => {
+      /*
+      make new array
+      make dummy items of the same data(set values to null) as current array
+      loop through old array and apply f(old[i]) => new[j] to new array
+      */
+      let newId = _this.length;
+      _this[newId] = arrayWrapper();
+      _this[newId].init(newId, "", this.value);
+      for (let i = 0; i < _this[newId].value.length; i++) {
+        let x = _this[newId].value[i];
+        // need to know the type of old item when making the new item
+        // right condition but rest of function is off
+        if (_this[this.id].typeName === "array") {
+          console.log("david", { item: _this[this.id] });
+        }
         _this[x].value = callback(_this[x], i, m);
-      });
+      }
+      // _this[newId].value.map((x: any, i: number, m: any) => {
+      // make new item
+      // copy old value into new item
+      // return id of new item
+      // });
       return this;
     },
     mapWrapperState: function mapWrapperState(
