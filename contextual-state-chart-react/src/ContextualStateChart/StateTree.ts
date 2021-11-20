@@ -39,6 +39,14 @@ const wrapper = {
     this.records = {
       0: value,
     };
+    this.variableTypes = {
+      null: nullWrapper,
+      boolean: booleanWrapper,
+      number: numberWrapper,
+      string: stringWrapper,
+      array: arrayWrapper,
+      object: objectWrapper,
+    };
   },
   setReferenceToStatesObject: function setReferenceToStatesObject(
     this: any,
@@ -125,10 +133,18 @@ const arrayWrapper = function () {
       for (let i = 0; i < _this[newId].value.length; i++) {
         let x = _this[newId].value[i];
         // need to know the type of old item when making the new item
-        // right condition but rest of function is off
-        if (_this[this.id].typeName === "array") {
-          console.log("david", { item: _this[this.id] });
-        }
+
+        // make each new array element item
+        // construct array with id's of old items
+        // update array value with id's of new elements
+        let newItem = this.variableTypes[_this[this.id].typeName]();
+        const { id, name, value, typeName } = _this[this.id];
+        newItem.init(id, name, value, typeName);
+        console.log("david", {
+          item: newItem,
+          oldItem: _this[this.id],
+        });
+
         _this[x].value = callback(_this[x], i, m);
       }
       // _this[newId].value.map((x: any, i: number, m: any) => {
