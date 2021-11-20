@@ -127,11 +127,11 @@ const arrayWrapper = function () {
       make dummy items of the same data(set values to null) as current array
       loop through old array and apply f(old[i]) => new[j] to new array
       */
-      let newId = _this.length;
-      _this[newId] = arrayWrapper();
-      _this[newId].init(newId, "", this.value);
-      for (let i = 0; i < _this[newId].value.length; i++) {
-        let x = _this[newId].value[i];
+      // let newId = _this.length;
+      // _this[newId] = arrayWrapper();
+      // _this[newId].init(newId, "", this.value);
+      for (let i = 0; i < _this[this.id].value.length; i++) {
+        let x = _this[this.id].value[i];
         // need to know the type of old item when making the new item
 
         // make each new array element item
