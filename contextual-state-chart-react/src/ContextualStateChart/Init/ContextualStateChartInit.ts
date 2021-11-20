@@ -285,10 +285,10 @@ const makeArrays = (stateTree: any) => {
   //   return acc[curr] = x
   // }, {})
   console.log({
-    number40: Object.prototype.toString.call(states2[40]),
+    number40: Object.prototype.toString.call(states2[47]),
     states2,
   });
-  let x = arrayState(states2, 40)
+  let x = arrayState(states2, 47)
     .mapWrapper((item: any, i: number, y: any) => {
       return `${item.value} passes`;
     }, states2)

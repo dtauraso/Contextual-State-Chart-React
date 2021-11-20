@@ -229,6 +229,14 @@ let calculatorStateTree = {
           { something: { y: { value: 0 } } },
           { a: { b: { variable: { value: {} } } } },
         ],
+        y: [
+          { value: 5 },
+          { value: 6 },
+          { value: 4 },
+          { value: 3 },
+          { value: 2 },
+          { value: 1 },
+        ],
         // read through the input and makes an expression if one can be made
       },
     },

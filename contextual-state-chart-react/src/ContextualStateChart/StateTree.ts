@@ -25,6 +25,14 @@ const wrapper = {
       [Object.keys(this.records).length]: value,
     };
   },
+  updateValue: function updateValue(this: any, { id, value }: any) {
+    this.id = id;
+    this.value = value;
+    this.records = {
+      ...this.records,
+      [Object.keys(this.records).length]: { id, value },
+    };
+  },
   init: function init(
     this: any,
     id: number,
@@ -37,7 +45,7 @@ const wrapper = {
     this.value = value;
     this.typeName = typeName;
     this.records = {
-      0: value,
+      0: { id, value },
     };
     this.variableTypes = {
       null: nullWrapper,
@@ -131,28 +139,44 @@ const arrayWrapper = function () {
       // _this[newId] = arrayWrapper();
       // _this[newId].init(newId, "", this.value);
       for (let i = 0; i < _this[this.id].value.length; i++) {
-        let x = _this[this.id].value[i];
+        let element = _this[_this[this.id].value[i]];
+        console.log("david element", { element });
+        let newItem = this.variableTypes[element.typeName]();
+        const { id, name, value, typeName } = element;
+        newItem.init(id, name, value, typeName);
+        console.log("david", {
+          item: newItem,
+          oldItem: element,
+        });
+        // let newItem = this.variableTypes[_this[this.id].typeName]();
+        // const { id, name, value, typeName } = _this[this.id];
+        // newItem.init(id, name, value, typeName);
+
         // need to know the type of old item when making the new item
 
         // make each new array element item
         // construct array with id's of old items
         // update array value with id's of new elements
-        let newItem = this.variableTypes[_this[this.id].typeName]();
-        const { id, name, value, typeName } = _this[this.id];
-        newItem.init(id, name, value, typeName);
-        console.log("david", {
-          item: newItem,
-          oldItem: _this[this.id],
-        });
+        // let newItem = this.variableTypes[_this[this.id].typeName]();
+        // const { id, name, value, typeName } = _this[this.id];
+        // newItem.init(id, name, value, typeName);
 
-        _this[x].value = callback(_this[x], i, m);
+        // _this[x].value = callback(_this[x], i, m);
       }
+      console.log("david container", {
+        item: _this[this.id],
+      });
       // _this[newId].value.map((x: any, i: number, m: any) => {
       // make new item
       // copy old value into new item
       // return id of new item
       // });
       return this;
+    },
+    clean: function clean() {
+      // use record property to find each id of the previous arrays
+      // erase the arrays found
+      // return this
     },
     mapWrapperState: function mapWrapperState(
       this: any,

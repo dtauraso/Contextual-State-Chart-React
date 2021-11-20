@@ -14,6 +14,12 @@ const expressionName = "expression";
 // graph -> bottom.children[i] -> nextStates[j] = currentState
 const numberGetDigit = (graph: any) => {
   // save createExpressionName , and the current state using getVariable
+  /*
+  currentState: {
+    variableName: {id, parentDataStateNameString, setFunctionWasCalled}
+
+  }
+  */
   const input = getVariable(graph, calculatorName, inputName).value;
   const i1 = getVariable(graph, calculatorName, i1Name);
   const token = getVariable(graph, createExpressionName, tokenName).value;
