@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-<<<<<<< HEAD
     "@types/react": "^17.0.35",
     "@types/react-dom": "^17.0.11",
     "react": "^17.0.2",
