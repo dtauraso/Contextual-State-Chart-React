@@ -26,12 +26,12 @@ const wrapper = {
     };
   },
   updateValue: function updateValue(this: any, { id, value }: any) {
-    this.id = id;
     this.value = value;
     this.records = {
       ...this.records,
       [Object.keys(this.records).length]: { id, value },
     };
+    console.log("here", this.records);
   },
   init: function init(
     this: any,
@@ -44,9 +44,7 @@ const wrapper = {
     this.name = name;
     this.value = value;
     this.typeName = typeName;
-    this.records = {
-      0: { id, value },
-    };
+    this.records = {};
     this.variableTypes = {
       null: nullWrapper,
       boolean: booleanWrapper,
@@ -138,16 +136,24 @@ const arrayWrapper = function () {
       // let newId = _this.length;
       // _this[newId] = arrayWrapper();
       // _this[newId].init(newId, "", this.value);
+      let container = [];
       for (let i = 0; i < _this[this.id].value.length; i++) {
-        let element = _this[_this[this.id].value[i]];
-        console.log("david element", { element });
-        let newItem = this.variableTypes[element.typeName]();
-        const { id, name, value, typeName } = element;
-        newItem.init(id, name, value, typeName);
-        console.log("david", {
-          item: newItem,
-          oldItem: element,
-        });
+        let elementState = _this[_this[this.id].value[i]];
+        // console.log("david elementState", { elementState });
+        let result = callback(elementState.value, i, _this);
+        const { id, name, value, typeName } = elementState;
+        let newIndex = Object.keys(_this).length;
+
+        let newItem = this.variableTypes[elementState.typeName]();
+        newItem.init(newIndex, name, result, typeName);
+        // console.log("david", {
+        //   item: newItem,
+        //   result,
+        //   oldItem: elementState,
+        // });
+        _this[newIndex] = newItem;
+
+        container.push(newIndex);
         // let newItem = this.variableTypes[_this[this.id].typeName]();
         // const { id, name, value, typeName } = _this[this.id];
         // newItem.init(id, name, value, typeName);
@@ -163,15 +169,33 @@ const arrayWrapper = function () {
 
         // _this[x].value = callback(_this[x], i, m);
       }
-      console.log("david container", {
-        item: _this[this.id],
-      });
+      let newContainerIndex = Object.keys(_this).length;
+
+      let newContainer = this.variableTypes["array"]();
+      newContainer.init(newContainerIndex, `${this.name}1`, null, "array");
+      // newContainer.init(this.id, `${this.name}1`, this.value, "array");
+      newContainer.updateValue({ id: this.id, value: this.value });
+      newContainer.updateValue({ id: newContainerIndex, value: container });
+      // newContainer.init(newContainerIndex, `${this.name}1`, container, "array");
+      // newContainer.updateValue({ id: this.id, value: this.value });
+      _this[newContainerIndex] = newContainer;
+      // console.log("david container", {
+      //   // item: _this[this.id],
+      //   container: _this,
+      //   newContainer,
+      //   oldContainer: this,
+      //   newContainerIndex,
+      // });
+      // _this[newContainerIndex].updateValue({ id: this.id, value: this.value });
+      // console.log("david list", { list: _this });
       // _this[newId].value.map((x: any, i: number, m: any) => {
       // make new item
       // copy old value into new item
       // return id of new item
       // });
-      return this;
+      // prev array start id is stil using the original array and not the
+      // (n - 1)th array
+      return newContainer; //this;
     },
     clean: function clean() {
       // use record property to find each id of the previous arrays
