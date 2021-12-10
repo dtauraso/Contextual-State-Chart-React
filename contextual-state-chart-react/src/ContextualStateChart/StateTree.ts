@@ -272,17 +272,9 @@ let stateTree = {
         levelId: { value: 0 },
         timeLineId: { value: 0 },
         machineRunId: { value: 0 },
-        startRecordingStates: [{ value: "calculator" }],
-        stopRecordingStates: [
-          { value: "test" },
-          { value: "evaluateExpression" },
-        ],
-        // number of levels or "current level"
-        maxRecordingDepth: { number: 1 },
-        recordingActive: { value: false },
-        // changes made to bottom can still be recorded while the recordingActive flag is on
-        // will need to check against internal states holding the variables
-        visitorDataStructureRecordingActive: { value: false },
+        // encode state names as strings
+        // assumes users will be working on a small # of states at a time
+        statesToRecord: { calculator: { value: 1 } },
         bottomName: [
           { value: "run state machine" },
           { value: "calculator" },
