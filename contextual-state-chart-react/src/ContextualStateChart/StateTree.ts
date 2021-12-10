@@ -10,6 +10,7 @@ import {
   isArray,
   isObject,
 } from "./Init/StatesObject";
+
 const wrapper = {
   setId: function setId(this: any, id: number) {
     this.id = id;
@@ -51,14 +52,6 @@ const wrapper = {
     this.value = value;
     this.typeName = typeName;
     this.records = {};
-    this.variableTypes = {
-      null: nullWrapper,
-      boolean: booleanWrapper,
-      number: numberWrapper,
-      string: stringWrapper,
-      array: arrayWrapper,
-      object: objectWrapper,
-    };
   },
   setReferenceToStatesObject: function setReferenceToStatesObject(
     this: any,
@@ -138,7 +131,7 @@ const arrayWrapper = function () {
         const { id, name, value, typeName } = elementState;
         let newIndex = Object.keys(_this).length;
 
-        let newItem = this.variableTypes[elementState.typeName]();
+        let newItem = variableTypes[elementState.typeName]();
         newItem.init(newIndex, name, result, typeName);
 
         _this[newIndex] = newItem;
@@ -147,7 +140,7 @@ const arrayWrapper = function () {
       }
       let newContainerIndex = Object.keys(_this).length;
 
-      let newContainer = this.variableTypes["array"]();
+      let newContainer = variableTypes["array"]();
       let numberString = "";
       for (
         let i = this.name.length - 1;
@@ -229,6 +222,14 @@ const stateWrapper = function () {
   return Object.create({
     __proto__: wrapper,
   });
+};
+const variableTypes: any = {
+  null: nullWrapper,
+  boolean: booleanWrapper,
+  number: numberWrapper,
+  string: stringWrapper,
+  array: arrayWrapper,
+  object: objectWrapper,
 };
 
 // import { numberWrapper } from "../App";
