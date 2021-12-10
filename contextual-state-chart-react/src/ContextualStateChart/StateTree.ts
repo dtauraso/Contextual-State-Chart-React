@@ -119,61 +119,31 @@ const arrayWrapper = function () {
       return this.value[i];
     },
     mapWrapper: function mapWrapper(this: any, callback: any, _this: any) {
-      // const newArray = [];
-      console.log("this", this, "callback", callback, "_this", _this);
-      let m = this.value;
-      // console.log("prior records", JSON.parse(JSON.stringify(this.records)));
-      // each function in call chain recorded
-      // each new arrayWrapper to have not have the total records of the previous arrayWrapper
-      // current record, record of last call
-      // last wrapper has record of all items
-      // do in O(n*chainLength) time
+      /*
+      make new array
+      make dummy items of the same data(set values to null) as current array
+      loop through old array and apply f(old[i]) => new[j] to new array
+      */
       this.value.forEach((a: any, i: number, m: any) => {
         _this[a].records[i] = {
           value: callback(_this[a], i, m),
           changedStatus: "modified",
         };
       });
-      /*
-      make new array
-      make dummy items of the same data(set values to null) as current array
-      loop through old array and apply f(old[i]) => new[j] to new array
-      */
-      // let newId = _this.length;
-      // _this[newId] = arrayWrapper();
-      // _this[newId].init(newId, "", this.value);
+
       let container = [];
       for (let i = 0; i < _this[this.id].value.length; i++) {
         let elementState = _this[_this[this.id].value[i]];
-        // console.log("david elementState", { elementState });
         let result = callback(elementState.value, i, _this);
         const { id, name, value, typeName } = elementState;
         let newIndex = Object.keys(_this).length;
 
         let newItem = this.variableTypes[elementState.typeName]();
         newItem.init(newIndex, name, result, typeName);
-        // console.log("david", {
-        //   item: newItem,
-        //   result,
-        //   oldItem: elementState,
-        // });
+
         _this[newIndex] = newItem;
 
         container.push(newIndex);
-        // let newItem = this.variableTypes[_this[this.id].typeName]();
-        // const { id, name, value, typeName } = _this[this.id];
-        // newItem.init(id, name, value, typeName);
-
-        // need to know the type of old item when making the new item
-
-        // make each new array element item
-        // construct array with id's of old items
-        // update array value with id's of new elements
-        // let newItem = this.variableTypes[_this[this.id].typeName]();
-        // const { id, name, value, typeName } = _this[this.id];
-        // newItem.init(id, name, value, typeName);
-
-        // _this[x].value = callback(_this[x], i, m);
       }
       let newContainerIndex = Object.keys(_this).length;
 
@@ -199,29 +169,10 @@ const arrayWrapper = function () {
         "array"
       );
       newContainer.updateValue(container);
-      // newContainer.init(this.id, `${this.name}1`, this.value, "array");
       newContainer.updateRecord({ id: this.id, value: this.value });
-      // newContainer.updateValue({ id: newContainerIndex, value: container });
-      // newContainer.init(newContainerIndex, `${this.name}1`, container, "array");
-      // newContainer.updateValue({ id: this.id, value: this.value });
       _this[newContainerIndex] = newContainer;
-      // console.log("david container", {
-      //   // item: _this[this.id],
-      //   container: _this,
-      //   newContainer,
-      //   oldContainer: this,
-      //   newContainerIndex,
-      // });
-      // _this[newContainerIndex].updateValue({ id: this.id, value: this.value });
-      // console.log("david list", { list: _this });
-      // _this[newId].value.map((x: any, i: number, m: any) => {
-      // make new item
-      // copy old value into new item
-      // return id of new item
-      // });
-      // prev array start id is stil using the original array and not the
-      // (n - 1)th array
-      return newContainer; //this;
+
+      return newContainer;
     },
     clean: function clean() {
       // use record property to find each id of the previous arrays
