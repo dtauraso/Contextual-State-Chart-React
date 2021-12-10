@@ -25,13 +25,19 @@ const wrapper = {
       [Object.keys(this.records).length]: value,
     };
   },
-  updateValue: function updateValue(this: any, { id, value }: any) {
+  updateValue: function updateValue(this: any, value: any) {
     this.value = value;
+    // this.records = {
+    //   ...this.records,
+    //   [Object.keys(this.records).length]: { id, value },
+    // };
+    // console.log("here", this.records);
+  },
+  updateRecord: function updateRecord(this: any, { id, value }: any) {
     this.records = {
       ...this.records,
       [Object.keys(this.records).length]: { id, value },
     };
-    console.log("here", this.records);
   },
   init: function init(
     this: any,
@@ -172,10 +178,30 @@ const arrayWrapper = function () {
       let newContainerIndex = Object.keys(_this).length;
 
       let newContainer = this.variableTypes["array"]();
-      newContainer.init(newContainerIndex, `${this.name}1`, null, "array");
+      let numberString = "";
+      for (
+        let i = this.name.length - 1;
+        i >= 0 && this.name[i] >= "0" && this.name[i] <= "9";
+        i++
+      ) {
+        numberString = this.name[i] + numberString;
+      }
+      const number = numberString.length > 0 ? Number(numberString) : 0;
+
+      const originalName = this.name.slice(
+        0,
+        this.name.length - numberString.length
+      );
+      newContainer.init(
+        newContainerIndex,
+        `${originalName}${number + 1}`,
+        null,
+        "array"
+      );
+      newContainer.updateValue(container);
       // newContainer.init(this.id, `${this.name}1`, this.value, "array");
-      newContainer.updateValue({ id: this.id, value: this.value });
-      newContainer.updateValue({ id: newContainerIndex, value: container });
+      newContainer.updateRecord({ id: this.id, value: this.value });
+      // newContainer.updateValue({ id: newContainerIndex, value: container });
       // newContainer.init(newContainerIndex, `${this.name}1`, container, "array");
       // newContainer.updateValue({ id: this.id, value: this.value });
       _this[newContainerIndex] = newContainer;
