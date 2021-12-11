@@ -1,5 +1,5 @@
 import { insertName } from "./Init/TrieTree";
-import { Graph, NamesTrie } from "../App.types";
+import { Graph, NamesTrie, States } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
 import { returnTrue } from "../Calculator/CalculatorStateFunctions";
 import { getRunningStateParent, getRunningState } from "./Visitor";
@@ -52,6 +52,9 @@ const wrapper = {
     this.value = value;
     this.typeName = typeName;
     this.records = {};
+  },
+  setStates: function setStates(this: any, states: States) {
+    this.states = states;
   },
   setReferenceToStatesObject: function setReferenceToStatesObject(
     this: any,
@@ -111,34 +114,40 @@ const arrayWrapper = function () {
       }
       return this.value[i];
     },
-    mapWrapper: function mapWrapper(this: any, callback: any, _this: any) {
+    mapWrapper: function mapWrapper(this: any, callback: any) {
       /*
       make new array
       make dummy items of the same data(set values to null) as current array
       loop through old array and apply f(old[i]) => new[j] to new array
       */
+      // no direct connection to the state calling this function
+      // would work if _this = full graph
+      // make sure each variable has access to top of graph
+      let states = this.states;
+      console.log("here", this, states);
+
       this.value.forEach((a: any, i: number, m: any) => {
-        _this[a].records[i] = {
-          value: callback(_this[a], i, m),
+        states[a].records[i] = {
+          value: callback(states[a], i, m),
           changedStatus: "modified",
         };
       });
 
       let container = [];
-      for (let i = 0; i < _this[this.id].value.length; i++) {
-        let elementState = _this[_this[this.id].value[i]];
-        let result = callback(elementState.value, i, _this);
+      for (let i = 0; i < states[this.id].value.length; i++) {
+        let elementState = states[states[this.id].value[i]];
+        let result = callback(elementState.value, i, states);
         const { id, name, value, typeName } = elementState;
-        let newIndex = Object.keys(_this).length;
+        let newIndex = Object.keys(states).length;
 
         let newItem = variableTypes[elementState.typeName]();
         newItem.init(newIndex, name, result, typeName);
-
-        _this[newIndex] = newItem;
+        newItem.setStates(states);
+        states[newIndex] = newItem;
 
         container.push(newIndex);
       }
-      let newContainerIndex = Object.keys(_this).length;
+      let newContainerIndex = Object.keys(states).length;
 
       let newContainer = variableTypes["array"]();
       let numberString = "";
@@ -161,9 +170,10 @@ const arrayWrapper = function () {
         null,
         "array"
       );
+      newContainer.setStates(states);
       newContainer.updateValue(container);
       newContainer.updateRecord({ id: this.id, value: this.value });
-      _this[newContainerIndex] = newContainer;
+      states[newContainerIndex] = newContainer;
 
       return newContainer;
     },

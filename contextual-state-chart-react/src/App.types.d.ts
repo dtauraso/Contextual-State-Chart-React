@@ -5,17 +5,19 @@ type Wrapper = {
   value: any;
   id: number;
   name: string;
+  states: States;
   setId: (this: any, id: number) => this;
   setName: (this: any, name: string) => this;
   setValue: (this: any, value: any) => this;
   setReferenceToStatesObject: (this: any, statesObject: any) => this;
+  setStates: (this: any, states: States) => this;
 };
 type NullState = Wrapper & {};
 type BooleanState = Wrapper & {};
 type NumberState = Wrapper & {};
 type StringState = Wrapper & {};
 type ArrayState = Wrapper & {
-  mapWrapper: (this: any, callback: any, _this: any) => this;
+  mapWrapper: (this: any, callback: any) => this;
 };
 
 type Variable = {

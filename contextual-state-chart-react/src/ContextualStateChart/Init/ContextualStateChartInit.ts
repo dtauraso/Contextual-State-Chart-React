@@ -153,7 +153,7 @@ const makeVariable = ({
       value,
       variableTypes?.[typeNameString]?.typeName
     );
-
+    states[variableId].setStates(states);
     return variableId;
   } else if (isArray(stateTree)) {
     const value = stateTree.map((element: any, i: number) =>
@@ -172,6 +172,7 @@ const makeVariable = ({
       value,
       variableTypes?.["[object Array]"]?.typeName
     );
+    states[variableId].setStates(states);
     return variableId;
   } else if (isObject(stateTree)) {
     const value = Object.keys(stateTree).reduce(
@@ -195,6 +196,7 @@ const makeVariable = ({
       value,
       variableTypes?.["[object Object]"]?.typeName
     );
+    states[variableId].setStates(states);
     return variableId;
   } else {
     return -1;
@@ -291,9 +293,9 @@ const makeArrays = (stateTree: any) => {
   });
   console.log("run map");
   let x = arrayState(states2, 47)
-    .mapWrapper((item: any) => `${item} passes`, states2)
-    .mapWrapper((item: any) => `${item} passes 2`, states2)
-    .mapWrapper((item: any) => `${item} passes 3`, states2);
+    .mapWrapper((item: any) => `${item} passes`)
+    .mapWrapper((item: any) => `${item} passes 2`)
+    .mapWrapper((item: any) => `${item} passes 3`);
   console.log(x);
   console.log(states2[x.value[0]]);
   console.log(states2[x.value[1]]);
