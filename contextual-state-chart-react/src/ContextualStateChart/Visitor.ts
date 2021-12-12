@@ -10,7 +10,7 @@ import {
   getVariable,
 } from "./StateTree";
 import { makeArrays } from "./Init/ContextualStateChartInit";
-import { idText } from "typescript";
+// import { idText } from "typescript";
 import { addState, getStateNames } from "./Init/StatesObject";
 import { insertName } from "./Init/ContextualStateChartInit";
 

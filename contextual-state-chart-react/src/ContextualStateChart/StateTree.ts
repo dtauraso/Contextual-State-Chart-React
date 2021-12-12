@@ -120,11 +120,7 @@ const arrayWrapper = function () {
       make dummy items of the same data(set values to null) as current array
       loop through old array and apply f(old[i]) => new[j] to new array
       */
-      // no direct connection to the state calling this function
-      // would work if _this = full graph
-      // make sure each variable has access to top of graph
       let states = this.states;
-      // console.log("here", this, states);
 
       this.value.forEach((a: any, i: number, m: any) => {
         states[a].records[i] = {
@@ -255,6 +251,7 @@ let stateTree = {
             bottom: {
               state: {
                 children: {
+                  calculatorStateTree,
                   "level 0": {
                     "timeLine 0": {
                       state: {

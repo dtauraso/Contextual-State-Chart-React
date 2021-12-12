@@ -264,6 +264,7 @@ const makeState = ({
     });
   }
 };
+
 const arrayState = (states: States, i: number) => states[i] as ArrayState;
 const makeArrays = (stateTree: any) => {
   /*
@@ -299,6 +300,10 @@ const makeArrays = (stateTree: any) => {
     .mapWrapper((item: any) => `${item} passes`)
     .mapWrapper((item: any) => `${item} passes 2`)
     .mapWrapper((item: any) => `${item} passes 3`);
+  let y = arrayState(statesObject, 111)
+    .mapWrapper((item: any) => `${item} passes'`)
+    .mapWrapper((item: any) => `${item} passes 2'`)
+    .mapWrapper((item: any) => `${item} passes 3'`);
   // console.log(x);
   // console.log(states2[x.value[0]]);
   // console.log(states2[x.value[1]]);
