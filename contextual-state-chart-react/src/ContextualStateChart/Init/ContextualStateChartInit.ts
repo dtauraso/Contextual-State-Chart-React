@@ -42,6 +42,7 @@ import {
   arrayWrapper,
   objectWrapper,
   stateWrapper,
+  stateTree,
 } from "../StateTree";
 
 interface GetSubStatePaths2Parameters {
@@ -76,7 +77,7 @@ const traverseContexts = ({
   trieTreeCollection,
   stateTree,
   states,
-  isVariable,
+  currentStateId,
 }: any) => {
   let paths: string[][] = [];
   getSubStatePaths2({
@@ -95,7 +96,7 @@ const traverseContexts = ({
       stateTree: tracker,
       currentStateName: path,
       states,
-      isVariable,
+      currentStateId,
     });
   });
   return paths;
@@ -135,6 +136,8 @@ const variableTypes: any = {
 };
 // needs distintive type construction
 const getTypeName = (item: any) => Object.prototype.toString.call(item);
+let id = 0;
+
 const makeVariable = ({
   trieTreeCollection,
   stateTree,
@@ -144,8 +147,8 @@ const makeVariable = ({
   if ("value" in stateTree) {
     const value = stateTree["value"];
     const typeNameString = getTypeName(value);
-    const variableId = Object.keys(states).length;
-
+    const variableId = id;
+    id += 1;
     states[variableId] = variableTypes?.[typeNameString]?.wrapper();
     states[variableId].init(
       variableId,
@@ -164,7 +167,8 @@ const makeVariable = ({
         states,
       })
     );
-    const variableId = Object.keys(states).length;
+    const variableId = id;
+    id += 1;
     states[variableId] = arrayWrapper();
     states[variableId].init(
       variableId,
@@ -187,8 +191,8 @@ const makeVariable = ({
       },
       {}
     );
-    const variableId = Object.keys(states).length;
-
+    const variableId = id;
+    id += 1;
     states[variableId] = objectWrapper();
     states[variableId].init(
       variableId,
@@ -202,7 +206,6 @@ const makeVariable = ({
     return -1;
   }
 };
-
 const makeState = ({
   trieTreeCollection,
   stateTree,
@@ -211,10 +214,11 @@ const makeState = ({
 }: any): any => {
   if ("state" in stateTree) {
     const currentState = stateTree["state"];
-    const stateId = Object.keys(states).length;
+    const stateId = id;
+    id += 1;
     trieTreeCollection.push({
       name: currentStateName,
-      stateId,
+      stateId: stateId,
     });
     states[stateId] = {
       name: currentStateName,
@@ -225,7 +229,7 @@ const makeState = ({
         : {}),
       ...(currentState?.next ? { next: currentState.next } : {}),
       ...(currentState?.start ? { start: currentState.start } : {}),
-      ...(currentState?.value ? { start: currentState.start } : {}),
+      ...(currentState?.value ? { value: currentState.value } : {}),
       ...(currentState?.children
         ? {
             children: traverseContexts({
@@ -266,132 +270,54 @@ const makeArrays = (stateTree: any) => {
   read the full state name
   save all the state attributes except for 
   */
-  let states2: States = {};
+  let statesObject: States = {};
   let trieTreeCollection: any = [];
-  console.log("run makeState");
+  // console.log("run makeState");
   makeState({
     trieTreeCollection: trieTreeCollection,
     stateTree,
     currentStateName: [],
-    states: states2,
+    states: statesObject,
   });
-  const getKeyValue =
-    <T extends object, U extends keyof T>(key: U) =>
-    (obj: T) =>
-      obj[key];
-  console.log({ states2, trieTreeCollection });
+
+  // console.log({ states2, trieTreeCollection });
   // let states3: States = Object.keys(states2).reduce((acc: any, curr: number) => {
   //   let x: State = {}
   //   x = getKeyValue<keyof states2, typeof states2>(0)(states2)
   //   // states2[curr]
   //   return acc[curr] = x
   // }, {})
-  console.log({
-    number47: Object.prototype.toString.call(states2[47]),
-    state47: states2[47],
-    states2,
-  });
-  console.log("run map");
-  let x = arrayState(states2, 47)
+  // console.log({
+  //   number47: Object.prototype.toString.call(states2[47]),
+  //   state47: states2[47],
+  //   states2,
+  // });
+  // console.log({ states });
+
+  // console.log("run map");
+  let x = arrayState(statesObject, 55)
     .mapWrapper((item: any) => `${item} passes`)
     .mapWrapper((item: any) => `${item} passes 2`)
     .mapWrapper((item: any) => `${item} passes 3`);
-  console.log(x);
-  console.log(states2[x.value[0]]);
-  console.log(states2[x.value[1]]);
+  // console.log(x);
+  // console.log(states2[x.value[0]]);
+  // console.log(states2[x.value[1]]);
 
-  console.log({ states2 });
+  let namesTrie: any = {};
+
+  trieTreeCollection.forEach((name: any) => {
+    namesTrie = insertName({
+      names: namesTrie,
+      name: name.name,
+      stateId: name.stateId,
+    });
+  });
   // trieTreeCollection.forEach((trieEntryItem: any) => {
   //   console.log(
   //     `${trieEntryItem.name.join(" | ")} id: ${trieEntryItem.stateId}`
   //   );
   // });
-  return {};
-  // get the state names
-  let names: string[][] = [];
-  // needs to be {} for O(1) adding, updating, and deleting
-  let statesObject: StatesObject = { maxStateId: -1, states: {} };
-
-  // getStateNames(stateTree, [], names, statesObject);
-  // console.log({ names, states: statesObject.states });
-  // console.log({ keys: Object.keys(names) });
-  // names.forEach((nameArray: any, i: number) => {
-  //   namesTrie = insertName({
-  //     names: namesTrie,
-  //     name: nameArray,
-  //     stateId: i,
-  //   });
-  //   // console.log({ updatedName });
-  //   // console.log({ tree, updatedName });
-  // });
-  // console.log({ namesTrie, statesObject });
-  console.log("start");
-  setIds({
-    stateTree,
-    idObject: { id: 0 },
-  });
-  console.log("end");
-
-  console.log({ stateTree });
-
-  // trie tree
-  // states array
-  // variables added to states array
-
-  let stateNames: any = [];
-  getStateNames2({ stateTree, stateName: [], stateNames });
-  console.log({ stateNames });
-  // put in trie tree
-  let namesTrie: any = {};
-
-  stateNames.forEach((name: any) => {
-    namesTrie = insertName({
-      names: namesTrie,
-      name: name.stateName,
-      stateId: name.id,
-    });
-  });
-  console.log({ namesTrie });
-  // messing up code that runs before this runs
-  let states: State[] = [];
-  getStates({ stateTree, states });
-  console.log({ states });
-
-  // replace with a non modifying function
-  setNames({ names: stateNames, states });
-  console.log("states with names", { states });
-  let json = {
-    "run state machine": {
-      calculator: {
-        bottom: {
-          state: {
-            children: {
-              x: [{ something: { y: 0 } }, { a: { b: {} } }],
-              "level 0": {
-                "timeLine 0": {
-                  state: {
-                    children: {},
-                    variables: {
-                      nextStates: [],
-                      winningStateName: [],
-                      previousSiblingWinningStateName: [],
-                      j: 0,
-                    },
-                  },
-                },
-              },
-            },
-            variables: {
-              i: 0,
-            },
-          },
-          // reinterpret as a variable data structure
-        },
-      },
-    },
-  };
-  // array indicies for the states interfeer with the indicies for the variables
-  // visit each tree of variable indecies and add state.length to them
+  return { statesObject, namesTrie };
   /*
   visit each variable tree
   each new variable found maps to an id
@@ -399,101 +325,6 @@ const makeArrays = (stateTree: any) => {
   make flat tree of variables for each variable tree(from json tree to array)
     function style version of parent child(current node)
   */
-  let variables: any = { maxStateId: -1, states: {} };
-  // getVariables({
-  //   json: json["run state machine"],
-  //   jsonName: "run state machine",
-  //   variables,
-  // });
-  // console.log({ variables });
-  // let x: States = {};
-  // let statesObjects2: StatesObject = {
-  //   states: {},
-  //   maxStateId: states.length - 1,
-  // };
-  // // console.log({ length: states.length });
-  // states.forEach((state: State, i: number) => {
-  //   // add state
-  //   let stateVariables: any = {};
-  //   statesObjects2.states = {
-  //     ...statesObjects2.states,
-  //     [i]: { ...state, variables: stateVariables },
-  //   };
-  //   if (state.variables) {
-  //     const variables: any = Object.keys(state.variables) as any;
-
-  //     statesObjects2.states[i].variables = variables.reduce(
-  //       (acc: any, variableName: any): string => {
-  //         acc[variableName] = getVariables({
-  //           json: state.variables[variableName],
-  //           jsonName: variableName,
-  //           variables: statesObjects2,
-  //         });
-  //         return acc;
-  //       },
-  //       {}
-  //     );
-  //   }
-  // });
-  let statesObjects2: StatesObject = {
-    states: {},
-    maxStateId: states.length - 1,
-  };
-  // console.log({ length: states.length });
-  statesObjects2.states = states.reduce(
-    (acc: any, state: State, i: number): States => {
-      // add state
-      let stateVariables: any = {};
-      // statesObjects2.states = {
-      //   ...statesObjects2.states,
-      //   [i]: { ...state, variables: stateVariables },
-      // };
-      acc[i] = { ...state, variables: stateVariables };
-      if (state.variables) {
-        const variables: any = Object.keys(state.variables) as any;
-
-        acc[i].variables = variables.reduce(
-          (acc2: any, variableName: any): string => {
-            // acc2[variableName] = getVariables({
-            //   // json: state.variables[variableName],
-            //   jsonName: variableName,
-            //   variables: statesObjects2,
-            // });
-            return acc2;
-          },
-          {}
-        );
-      }
-      return acc;
-    },
-    {}
-  );
-  console.log({ statesObjects2 });
-  let operators = statesObjects2.states[48];
-  console.log({ operators });
-  // console.log(operators.mapWrapperState);
-  // console.log(operators.get?.(0));
-  // let multiplyVar = statesObjects2.states[operators.get?.(0)];
-  // multiplyVar.setValue?.("passes");
-  // console.log(multiplyVar);
-  // makeArrays doesn't scale for concatenating multiple state trees into 2 arrays
-  // (for trie and for states)
-  // arrayWrapper is inside a state type and therefore accessible but unusable
-  // (operators as typeof arrayWrapper).mapWrapperState;
-  // let newArray = operators.mapWrapperState?.(
-  //   (x: any, i: number, y: any) => x.value + "passes",
-  //   statesObjects2.states
-  // );
-  // console.log({ result: newArray.value });
-
-  // if (operators) {
-  //   operators?.mapWrapperState(
-  //     (x: any, i: number, y: any) => x + "passes",
-  //     statesObjects2.states
-  //   );
-  // }
-
-  return { namesTrie, statesObject };
 };
 /*
 state object -> stateId

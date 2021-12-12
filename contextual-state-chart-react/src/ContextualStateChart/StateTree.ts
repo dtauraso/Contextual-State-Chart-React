@@ -124,7 +124,7 @@ const arrayWrapper = function () {
       // would work if _this = full graph
       // make sure each variable has access to top of graph
       let states = this.states;
-      console.log("here", this, states);
+      // console.log("here", this, states);
 
       this.value.forEach((a: any, i: number, m: any) => {
         states[a].records[i] = {
@@ -249,7 +249,7 @@ let stateTree = {
       functionCode: returnTrue,
       start: ["calculator"],
       children: {
-        ...calculatorStateTree,
+        calculatorStateTree,
         "run state machine": {
           calculator: {
             bottom: {
@@ -263,14 +263,14 @@ let stateTree = {
                           nextStates: [],
                           winningStateName: [],
                           previousSiblingWinningStateName: [],
-                          j: 0,
+                          j: { value: 0 },
                         },
                       },
                     },
                   },
                 },
                 variables: {
-                  i: 0,
+                  i: { value: 0 },
                 },
               },
               // reinterpret as a variable data structure

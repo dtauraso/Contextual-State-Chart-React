@@ -17,6 +17,7 @@ import {
   isArray,
   isObject,
 } from "./ContextualStateChart/Init/StatesObject";
+
 import "./App.css";
 import Header from "./components/debug_interface/Header";
 // import Data from "./components/debug_interface/data/Data";
@@ -525,143 +526,39 @@ const jsonToStateObjects = (json: any, stateObjects: any, key?: any) => {
   }
 };
 
-let arrayWrapper = function (value: any) {
-  return Object.create({
-    value: value,
-    records: {},
-    mapWrapper: function mapWrapper(this: any, callback: any, _this: any) {
-      // const newArray = [];
-      console.log("this", this.value, "callback", callback, "_this", _this);
-      let m = this.value;
-      // console.log("prior records", JSON.parse(JSON.stringify(this.records)));
-      m.forEach((a: any, i: number, m: any) => {
-        this.records[i] = {
-          value: callback(a, i, m),
-          changedStatus: "modified",
-        };
-      });
-      this.value = this.value.map((x: any, i: number, m: any) =>
-        callback(x, i, m)
-      );
-      return this; //.value.map((x: any, i: number, m: any) => callback(x, i, m));
-      // We'll use a for loop to iterate over
-      // each item in our list,
-      // for (let i = 0; i < this.value.length; i++) {
-      //   // and then at the end of our `newArray`
-      // we'll append the result of calling
-      // the callback function with the optional
-      // scope and its 3 arguments:
-      //   1. the item,
-      //   2. the current item's index in the array,
-      //   3. and lastly the original list, itself.
-      //   newArray.push(callback.call(_this, this[i], i, this));
-      // }
-
-      // Ultimately, we return the `newArray`
-      // containing our transformed items.
-      // return newArray;
-    },
-    mappy2: function mappy2(this: any, callback: any, _this: any) {
-      const newArray = [];
-
-      // We'll use a for loop to iterate over
-      // each item in our list,
-      for (let i = 0; i < this.length; i++) {
-        // and then at the end of our `newArray`
-        // we'll append the result of calling
-        // the callback function with the optional
-        // scope and its 3 arguments:
-        //   1. the item,
-        //   2. the current item's index in the array,
-        //   3. and lastly the original list, itself.
-        newArray.push(callback.call(_this, this[i], i, this));
-      }
-
-      // Ultimately, we return the `newArray`
-      // containing our transformed items.
-      return newArray;
-    },
-    generic: function generic(this: any, callbackName: any, _this?: any) {
-      // console.log(this, callbackName, _this);
-      // console.log(callbackName);
-      let a = this.value;
-      // let v: Array<any> = [];
-      if (_this === undefined) {
-        a[callbackName]();
-      } else {
-        a[callbackName](_this);
-      }
-      // console.log(a);
-      return this;
-    },
-  });
-};
+//
 // import { calculatorStateTree } from "./Calculator/CalculatorStateTree";
 
 const App = (props: any) => {
-  var json2 = {
-    // "run state machine": {
-    //   calculator: {
-    //     bottom: {
-    //       state: {
-    //         children: {
-    //           "level 0": {
-    //             "timeLine 0": {
-    //               state: {
-    //                 children: {},
-    //                 variables: {
-    //                   nextStates: { value: [] },
-    //                   winningStateName: { value: [] },
-    //                   previousSiblingWinningStateName: { value: [] },
-    //                   j: { value: 0 },
-    //                 },
-    //               },
-    //             },
-    //           },
-    //         },
-    //         variables: {
-    //           i: { value: 0 },
-    //           x: [
-    //             { something: { y: { value: 0 } } },
-    //             { a: { b: { variable: {} } } },
-    //           ],
-    //         },
-    //       },
-    //       // reinterpret as a variable data structure
-    //     },
-    //   },
-    // },
-    calculatorStateTree,
-  };
   // test();
   // console.log(x.prototype, x);
-  let myObject = arrayWrapper([7, 8, 3, 4]);
+  // let myObject = arrayWrapper([7, 8, 3, 4]);
   // myObject.prototype = Object.setPrototypeOf(myObject, specialFunction);
   // myObject.prototype = Object.setPrototypeOf(myObject, specialFunction2);
 
   // myObject.prototype.mappy = specialFunction;
   // console.log({ myObject }, myObject.prototype);
-  console.log(myObject.value);
-  let y = myObject.value;
+  // console.log(myObject.value);
+  // let y = myObject.value;
 
-  myObject.value = myObject
-    .mapWrapper(
-      (x: any, i: number, y: any) => ({ [i]: { x, y: y[i] + 3 } }),
-      "test"
-    )
-    .mapWrapper((x: any, i: number, y: any) => ({ x, i, y: y[i] }), "test 2")
-    .mapWrapper((x: any) => x.i * 7).value;
+  // myObject.value = myObject
+  //   .mapWrapper(
+  //     (x: any, i: number, y: any) => ({ [i]: { x, y: y[i] + 3 } }),
+  //     "test"
+  //   )
+  //   .mapWrapper((x: any, i: number, y: any) => ({ x, i, y: y[i] }), "test 2")
+  //   .mapWrapper((x: any) => x.i * 7).value;
 
-  console.log(myObject.mappy2);
-  console.log("updated values", myObject.value);
-  console.log(myObject.records);
+  // console.log(myObject.mappy2);
+  // console.log("updated values", myObject.value);
+  // console.log(myObject.records);
 
   let i = numberWrapper();
   i.setValue(5);
   i.add(i.value + 1).add(1);
 
-  console.log({ i });
-  const { namesTrie, statesObject } = makeArrays(json2["calculatorStateTree"]);
+  // console.log({ i });
+  const { namesTrie, statesObject } = makeArrays(stateTree);
   console.log({ namesTrie, statesObject });
   // let graph: Graph = { namesTrie, statesObject };
   // visitor(["calculator"], graph);
@@ -673,11 +570,11 @@ const App = (props: any) => {
    * convert remaining simple data structures(string, flat array) to wrapper object
    * convert the ["run state machine", "calculator", "bottom"] state to a nested data structure
    */
-  console.log(Object.prototype.toString.call(null));
-  myObject.generic("push", 10);
-  console.log({ myObject: JSON.parse(JSON.stringify(myObject)) });
-  myObject.generic("pop");
-  console.log({ myObject });
+  // console.log(Object.prototype.toString.call(null));
+  // myObject.generic("push", 10);
+  // console.log({ myObject: JSON.parse(JSON.stringify(myObject)) });
+  // myObject.generic("pop");
+  // console.log({ myObject });
   // jsonToStateObjects({}, []);
   // jsonToStateObjects([], []);
   // jsonToStateObjects(5, []);

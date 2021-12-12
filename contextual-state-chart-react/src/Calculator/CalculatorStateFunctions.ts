@@ -36,6 +36,7 @@ const numberGetDigit = (graph: any) => {
   // setVariable(graph, tokenName, token + input[i1])
 
   setVariable(graph, tokenName, token + input[i1.value]);
+  // token.concat(input[i1.value])
   i1.add(1);
   // setVariable(graph, i1Name, i1 + 1);
   // console.log("end of state", { graph });
