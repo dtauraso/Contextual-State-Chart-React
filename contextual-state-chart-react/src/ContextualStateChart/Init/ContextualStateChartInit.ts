@@ -76,6 +76,7 @@ const getSubStatePaths2 = ({
 const traverseContexts = ({
   trieTreeCollection,
   stateTree,
+  indexObject,
   states,
   currentStateId,
 }: any) => {
@@ -94,6 +95,7 @@ const traverseContexts = ({
     makeState({
       trieTreeCollection,
       stateTree: tracker,
+      indexObject,
       currentStateName: path,
       states,
       currentStateId,
@@ -136,19 +138,19 @@ const variableTypes: any = {
 };
 // needs distintive type construction
 const getTypeName = (item: any) => Object.prototype.toString.call(item);
-let id = 0;
 
 const makeVariable = ({
   trieTreeCollection,
   stateTree,
+  indexObject,
   states,
   name,
 }: any): any => {
   if ("value" in stateTree) {
     const value = stateTree["value"];
     const typeNameString = getTypeName(value);
-    const variableId = id;
-    id += 1;
+    const variableId = indexObject.id;
+    indexObject.id += 1;
     states[variableId] = variableTypes?.[typeNameString]?.wrapper();
     states[variableId].init(
       variableId,
@@ -163,12 +165,13 @@ const makeVariable = ({
       makeVariable({
         trieTreeCollection,
         stateTree: stateTree[i],
+        indexObject,
         name: `${i}`,
         states,
       })
     );
-    const variableId = id;
-    id += 1;
+    const variableId = indexObject.id;
+    indexObject.id += 1;
     states[variableId] = arrayWrapper();
     states[variableId].init(
       variableId,
@@ -184,6 +187,7 @@ const makeVariable = ({
         acc[variableName] = makeVariable({
           trieTreeCollection,
           stateTree: stateTree[variableName],
+          indexObject,
           name: variableName,
           states,
         });
@@ -191,8 +195,8 @@ const makeVariable = ({
       },
       {}
     );
-    const variableId = id;
-    id += 1;
+    const variableId = indexObject.id;
+    indexObject.id += 1;
     states[variableId] = objectWrapper();
     states[variableId].init(
       variableId,
@@ -209,13 +213,14 @@ const makeVariable = ({
 const makeState = ({
   trieTreeCollection,
   stateTree,
+  indexObject,
   currentStateName,
   states,
 }: any): any => {
   if ("state" in stateTree) {
     const currentState = stateTree["state"];
-    const stateId = id;
-    id += 1;
+    const stateId = indexObject.id;
+    indexObject.id += 1;
     trieTreeCollection.push({
       name: currentStateName,
       stateId: stateId,
@@ -235,6 +240,7 @@ const makeState = ({
             children: traverseContexts({
               trieTreeCollection,
               stateTree: currentState.children,
+              indexObject,
               states,
             }),
           }
@@ -246,6 +252,7 @@ const makeState = ({
                 acc[variableName] = makeVariable({
                   trieTreeCollection,
                   stateTree: currentState.variables?.[variableName],
+                  indexObject,
                   name: variableName,
                   states,
                 });
@@ -260,6 +267,7 @@ const makeState = ({
     traverseContexts({
       trieTreeCollection,
       stateTree,
+      indexObject,
       states,
     });
   }
@@ -274,9 +282,11 @@ const makeArrays = (stateTree: any) => {
   let statesObject: States = {};
   let trieTreeCollection: any = [];
   // console.log("run makeState");
+  let indexObject = { id: 0 };
   makeState({
     trieTreeCollection: trieTreeCollection,
     stateTree,
+    indexObject,
     currentStateName: [],
     states: statesObject,
   });

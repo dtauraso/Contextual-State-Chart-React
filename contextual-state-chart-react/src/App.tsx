@@ -560,7 +560,10 @@ const App = (props: any) => {
   // console.log({ i });
   const { namesTrie, statesObject } = makeArrays(stateTree);
   console.log({ namesTrie, statesObject });
+  // 168 items
+  // id variable needs to be inside statesObject
   // let graph: Graph = { namesTrie, statesObject };
+  // global index is file scoped
   // visitor(["calculator"], graph);
   /**
    *

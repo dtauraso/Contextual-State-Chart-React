@@ -106,11 +106,11 @@ const stringWrapper = function () {
 const arrayWrapper = function () {
   return Object.create({
     __proto__: wrapper,
-    get: function get(this: any, i: any) {
+    get: function get(this: any, i: number) {
       const length = this.value.length;
       // console.log(this, i);
-      if (i.value < 0 || i.value >= length) {
-        return this;
+      if (i < 0 || i >= length) {
+        return -1;
       }
       return this.value[i];
     },
@@ -222,6 +222,13 @@ const arrayWrapper = function () {
 const objectWrapper = function () {
   return Object.create({
     __proto__: wrapper,
+    get: function get(this: any, i: any) {
+      // console.log(this, i);
+      if (!this.value[i]) {
+        return -1;
+      }
+      return this.value[i];
+    },
   });
 };
 const stateWrapper = function () {

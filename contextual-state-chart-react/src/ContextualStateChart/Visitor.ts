@@ -553,6 +553,7 @@ const visitor = (startStateName: string[], graph: any) => {
         a tree for representing the changes made in the state(unit test)
         a tree of trees for representing the end to end changes across the entire contextual state chart
     */
+  return;
   let levelId = getVariableVisitor(graph, ["tree"], "levelId");
   // console.log({ levelId });
   let timeLineId = getVariableVisitor(graph, ["tree"], "timeLineId");
