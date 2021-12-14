@@ -553,11 +553,14 @@ const visitor = (startStateName: string[], graph: any) => {
         a tree for representing the changes made in the state(unit test)
         a tree of trees for representing the end to end changes across the entire contextual state chart
     */
+  // "tree"
+  let levelId = getVariable(graph, ["tree"], "levelId");
+  console.log({ levelId });
   return;
-  let levelId = getVariableVisitor(graph, ["tree"], "levelId");
+  // let levelId = getVariableVisitor(graph, ["tree"], "levelId");
   // console.log({ levelId });
   let timeLineId = getVariableVisitor(graph, ["tree"], "timeLineId");
-  setupTrackers(graph, levelId.value, timeLineId.value, startStateName);
+  // setupTrackers(graph, levelId.value, timeLineId.value, startStateName);
 
   // bottom acts as a reader of the tree timelines like a disk read write head on a disk drive
 
@@ -696,12 +699,12 @@ const visitor = (startStateName: string[], graph: any) => {
           console.log("there are children states to run");
           // update level id
           // console.log({ levelId });
-          levelId.add(1);
+          // levelId.add(1);
 
           moveDown1Level(
             {
               newTrackerName: [
-                `level ${levelId.value}`,
+                // `level ${levelId.value}`,
                 `timeLine ${timeLineId.value}`,
               ],
             },
@@ -729,7 +732,7 @@ const visitor = (startStateName: string[], graph: any) => {
           moveUpToParentNode(graph, bottom, i);
 
           deleteCurrentNode(graph, currentTracker);
-          levelId.subtract(1);
+          // levelId.subtract(1);
           currentTracker = getState(graph, bottom.children[i.value]);
 
           while (bottom.children[i.value] !== null) {
@@ -759,7 +762,7 @@ const visitor = (startStateName: string[], graph: any) => {
               moveUpToParentNode(graph, bottom, i);
 
               deleteCurrentNode(graph, currentTracker);
-              levelId.subtract(1);
+              // levelId.subtract(1);
               currentTracker = getState(graph, bottom.children[i.value]);
             }
           }

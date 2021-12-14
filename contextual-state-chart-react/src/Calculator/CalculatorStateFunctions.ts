@@ -20,83 +20,83 @@ const numberGetDigit = (graph: any) => {
 
   }
   */
-  const input = getVariable(graph, calculatorName, inputName).value;
-  const i1 = getVariable(graph, calculatorName, i1Name);
-  const token = getVariable(graph, createExpressionName, tokenName).value;
-  let expression = getVariable(graph, calculatorName, expressionName).value;
-  console.log({ input, i1, token, expression });
-  if (i1.value >= input.length) {
-    return false;
-  }
-  console.log(input[i1.value]);
-  if (!(input[i1.value] >= "0" && input[i1.value] <= "9")) {
-    return false;
-  }
+  // const input = getVariable(graph, calculatorName, inputName).value;
+  // const i1 = getVariable(graph, calculatorName, i1Name);
+  // const token = getVariable(graph, createExpressionName, tokenName).value;
+  // let expression = getVariable(graph, calculatorName, expressionName).value;
+  // console.log({ input, i1, token, expression });
+  // if (i1.value >= input.length) {
+  return false;
+  // }
+  // console.log(input[i1.value]);
+  // if (!(input[i1.value] >= "0" && input[i1.value] <= "9")) {
+  return false;
+  // }
   // console.log("numberGetDigit");
   // setVariable(graph, tokenName, token + input[i1])
 
-  setVariable(graph, tokenName, token + input[i1.value]);
+  // setVariable(graph, tokenName, token + input[i1.value]);
   // token.concat(input[i1.value])
-  i1.add(1);
+  // i1.add(1);
   // setVariable(graph, i1Name, i1 + 1);
   // console.log("end of state", { graph });
   return true;
 };
 const saveNumber = (graph: any) => {
-  let expression = getVariable(graph, calculatorName, expressionName).value;
-  let token = getVariable(graph, createExpressionName, tokenName).value;
+  // let expression = getVariable(graph, calculatorName, expressionName).value;
+  // let token = getVariable(graph, createExpressionName, tokenName).value;
   // console.log({ token, test: Number(token) });
-  if (Number(token) === NaN) {
-    return false;
-  }
+  // if (Number(token) === NaN) {
+  return false;
+  // }
 
-  expression.push(Number(token));
+  // expression.push(Number(token));
 
-  let i1 = getVariable(graph, calculatorName, i1Name);
-  let input = getVariable(graph, calculatorName, inputName).value;
+  // let i1 = getVariable(graph, calculatorName, i1Name);
+  // let input = getVariable(graph, calculatorName, inputName).value;
   // console.log({ i1, length: input.length });
 
-  while (input[i1.value] && input[i1.value] === " ") {
-    i1.add(1);
-    // i1 += 1;
-    if (i1.value >= input.length) {
-      return false;
-    }
-  }
+  // while (input[i1.value] && input[i1.value] === " ") {
+  //   i1.add(1);
+  //   // i1 += 1;
+  //   if (i1.value >= input.length) {
+  return false;
+  //   }
+  // }
   // console.log("saveNumber");
-  setVariable(graph, expressionName, expression);
+  // setVariable(graph, expressionName, expression);
   // setVariable(graph, i1Name, i1);
-  setVariable(graph, tokenName, "");
+  // setVariable(graph, tokenName, "");
   // console.log("end of state", { graph });
   return true;
 };
 const isInputValid = (graph: any) => {
   // will only return true after we have read in all the input and it's a valid expression
-  const input = getVariable(graph, calculatorName, inputName).value;
+  // const input = getVariable(graph, calculatorName, inputName).value;
   let i1 = getVariable(graph, calculatorName, i1Name);
-  let expression = getVariable(graph, calculatorName, expressionName).value;
+  // let expression = getVariable(graph, calculatorName, expressionName).value;
 
-  if (i1.value >= input.length) {
-    // console.log({ expression });
-    return true;
-  }
+  // if (i1.value >= input.length) {
+  // console.log({ expression });
+  return true;
+  // }
   return false;
 };
 
 const operatorGetOperator = (graph: any) => {
-  const input = getVariable(graph, calculatorName, inputName).value;
-  const i1 = getVariable(graph, calculatorName, i1Name);
-  const token = getVariable(graph, createExpressionName, tokenName).value;
+  // const input = getVariable(graph, calculatorName, inputName).value;
+  // const i1 = getVariable(graph, calculatorName, i1Name);
+  // const token = getVariable(graph, createExpressionName, tokenName).value;
   // console.log({ input, i1, token });
-  if (i1.value >= input.length) {
-    return false;
-  }
+  // if (i1.value >= input.length) {
+  return false;
+  // }
   const operators = ["*", "/", "+", "-"];
-  if (!operators.includes(input[i1.value])) {
-    return false;
-  }
-  setVariable(graph, tokenName, token + input[i1.value]);
-  i1.add(1);
+  // if (!operators.includes(input[i1.value])) {
+  return false;
+  // }
+  // setVariable(graph, tokenName, token + input[i1.value]);
+  // i1.add(1);
   // setVariable(graph, i1Name, i1 + 1);
 
   return true;
@@ -104,28 +104,28 @@ const operatorGetOperator = (graph: any) => {
 
 const saveOperator = (graph: any) => {
   // console.log("saveOperator");
-  let expression = getVariable(graph, calculatorName, expressionName).value;
+  // let expression = getVariable(graph, calculatorName, expressionName).value;
 
   // console.log({parentStateName, currentStateName, expression})
-  let token = getVariable(graph, createExpressionName, tokenName).value;
+  // let token = getVariable(graph, createExpressionName, tokenName).value;
   const operators = ["*", "/", "+", "-"];
 
-  if (!operators.includes(token)) {
-    return false;
-  }
+  // if (!operators.includes(token)) {
+  // return false;
+  // }
 
-  expression.push(token);
+  // expression.push(token);
 
   let i1 = getVariable(graph, calculatorName, i1Name);
-  const input = getVariable(graph, calculatorName, inputName).value;
+  // const input = getVariable(graph, calculatorName, inputName).value;
 
-  while (input[i1.value] === " ") {
-    i1.add(1);
-    // i1 += 1;
-  }
-  setVariable(graph, expressionName, expression);
+  // while (input[i1.value] === " ") {
+  // i1.add(1);
+  // i1 += 1;
+  // }
+  // setVariable(graph, expressionName, expression);
 
-  setVariable(graph, tokenName, "");
+  // setVariable(graph, tokenName, "");
   // setVariable(graph, i1Name, i1);
 
   // console.log(graph['nodeGraph2']['expression'])

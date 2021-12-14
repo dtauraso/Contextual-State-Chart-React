@@ -287,7 +287,7 @@ const makeArrays = (stateTree: any, graph: Graph) => {
     stateTree,
     indexObject: graph.statesObject,
     currentStateName: [],
-    states: graph.statesObject,
+    states: graph.statesObject.states,
   });
 
   trieTreeCollection.forEach((name: any) => {

@@ -299,9 +299,7 @@ let stateTree = {
 };
 const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
   // console.log({ namesTrie, stateName });
-  let stateId: number = 0;
   let namesTrieTracker = namesTrie;
-  let isFound = true;
   if (typeof stateName === "string") {
     console.log(`${stateName} is not an array`);
     return -1;
@@ -310,23 +308,19 @@ const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
     console.log("stateName is not defined");
     return -1;
   }
-  stateName.forEach((namePart: string) => {
-    if (!isFound) {
-      return;
-    }
+  for (let i = 0; i < stateName.length; i++) {
+    const namePart = stateName[i];
     if (namePart in namesTrieTracker) {
-      if ("id" in namesTrieTracker[namePart]) {
-        stateId = namesTrieTracker[namePart].id as number;
-      }
       namesTrieTracker = namesTrieTracker[namePart];
     } else {
-      isFound = false;
+      return -1;
     }
-  });
-  if (!isFound) {
-    return -1;
   }
-  return stateId;
+  if ("id" in namesTrieTracker) {
+    console.log("here", { namesTrieTracker });
+    return namesTrieTracker.id as number;
+  }
+  return -1;
 };
 const getState = (graph: any, stateName: string[]) => {
   // console.log({ stateName });
@@ -334,6 +328,7 @@ const getState = (graph: any, stateName: string[]) => {
     return null;
   }
   const stateId = getStateId(graph.namesTrie, stateName);
+  console.log({ stateId });
   if (!(stateId in graph.statesObject.states)) {
     console.log(
       `stateId = ${stateId}, stateName = ${stateName} is not in graph.statesObject.states`
@@ -343,43 +338,17 @@ const getState = (graph: any, stateName: string[]) => {
   return graph.statesObject.states[stateId];
 };
 const getVariable = (
-  graph: any,
+  graph: Graph,
   parentDataStateName: string[],
-  variableName: any
+  variableName: string
 ) => {
   // console.log({ stateName, graph });
   if (parentDataStateName === undefined) {
     return null;
   }
   const parentDataState = getState(graph, parentDataStateName);
-  // console.log({ state });
-  if ("variables" in parentDataState) {
-    if (variableName in parentDataState.variables) {
-      const variableId = parentDataState.variables[variableName];
-      // {variableName: {stateName, value}}
-      const parentDataStateNameString = parentDataStateName.join(",");
-      // console.log("get", { variableName, stateNameString });
-      // missing the running state's parent
-      let runningStateNameParentString =
-        getRunningStateParent(graph)?.name.join(",");
-      // relocate changes to graph.statesObject
-      graph["changes"] = {
-        ...graph["changes"],
-        variables: {
-          ...graph["changes"]["variables"],
-          [variableName]: {
-            setFunctionWasCalled: false,
-            parentDataStateNameString,
-            value: null,
-          },
-        },
-      };
-      // console.log("get changes", JSON.parse(JSON.stringify(graph["changes"])));
-
-      return graph.statesObject.states[variableId];
-    }
-  }
-  return null;
+  const variableId = parentDataState?.variables?.[variableName];
+  return graph.statesObject.states?.[variableId];
 };
 const setVariable = (graph: Graph, variableName: string, newValue: any) => {
   // console.log({ graph, state, variableName, newValue });
