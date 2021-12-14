@@ -35,6 +35,11 @@ type State = {
   variables?: Variable;
   stateRunCount?: number;
   id?: number;
+  getVariable?: (
+    graph: Graph,
+    parentDataStateName: string[],
+    variableName: string
+  ) => State;
 };
 type States = {
   [key: number]:

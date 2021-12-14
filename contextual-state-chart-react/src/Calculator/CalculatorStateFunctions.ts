@@ -73,7 +73,7 @@ const saveNumber = (graph: any) => {
 const isInputValid = (graph: any) => {
   // will only return true after we have read in all the input and it's a valid expression
   // const input = getVariable(graph, calculatorName, inputName).value;
-  let i1 = getVariable(graph, calculatorName, i1Name);
+  // let i1 = getVariable(graph, calculatorName, i1Name);
   // let expression = getVariable(graph, calculatorName, expressionName).value;
 
   // if (i1.value >= input.length) {
@@ -116,7 +116,7 @@ const saveOperator = (graph: any) => {
 
   // expression.push(token);
 
-  let i1 = getVariable(graph, calculatorName, i1Name);
+  // let i1 = getVariable(graph, calculatorName, i1Name);
   // const input = getVariable(graph, calculatorName, inputName).value;
 
   // while (input[i1.value] === " ") {

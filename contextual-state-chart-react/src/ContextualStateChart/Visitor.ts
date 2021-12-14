@@ -554,12 +554,20 @@ const visitor = (startStateName: string[], graph: any) => {
         a tree of trees for representing the end to end changes across the entire contextual state chart
     */
   // "tree"
-  let levelId = getVariable(graph, ["tree"], "levelId");
-  console.log({ levelId });
+  let levelId = graph.getVariable(["tree"], "levelId");
+  let timeLineId = graph.getVariable(["tree"], "timeLineId");
+  let parentTrackerName = [
+    `level ${levelId.value}`,
+    `timeLine ${timeLineId.value}`,
+  ];
+  let nextStates = graph.getVariable(parentTrackerName, "nextStates");
+  nextStates.setValue([[startStateName]]);
+  console.log({ levelId, timeLineId, parentTrackerName, nextStates });
+
   return;
   // let levelId = getVariableVisitor(graph, ["tree"], "levelId");
   // console.log({ levelId });
-  let timeLineId = getVariableVisitor(graph, ["tree"], "timeLineId");
+  // let timeLineId = getVariableVisitor(graph, ["tree"], "timeLineId");
   // setupTrackers(graph, levelId.value, timeLineId.value, startStateName);
 
   // bottom acts as a reader of the tree timelines like a disk read write head on a disk drive
@@ -705,7 +713,7 @@ const visitor = (startStateName: string[], graph: any) => {
             {
               newTrackerName: [
                 // `level ${levelId.value}`,
-                `timeLine ${timeLineId.value}`,
+                // `timeLine ${timeLineId.value}`,
               ],
             },
             graph,

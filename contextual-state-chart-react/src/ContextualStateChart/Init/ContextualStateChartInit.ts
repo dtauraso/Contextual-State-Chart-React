@@ -43,6 +43,7 @@ import {
   objectWrapper,
   stateWrapper,
   stateTree,
+  getVariable,
 } from "../StateTree";
 
 interface GetSubStatePaths2Parameters {

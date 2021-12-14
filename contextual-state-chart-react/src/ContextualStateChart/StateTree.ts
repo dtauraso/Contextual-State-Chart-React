@@ -337,18 +337,19 @@ const getState = (graph: any, stateName: string[]) => {
   }
   return graph.statesObject.states[stateId];
 };
-const getVariable = (
-  graph: Graph,
+const getVariable = function (
+  this: any,
+  // graph: Graph,
   parentDataStateName: string[],
   variableName: string
-) => {
-  // console.log({ stateName, graph });
+) {
+  // console.log({ this: this });
   if (parentDataStateName === undefined) {
     return null;
   }
-  const parentDataState = getState(graph, parentDataStateName);
+  const parentDataState = getState(this, parentDataStateName);
   const variableId = parentDataState?.variables?.[variableName];
-  return graph.statesObject.states?.[variableId];
+  return this.statesObject.states?.[variableId];
 };
 const setVariable = (graph: Graph, variableName: string, newValue: any) => {
   // console.log({ graph, state, variableName, newValue });
