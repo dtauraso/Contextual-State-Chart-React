@@ -470,7 +470,7 @@ const printRecordTree = (graph: any, recordTreeRootName: string[]) => {
 //   // console.log({ variable });
 //   // fix for data structure update
 //   // new variable state is inside graph.states
-//   graph.statesObject.maxStateId += 1;
+//   graph.statesObject.nextStateId += 1;
 //   if (
 //     JSON.stringify(variable.name) === JSON.stringify(["levelId"]) ||
 //     JSON.stringify(variable.name) === JSON.stringify(["timeLineId"]) ||
@@ -482,41 +482,41 @@ const printRecordTree = (graph: any, recordTreeRootName: string[]) => {
 //       JSON.stringify(["previousSiblingWinningStateName"])
 //   ) {
 //     console.log("here insertVariableState");
-//     // graph.statesObject.states[graph.statesObject.maxStateId] = numberWrapper();
+//     // graph.statesObject.states[graph.statesObject.nextStateId] = numberWrapper();
 //     if (isNumber(variable.value)) {
-//       graph.statesObject.states[graph.statesObject.maxStateId] =
+//       graph.statesObject.states[graph.statesObject.nextStateId] =
 //         numberWrapper();
 //     } else if (isString(variable.value)) {
-//       graph.statesObject.states[graph.statesObject.maxStateId] =
+//       graph.statesObject.states[graph.statesObject.nextStateId] =
 //         stringWrapper();
 //     } else if (isArray(variable.value)) {
 //       // console.log({ stateName: variable.name, stateTree });
-//       graph.statesObject.states[graph.statesObject.maxStateId] = arrayWrapper();
+//       graph.statesObject.states[graph.statesObject.nextStateId] = arrayWrapper();
 //     }
-//     let x = graph.statesObject.states[graph.statesObject.maxStateId];
+//     let x = graph.statesObject.states[graph.statesObject.nextStateId];
 //     // Object.assign()
-//     x.setId(graph.statesObject.maxStateId);
+//     x.setId(graph.statesObject.nextStateId);
 //     x.setName(variable.name);
 //     x.setValue(variable.value);
 //     x.setReferenceToStatesObject(graph.statesObject);
 
 //     console.log({ x });
-//     state.variables[x.name[0]] = graph.statesObject.maxStateId;
+//     state.variables[x.name[0]] = graph.statesObject.nextStateId;
 //     // x.name = stateName;
 //   } else {
-//     graph.statesObject.states[graph.statesObject.maxStateId] = variable;
+//     graph.statesObject.states[graph.statesObject.nextStateId] = variable;
 //     // graph.states.push(variable);
 //     // new variable state name is inside state.variableNames
-//     state.variables[variable.name[0]] = graph.statesObject.maxStateId;
+//     state.variables[variable.name[0]] = graph.statesObject.nextStateId;
 //   }
 // };
 // const insertState = (graph: any, state: any, variables: any = {}) => {
 //   // inserts state and variables
-//   graph.statesObject.maxStateId += 1;
+//   graph.statesObject.nextStateId += 1;
 //   const { tree, updatedName } = insertName({
 //     names: graph.namesTrie,
 //     name: state.name,
-//     stateId: graph.statesObject.maxStateId,
+//     stateId: graph.statesObject.nextStateId,
 //   });
 //   // console.log({ graph });
 //   graph.namesTrie = tree;
@@ -525,7 +525,7 @@ const printRecordTree = (graph: any, recordTreeRootName: string[]) => {
 //   if (Object.keys(variables).length > 0) {
 //     state["variables"] = {};
 //   }
-//   graph.statesObject.states[graph.statesObject.maxStateId] = state;
+//   graph.statesObject.states[graph.statesObject.nextStateId] = state;
 //   // only works for variable names of 1 dimention
 //   // the variable can only be accesible from the current state
 //   // each state can only have 1 unique user defined variable name

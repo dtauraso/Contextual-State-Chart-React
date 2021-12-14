@@ -46,7 +46,7 @@ type States = {
     | ArrayState;
 };
 type StatesObject = {
-  maxStateId: number;
+  nextStateId: number;
   states: States;
 };
 type NamesTrie =

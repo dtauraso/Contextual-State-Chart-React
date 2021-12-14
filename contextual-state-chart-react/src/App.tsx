@@ -5,7 +5,7 @@ import {
   getStateNames,
   makeArrays,
 } from "./ContextualStateChart/Init/ContextualStateChartInit";
-import { Graph } from "./App.types";
+import { Graph, NamesTrie } from "./App.types";
 import { calculatorStateTree } from "./Calculator/CalculatorStateTree";
 import { stateTree } from "./ContextualStateChart/StateTree";
 import { visitor } from "./ContextualStateChart/Visitor";
@@ -257,277 +257,6 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 // have something to put on my portfolio and practice react skills while I finish the state machine algorithm
 // and language
 // use class based components
-const test = () => {
-  console.log("inside test");
-  const recordStateTreeJson = {
-    current: {
-      State: {
-        Name: {
-          unitTest: {
-            "machine run 0": {
-              "state run 0": {
-                functionCode: "functionName",
-
-                children: {
-                  parentData: {
-                    state: {
-                      absolute: {
-                        path: {
-                          after: {
-                            variables: {
-                              varName: {
-                                value: [],
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  };
-  // has a variables key, but no children key
-  console.log(recordStateTreeJson);
-  const { namesTrie, statesObject } = makeArrays(recordStateTreeJson);
-  console.log(
-    "namesTrie",
-    JSON.parse(JSON.stringify(namesTrie)),
-    "statesObject",
-    JSON.parse(JSON.stringify(statesObject))
-  );
-};
-
-const noArraysInArray = (json: any) => {
-  return json.filter((item: any) => isArray(item)).length === 0;
-};
-const noObjectsInArray = (json: any) => {
-  return json.filter((item: any) => isObject(item)).length === 0;
-};
-
-const noArraysInObject = (json: any) => {
-  return (
-    Object.keys(json).filter((key: any) => isArray(json[key])).length === 0
-  );
-};
-const noObjectsInObject = (json: any) => {
-  return (
-    Object.keys(json).filter((key: any) => isObject(json[key])).length === 0
-  );
-};
-// assign each object an id
-// divide all containers up
-const addIds = (json: any, idObject: any) => {
-  const typeName = Object.prototype.toString.call(json);
-  if (typeName === "[object Object]") {
-    // are any values an object
-    if (noObjectsInObject(json)) {
-      idObject.id += 1;
-      return { ...json, id: idObject.id };
-    } else {
-      let returnObject: any = {};
-      Object.keys(json).forEach((key) => {
-        if (Object.prototype.toString.call(json[key]) === "[object Object]") {
-          returnObject = {
-            ...returnObject,
-            [key]: addIds(json[key], idObject),
-          };
-        } else {
-          returnObject = {
-            ...returnObject,
-            [key]: json[key],
-          };
-        }
-      });
-      idObject.id += 1;
-      return { ...returnObject, id: idObject.id };
-    }
-  }
-};
-const jsonToStateObjects2 = (json: any, stateObjects: any, key?: any) => {
-  const typeName = Object.prototype.toString.call(json);
-
-  if (isBoolean(json) || isNumber(json) || isString(json)) {
-    console.log("primitive", { name: key, json });
-    return { name: key, value: json, valueIsStateIndex: false };
-  }
-  // if the container only has leaves stop
-  else if (typeName === "[object Array]") {
-    if (noArraysInArray(json) && noObjectsInArray(json)) {
-      console.log("stop array", {
-        name: key,
-        value: json,
-        valueIsStateIndex: false,
-      });
-      // treat array as a value
-
-      // single key value pair
-      // return {variableName, value: json}
-      // return { name: key, value: json, valueIsStateIndex: false };
-    }
-    //  else {
-    //   console.log("should not be here");
-    //   json.forEach((item: any, i: number) => {
-    //     let { key, value }: any = jsonToStateObjects(item, stateObjects, i);
-    //     console.log("variable entry array", { key, value });
-    //   });
-    // }
-  } else if (typeName === "[object Object]") {
-    if (noArraysInObject(json) && noObjectsInObject(json)) {
-      console.log("stop object", { name: key, value: json });
-      // treat object as a collection of key value pairs
-      // state entry with variables
-      let variables: any = {};
-      Object.keys(json).forEach((jsonKey) => {
-        variables[jsonKey] = { value: json[jsonKey] };
-      });
-      stateObjects.push({
-        id: stateObjects.length,
-        name: key,
-        variables: variables,
-      });
-      // return {
-      //   name: key,
-      //   value: stateObjects.length - 1,
-      //   valueIsStateIndex: true,
-      // };
-    } else {
-      // i1 and variables are not returned
-      // return collection of variable names and values as ids from stateObjects
-      // console.log("state object", { name: key, variables: json });
-      let variables: any = {};
-      Object.keys(json).forEach((key, i) => {
-        console.log({ key, value: json[key] });
-        // messing things up
-        let x: any = jsonToStateObjects(json[key], stateObjects, key);
-        const typeNameX = Object.prototype.toString.call(x);
-        console.log(typeNameX, { key, x });
-
-        if (typeNameX === "[object Object]") {
-          variables[x.name] = x.value;
-          // return x;
-        } else if (typeNameX === "[object Array]") {
-          // how can the object be added here but the results must be filtered
-          // for adding to the object later
-          variables[key] = x;
-          // return { name: key, value: x, valueIsStateIndex: false };
-        }
-      });
-      // console.log("variable entry objects", key, objects);
-      // let structureEntries = objects.filter(
-      //   (object) => object.valueIsStateIndex
-      // );
-      // let leafEntries = objects.filter((object) => !object.valueIsStateIndex);
-      // console.log({ structureEntries });
-      // console.log({ leafEntries });
-      // save all leaf entries and all structure entries into a structural entry
-      // return 1 structure entry
-      stateObjects.push({
-        id: stateObjects.length,
-        name: key,
-        variables: variables,
-      });
-      // return objects;
-    }
-  }
-};
-
-const jsonToStateObjects = (json: any, stateObjects: any, key?: any) => {
-  // console.log(Object.prototype.toString.call(json));
-  const typeName = Object.prototype.toString.call(json);
-
-  if (isBoolean(json) || isNumber(json) || isString(json)) {
-    console.log("primitive", { name: key, json });
-    return { name: key, value: json, valueIsStateIndex: false };
-  }
-  // if the container only has leaves stop
-  else if (typeName === "[object Array]") {
-    if (noArraysInArray(json) && noObjectsInArray(json)) {
-      console.log("stop array", {
-        name: key,
-        value: json,
-        valueIsStateIndex: false,
-      });
-      // treat array as a value
-
-      // single key value pair
-      // return {variableName, value: json}
-      return { name: key, value: json, valueIsStateIndex: false };
-    }
-    //  else {
-    //   console.log("should not be here");
-    //   json.forEach((item: any, i: number) => {
-    //     let { key, value }: any = jsonToStateObjects(item, stateObjects, i);
-    //     console.log("variable entry array", { key, value });
-    //   });
-    // }
-  } else if (typeName === "[object Object]") {
-    if (noArraysInObject(json) && noObjectsInObject(json)) {
-      console.log("stop object", { name: key, value: json });
-      // treat object as a collection of key value pairs
-      // state entry with variables
-      let variables: any = {};
-      Object.keys(json).forEach((jsonKey) => {
-        variables[jsonKey] = { value: json[jsonKey] };
-      });
-      stateObjects.push({
-        id: stateObjects.length,
-        name: key,
-        variables: variables,
-      });
-      return {
-        name: key,
-        value: stateObjects.length - 1,
-        valueIsStateIndex: true,
-      };
-    } else {
-      // i1 and variables are not returned
-      // return collection of variable names and values as ids from stateObjects
-      // console.log("state object", { name: key, variables: json });
-      let variables: any = {};
-      let objects = Object.keys(json).map((key, i) => {
-        console.log({ key, value: json[key] });
-        // messing things up
-        let x: any = jsonToStateObjects(json[key], stateObjects, key);
-        const typeNameX = Object.prototype.toString.call(x);
-        console.log(typeNameX, { key, x });
-
-        if (typeNameX === "[object Object]") {
-          variables[x.name] = x.value;
-          return x;
-        } else if (typeNameX === "[object Array]") {
-          // how can the object be added here but the results must be filtered
-          // for adding to the object later
-          variables[key] = x;
-          return { name: key, value: x, valueIsStateIndex: false };
-        }
-      });
-      console.log("variable entry objects", key, objects);
-      let structureEntries = objects.filter(
-        (object) => object.valueIsStateIndex
-      );
-      let leafEntries = objects.filter((object) => !object.valueIsStateIndex);
-      console.log({ structureEntries });
-      console.log({ leafEntries });
-      // save all leaf entries and all structure entries into a structural entry
-      // return 1 structure entry
-      stateObjects.push({
-        id: stateObjects.length,
-        name: key,
-        variables: variables,
-      });
-      return objects;
-    }
-  }
-};
-
-//
-// import { calculatorStateTree } from "./Calculator/CalculatorStateTree";
 
 const App = (props: any) => {
   // test();
@@ -557,10 +286,21 @@ const App = (props: any) => {
   i.setValue(5);
   i.add(i.value + 1).add(1);
   // console.log({ i });
-  let graph = makeArrays(stateTree);
+  let graph: Graph = {
+    statesObject: { states: {}, nextStateId: 0 },
+    namesTrie: {},
+  };
+  graph = makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;
   console.log({ namesTrie, statesObject });
   visitor(["calculatorStateTree", "calculator"], graph);
+  // console.log(
+  //   "namesTrie",
+  //   JSON.parse(JSON.stringify(namesTrie)),
+  //   "statesObject",
+  //   JSON.parse(JSON.stringify(statesObject))
+  // );
+
   /**
    *
    * clean up jobs before redesigning the old record system

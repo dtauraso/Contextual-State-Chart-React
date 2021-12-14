@@ -69,7 +69,7 @@ const addState = (
   isVariable: boolean
 ) => {
   // inserts state only
-  statesObject.maxStateId += 1;
+  statesObject.nextStateId += 1;
   // console.log(stateName);
   if (
     JSON.stringify(stateName) === JSON.stringify(["levelId"]) ||
@@ -84,19 +84,19 @@ const addState = (
       JSON.stringify(["previousSiblingWinningStateName"])
   ) {
     if (isNumber(stateTree.value)) {
-      statesObject.states[statesObject.maxStateId] = numberWrapper();
+      statesObject.states[statesObject.nextStateId] = numberWrapper();
     } else if (isString(stateTree.value)) {
-      statesObject.states[statesObject.maxStateId] = stringWrapper();
+      statesObject.states[statesObject.nextStateId] = stringWrapper();
     } else if (isArray(stateTree.value)) {
       console.log({ stateName, stateTree });
-      statesObject.states[statesObject.maxStateId] = arrayWrapper();
+      statesObject.states[statesObject.nextStateId] = arrayWrapper();
     }
     // console.log({ stateTree });
     // console.log("here");
-    // statesObject.states[statesObject.maxStateId] = numberWrapper();
-    let x = statesObject.states[statesObject.maxStateId];
+    // statesObject.states[statesObject.nextStateId] = numberWrapper();
+    let x = statesObject.states[statesObject.nextStateId];
     // Object.assign()
-    x.setId(statesObject.maxStateId);
+    x.setId(statesObject.nextStateId);
     x.setName(stateName);
     x.setValue(stateTree.value);
     x.setReferenceToStatesObject(statesObject);
@@ -127,9 +127,9 @@ const addState = (
     setAttribute(stateTree, newState, "children", children);
     setAttribute(stateTree, newState, "variables", variables);
 
-    statesObject.states[statesObject.maxStateId] = newState;
-    statesObject.states[statesObject.maxStateId]["id"] =
-      statesObject.maxStateId;
+    statesObject.states[statesObject.nextStateId] = newState;
+    statesObject.states[statesObject.nextStateId]["id"] =
+      statesObject.nextStateId;
   }
 };
 const specialPrint = (object: any) => {
@@ -193,7 +193,7 @@ const setIdsToStates = ({
   //           {},
   //           true
   //         );
-  //         const variableId = statesObject.maxStateId;
+  //         const variableId = statesObject.nextStateId;
   //         variableData[variableName] = variableId;
   //       });
   //     }
@@ -374,17 +374,17 @@ const getVariables = ({
   jsonName,
   variables, // collection, collection.push(newVariable)
 }: GetVariablesParameters) => {
-  // console.log({ maxId: variables.maxStateId });
-  // variables.maxStateId += lastStateId;
+  // console.log({ maxId: variables.nextStateId });
+  // variables.nextStateId += lastStateId;
   if (isNull(json)) {
     let newVariable = nullWrapper();
     newVariable.setValue(json);
     newVariable.setName(jsonName);
-    variables.maxStateId += 1;
-    variables.states[variables.maxStateId] = newVariable;
+    variables.nextStateId += 1;
+    variables.states[variables.nextStateId] = newVariable;
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);
-    return variables.maxStateId;
+    return variables.nextStateId;
   } else if (isBoolean(json)) {
     let newVariable = booleanWrapper();
     newVariable.setValue(json);
@@ -392,9 +392,9 @@ const getVariables = ({
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);
     // return variables.length - 1;
-    variables.maxStateId += 1;
-    variables.states[variables.maxStateId] = newVariable;
-    return variables.maxStateId;
+    variables.nextStateId += 1;
+    variables.states[variables.nextStateId] = newVariable;
+    return variables.nextStateId;
   } else if (isNumber(json)) {
     let newVariable = numberWrapper();
     newVariable.setValue(json);
@@ -402,9 +402,9 @@ const getVariables = ({
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);
     // return variables.length - 1;
-    variables.maxStateId += 1;
-    variables.states[variables.maxStateId] = newVariable;
-    return variables.maxStateId;
+    variables.nextStateId += 1;
+    variables.states[variables.nextStateId] = newVariable;
+    return variables.nextStateId;
   } else if (isString(json)) {
     let newVariable = stringWrapper();
     newVariable.setValue(json);
@@ -412,9 +412,9 @@ const getVariables = ({
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);
     // return variables.length - 1;
-    variables.maxStateId += 1;
-    variables.states[variables.maxStateId] = newVariable;
-    return variables.maxStateId;
+    variables.nextStateId += 1;
+    variables.states[variables.nextStateId] = newVariable;
+    return variables.nextStateId;
   } else if (isArray(json)) {
     let newVariable = arrayWrapper();
     newVariable.setValue([]);
@@ -429,9 +429,9 @@ const getVariables = ({
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);
     // return variables.length - 1;
-    variables.maxStateId += 1;
-    variables.states[variables.maxStateId] = newVariable;
-    return variables.maxStateId;
+    variables.nextStateId += 1;
+    variables.states[variables.nextStateId] = newVariable;
+    return variables.nextStateId;
   } else if (isObject(json)) {
     let newVariable = objectWrapper();
     newVariable.setValue({});
@@ -446,9 +446,9 @@ const getVariables = ({
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);
     // return variables.length - 1;
-    variables.maxStateId += 1;
-    variables.states[variables.maxStateId] = newVariable;
-    return variables.maxStateId;
+    variables.nextStateId += 1;
+    variables.states[variables.nextStateId] = newVariable;
+    return variables.nextStateId;
   }
 };
 const getStateNames = (
@@ -502,7 +502,7 @@ const getStateNames = (
             {},
             true
           );
-          const variableId = statesObject.maxStateId;
+          const variableId = statesObject.nextStateId;
           variableData[variableName] = variableId;
         });
       }

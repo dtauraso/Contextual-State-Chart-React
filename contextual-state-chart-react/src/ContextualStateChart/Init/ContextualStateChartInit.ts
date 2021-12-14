@@ -149,8 +149,8 @@ const makeVariable = ({
   if ("value" in stateTree) {
     const value = stateTree["value"];
     const typeNameString = getTypeName(value);
-    const variableId = indexObject.maxStateId;
-    indexObject.maxStateId += 1;
+    const variableId = indexObject.nextStateId;
+    indexObject.nextStateId += 1;
     states[variableId] = variableTypes?.[typeNameString]?.wrapper();
     states[variableId].init(
       variableId,
@@ -170,8 +170,8 @@ const makeVariable = ({
         states,
       })
     );
-    const variableId = indexObject.maxStateId;
-    indexObject.maxStateId += 1;
+    const variableId = indexObject.nextStateId;
+    indexObject.nextStateId += 1;
     states[variableId] = arrayWrapper();
     states[variableId].init(
       variableId,
@@ -195,8 +195,8 @@ const makeVariable = ({
       },
       {}
     );
-    const variableId = indexObject.maxStateId;
-    indexObject.maxStateId += 1;
+    const variableId = indexObject.nextStateId;
+    indexObject.nextStateId += 1;
     states[variableId] = objectWrapper();
     states[variableId].init(
       variableId,
@@ -219,8 +219,8 @@ const makeState = ({
 }: any): any => {
   if ("state" in stateTree) {
     const currentState = stateTree["state"];
-    const stateId = indexObject.maxStateId;
-    indexObject.maxStateId += 1;
+    const stateId = indexObject.nextStateId;
+    indexObject.nextStateId += 1;
     trieTreeCollection.push({
       name: currentStateName,
       stateId: stateId,
@@ -274,16 +274,13 @@ const makeState = ({
 };
 
 const arrayState = (states: States, i: number) => states[i] as ArrayState;
-const makeArrays = (stateTree: any) => {
+
+const makeArrays = (stateTree: any, graph: Graph) => {
   /*
   read the full state name
   save all the state attributes except for 
   */
-  let namesTrie: NamesTrie = {};
-  let graph: Graph = {
-    statesObject: { states: {}, maxStateId: 0 },
-    namesTrie,
-  };
+
   let trieTreeCollection: any = [];
   makeState({
     trieTreeCollection: trieTreeCollection,
