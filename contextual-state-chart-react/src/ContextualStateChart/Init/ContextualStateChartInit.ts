@@ -149,8 +149,8 @@ const makeVariable = ({
   if ("value" in stateTree) {
     const value = stateTree["value"];
     const typeNameString = getTypeName(value);
-    const variableId = indexObject.id;
-    indexObject.id += 1;
+    const variableId = indexObject.maxStateId;
+    indexObject.maxStateId += 1;
     states[variableId] = variableTypes?.[typeNameString]?.wrapper();
     states[variableId].init(
       variableId,
@@ -170,8 +170,8 @@ const makeVariable = ({
         states,
       })
     );
-    const variableId = indexObject.id;
-    indexObject.id += 1;
+    const variableId = indexObject.maxStateId;
+    indexObject.maxStateId += 1;
     states[variableId] = arrayWrapper();
     states[variableId].init(
       variableId,
@@ -195,8 +195,8 @@ const makeVariable = ({
       },
       {}
     );
-    const variableId = indexObject.id;
-    indexObject.id += 1;
+    const variableId = indexObject.maxStateId;
+    indexObject.maxStateId += 1;
     states[variableId] = objectWrapper();
     states[variableId].init(
       variableId,
@@ -219,8 +219,8 @@ const makeState = ({
 }: any): any => {
   if ("state" in stateTree) {
     const currentState = stateTree["state"];
-    const stateId = indexObject.id;
-    indexObject.id += 1;
+    const stateId = indexObject.maxStateId;
+    indexObject.maxStateId += 1;
     trieTreeCollection.push({
       name: currentStateName,
       stateId: stateId,
@@ -279,17 +279,29 @@ const makeArrays = (stateTree: any) => {
   read the full state name
   save all the state attributes except for 
   */
-  let statesObject: States = {};
+  let namesTrie: NamesTrie = {};
+  let graph: Graph = {
+    statesObject: { states: {}, maxStateId: 0 },
+    namesTrie,
+  };
   let trieTreeCollection: any = [];
-  // console.log("run makeState");
-  let indexObject = { id: 0 };
   makeState({
     trieTreeCollection: trieTreeCollection,
     stateTree,
-    indexObject,
+    indexObject: graph.statesObject,
     currentStateName: [],
-    states: statesObject,
+    states: graph.statesObject,
   });
+
+  trieTreeCollection.forEach((name: any) => {
+    graph.namesTrie = insertName({
+      names: graph.namesTrie,
+      name: name.name,
+      stateId: name.stateId,
+    });
+  });
+
+  return graph;
 
   // console.log({ states2, trieTreeCollection });
   // let states3: States = Object.keys(states2).reduce((acc: any, curr: number) => {
@@ -306,33 +318,21 @@ const makeArrays = (stateTree: any) => {
   // console.log({ states });
 
   // console.log("run map");
-  let x = arrayState(statesObject, 55)
-    .mapWrapper((item: any) => `${item} passes`)
-    .mapWrapper((item: any) => `${item} passes 2`)
-    .mapWrapper((item: any) => `${item} passes 3`);
-  let y = arrayState(statesObject, 111)
-    .mapWrapper((item: any) => `${item} passes'`)
-    .mapWrapper((item: any) => `${item} passes 2'`)
-    .mapWrapper((item: any) => `${item} passes 3'`);
+  // let x = arrayState(graph.statesObject, 55)
+  //   .mapWrapper((item: any) => `${item} passes`)
+  //   .mapWrapper((item: any) => `${item} passes 2`)
+  //   .mapWrapper((item: any) => `${item} passes 3`);
   // console.log(x);
   // console.log(states2[x.value[0]]);
   // console.log(states2[x.value[1]]);
 
-  let namesTrie: any = {};
+  // let namesTrie: any = {};
 
-  trieTreeCollection.forEach((name: any) => {
-    namesTrie = insertName({
-      names: namesTrie,
-      name: name.name,
-      stateId: name.stateId,
-    });
-  });
   // trieTreeCollection.forEach((trieEntryItem: any) => {
   //   console.log(
   //     `${trieEntryItem.name.join(" | ")} id: ${trieEntryItem.stateId}`
   //   );
   // });
-  return { statesObject, namesTrie };
   /*
   visit each variable tree
   each new variable found maps to an id

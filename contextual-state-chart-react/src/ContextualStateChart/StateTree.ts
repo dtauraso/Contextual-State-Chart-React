@@ -258,7 +258,6 @@ let stateTree = {
             bottom: {
               state: {
                 children: {
-                  calculatorStateTree,
                   "level 0": {
                     "timeLine 0": {
                       state: {
@@ -317,7 +316,7 @@ const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
     }
     if (namePart in namesTrieTracker) {
       if ("id" in namesTrieTracker[namePart]) {
-        stateId = namesTrieTracker[namePart]?.id;
+        stateId = namesTrieTracker[namePart].id as number;
       }
       namesTrieTracker = namesTrieTracker[namePart];
     } else {

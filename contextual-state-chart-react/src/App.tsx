@@ -556,15 +556,11 @@ const App = (props: any) => {
   let i = numberWrapper();
   i.setValue(5);
   i.add(i.value + 1).add(1);
-
   // console.log({ i });
-  const { namesTrie, statesObject } = makeArrays(stateTree);
+  let graph = makeArrays(stateTree);
+  let { statesObject, namesTrie } = graph;
   console.log({ namesTrie, statesObject });
-  // 168 items
-  // id variable needs to be inside statesObject
-  // let graph: Graph = { namesTrie, statesObject };
-  // global index is file scoped
-  // visitor(["calculator"], graph);
+  visitor(["calculatorStateTree", "calculator"], graph);
   /**
    *
    * clean up jobs before redesigning the old record system

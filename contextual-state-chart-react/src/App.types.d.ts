@@ -49,10 +49,14 @@ type StatesObject = {
   maxStateId: number;
   states: States;
 };
-type NamesTrie = {
-  [key: string]: NamesTrie;
-  id: number;
-};
+type NamesTrie =
+  | {
+      [key: string]: NamesTrie;
+      id: number;
+    }
+  | {
+      [key: string]: NamesTrie;
+    };
 type Graph = {
   namesTrie: NamesTrie;
   statesObject: StatesObject;
