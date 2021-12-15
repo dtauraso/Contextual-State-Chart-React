@@ -300,7 +300,7 @@ const App = (props: any) => {
   graph = makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;
   console.log({ namesTrie, statesObject });
-  visitor(["calculatorStateTree", "calculator"], graph);
+  visitor(["calculator"], graph);
   // console.log(
   //   "namesTrie",
   //   JSON.parse(JSON.stringify(namesTrie)),

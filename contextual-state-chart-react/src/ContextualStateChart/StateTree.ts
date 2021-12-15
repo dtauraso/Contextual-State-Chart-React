@@ -53,8 +53,8 @@ const wrapper = {
     this.typeName = typeName;
     this.records = {};
   },
-  setStates: function setStates(this: any, states: States) {
-    this.states = states;
+  setGraph: function setGraph(this: any, graph: Graph) {
+    this.graph = graph;
   },
   setReferenceToStatesObject: function setReferenceToStatesObject(
     this: any,
@@ -112,7 +112,8 @@ const arrayWrapper = function () {
       if (i < 0 || i >= length) {
         return -1;
       }
-      return this.value[i];
+      return this.graph.statesObject.states[this.value[i]];
+      // return this.value[i];
     },
     mapWrapper: function mapWrapper(this: any, callback: any) {
       /*
@@ -138,7 +139,7 @@ const arrayWrapper = function () {
 
         let newItem = variableTypes[elementState.typeName]();
         newItem.init(newIndex, name, result, typeName);
-        newItem.setStates(states);
+        newItem.setGraphs(states);
         states[newIndex] = newItem;
 
         container.push(newIndex);
@@ -166,7 +167,7 @@ const arrayWrapper = function () {
         null,
         "array"
       );
-      newContainer.setStates(states);
+      newContainer.setGraphs(states);
       newContainer.updateValue(container);
       newContainer.updateRecord({ id: this.id, value: this.value });
       states[newContainerIndex] = newContainer;
@@ -259,7 +260,7 @@ let stateTree = {
       functionCode: returnTrue,
       start: ["calculator"],
       children: {
-        calculatorStateTree,
+        ...calculatorStateTree,
         "run state machine": {
           calculator: {
             bottom: {
@@ -366,10 +367,10 @@ const getVariable = function (
   // if (parentDataStateName === undefined) {
   //   return null;
   // }
-  const states = this.states;
+  // const states = this.states;
   // const parentDataState = getState(this, parentDataStateName);
   const variableId = this?.variables?.[variableName];
-  return this.states[variableId];
+  return this.graph.statesObject.states[variableId];
 };
 const setVariable = (graph: Graph, variableName: string, newValue: any) => {
   // console.log({ graph, state, variableName, newValue });

@@ -573,7 +573,7 @@ const visitor = (startStateName: string[], graph: any) => {
     ],
     indexObject: graph.statesObject,
     name: "0",
-    states: graph.statesObject.states,
+    graph: graph,
   });
   nextStates.pushWrapper(newStateId);
   let bottomName = ["run state machine", "calculator", "bottom"];
@@ -598,9 +598,25 @@ const visitor = (startStateName: string[], graph: any) => {
       console.log({ children: bottom.children });
       let currentBranch = graph.getState(bottom.children[i.value]);
       console.log({ currentBranch });
-      let j = graph.getState(currentBranch.name).getVariable("j");
+      let j = graph.getState(currentBranch.name)?.getVariable("j");
       console.log({ j });
-      // let j = getVariableVisitor(graph, currentTracker.name, "j");
+      let nextStates = graph
+        .getState(currentBranch.name)
+        ?.getVariable("nextStates");
+      console.log({ nextStates });
+      if (nextStates.value.length > 0) {
+        let winningStateName = graph
+          .getState(currentBranch.name)
+          ?.getVariable("WinningStateName");
+
+        const currentTrialStateName = nextStates
+          .get(i.value)
+          .get(j.value)
+          .value.map(
+            (variableId: number) => graph.getStateById(variableId).value
+          );
+        console.log({ currentTrialStateName });
+      }
       i.add(1);
     }
     stateRunCount.add(1);

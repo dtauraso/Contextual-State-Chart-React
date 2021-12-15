@@ -2279,17 +2279,17 @@ class Data extends React.Component {
   //     return false
   // }
   // getA = (parent, currentState) => {
-  //     // use setState(), no mutation
-  //     // https://stackoverflow.com/questions/18933985/this-setstate-isnt-merging-states-as-i-would-expect
+  //     // use setGraph(), no mutation
+  //     // https://stackoverflow.com/questions/18933985/this-setGraph-isnt-merging-states-as-i-would-expect
   //     // https://github.com/VoliJS/NestedLink
   //     // test and figure out what works before converting everything
-  //     // this.setState({ selected: { name: 'Barfoo' }});
+  //     // this.setGraph({ selected: { name: 'Barfoo' }});
 
   //     // var newSelected = Object.assign({}, this.state.selected);
   //     // newSelected.name = 'Barfoo';
-  //     // this.setState({ selected: newSelected });
+  //     // this.setGraph({ selected: newSelected });
 
-  //     // this.setState({ selected: Object.assign({}, this.state.selected, { name: "Barfoo" }) });
+  //     // this.setGraph({ selected: Object.assign({}, this.state.selected, { name: "Barfoo" }) });
   //     // 'evaluateExpression' , '0'
   //     // let a = stateTrie['x']
 
@@ -2298,7 +2298,7 @@ class Data extends React.Component {
   //     //     ...this.state,
   //     //     operation_vars: {chain_length: 0}
   //     // }
-  //     // this.setState({operationVars: {chainLength: 0}})
+  //     // this.setGraph({operationVars: {chainLength: 0}})
   //     // var_store['operation_vars']['chain_length'] = 0
 
   //     //console.log(var_store['operation_vars']['kind_of_number'])
@@ -2312,7 +2312,7 @@ class Data extends React.Component {
   //     //     ...this.state,
   //     //     operation_vars: {a: input[i]}
   //     // }
-  //     // this.setState({operation_vars: {a: input[i]}})
+  //     // this.setGraph({operation_vars: {a: input[i]}})
   //     // var_store['operation_vars']['a'] = input[i]
 
   //     // let chainLength = this.state["operationVars"]["chainLength"]
@@ -2320,7 +2320,7 @@ class Data extends React.Component {
   //     //     ...this.state,
   //     //     operation_vars: {chainLength: chainLength + 1}
   //     // }
-  //     // this.setState({operation_vars: {chainLength: chainLength + 1}})
+  //     // this.setGraph({operation_vars: {chainLength: chainLength + 1}})
   //     // this.state = {
   //     //     ...this.state,
   //     //     i: this.state["i"] + 1
@@ -2354,7 +2354,7 @@ class Data extends React.Component {
   //         }
   //     }
   //     // var_store['operation_vars']['chain_length'] += 1
-  //     // this.setState({i: this.state["i"] + 1})
+  //     // this.setGraph({i: this.state["i"] + 1})
   //     // var_store['i'] += 1
   //     //console.log(var_store)
 
@@ -3005,7 +3005,7 @@ IEEE_Software_Design_2PC.pdf
     let lastOne = this.visit(["start", "0"], [["start", "0"]], 0, null, null);
     stateChangesAllLevels = [lastOne, ...stateChangesAllLevels];
     // run deepAssign for entire forest
-    this.setState({ stateChanges: stateChangesAllLevels });
+    this.setGraph({ stateChanges: stateChangesAllLevels });
     // console.log(this.state.stateChanges)
     // console.log(stateChangesAllLevels)
   };

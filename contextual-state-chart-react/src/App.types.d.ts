@@ -10,7 +10,7 @@ type Wrapper = {
   setName: (this: any, name: string) => this;
   setValue: (this: any, value: any) => this;
   setReferenceToStatesObject: (this: any, statesObject: any) => this;
-  setStates: (this: any, states: States) => this;
+  setGraphs: (this: any, states: States) => this;
 };
 type NullState = Wrapper & {};
 type BooleanState = Wrapper & {};

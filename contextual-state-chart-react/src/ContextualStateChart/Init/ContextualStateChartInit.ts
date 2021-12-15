@@ -78,7 +78,7 @@ const traverseContexts = ({
   trieTreeCollection,
   stateTree,
   indexObject,
-  states,
+  graph,
 }: any) => {
   let paths: string[][] = [];
   getSubStatePaths2({
@@ -97,7 +97,7 @@ const traverseContexts = ({
       stateTree: tracker,
       indexObject,
       currentStateName: path,
-      states,
+      graph,
     });
   });
   return paths;
@@ -142,22 +142,23 @@ const makeVariable = ({
   trieTreeCollection,
   stateTree,
   indexObject,
-  states,
   name,
+  graph,
 }: any): any => {
   if ("value" in stateTree) {
     const value = stateTree["value"];
     const typeNameString = getTypeName(value);
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
-    states[variableId] = variableTypes?.[typeNameString]?.wrapper();
-    states[variableId].init(
+    graph.statesObject.states[variableId] =
+      variableTypes?.[typeNameString]?.wrapper();
+    graph.statesObject.states[variableId].init(
       variableId,
       name,
       value,
       variableTypes?.[typeNameString]?.typeName
     );
-    states[variableId].setStates(states);
+    graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
   } else if (isArray(stateTree)) {
     const value = stateTree.map((element: any, i: number) =>
@@ -166,19 +167,19 @@ const makeVariable = ({
         stateTree: stateTree[i],
         indexObject,
         name: `${i}`,
-        states,
+        graph,
       })
     );
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
-    states[variableId] = arrayWrapper();
-    states[variableId].init(
+    graph.statesObject.states[variableId] = arrayWrapper();
+    graph.statesObject.states[variableId].init(
       variableId,
       name,
       value,
       variableTypes?.["[object Array]"]?.typeName
     );
-    states[variableId].setStates(states);
+    graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
   } else if (isObject(stateTree)) {
     const value = Object.keys(stateTree).reduce(
@@ -188,7 +189,7 @@ const makeVariable = ({
           stateTree: stateTree[variableName],
           indexObject,
           name: variableName,
-          states,
+          graph,
         });
         return acc;
       },
@@ -196,14 +197,14 @@ const makeVariable = ({
     );
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
-    states[variableId] = objectWrapper();
-    states[variableId].init(
+    graph.statesObject.states[variableId] = objectWrapper();
+    graph.statesObject.states[variableId].init(
       variableId,
       name,
       value,
       variableTypes?.["[object Object]"]?.typeName
     );
-    states[variableId].setStates(states);
+    graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
   } else {
     return -1;
@@ -214,7 +215,7 @@ const makeState = ({
   stateTree,
   indexObject,
   currentStateName,
-  states,
+  graph,
 }: any): any => {
   if ("state" in stateTree) {
     const currentState = stateTree["state"];
@@ -224,7 +225,7 @@ const makeState = ({
       name: currentStateName,
       stateId: stateId,
     });
-    states[stateId] = {
+    graph.statesObject.states[stateId] = {
       name: currentStateName,
       id: stateId,
       typeName: "state",
@@ -240,7 +241,7 @@ const makeState = ({
               trieTreeCollection,
               stateTree: currentState.children,
               indexObject,
-              states,
+              graph,
             }),
           }
         : {}),
@@ -253,7 +254,7 @@ const makeState = ({
                   stateTree: currentState.variables?.[variableName],
                   indexObject,
                   name: variableName,
-                  states,
+                  graph,
                 });
                 return acc;
               },
@@ -262,14 +263,14 @@ const makeState = ({
           }
         : {}),
       getVariable: getVariable,
-      states,
+      graph,
     };
   } else {
     traverseContexts({
       trieTreeCollection,
       stateTree,
       indexObject,
-      states,
+      graph,
     });
   }
 };
@@ -288,7 +289,7 @@ const makeArrays = (stateTree: any, graph: Graph) => {
     stateTree,
     indexObject: graph.statesObject,
     currentStateName: [],
-    states: graph.statesObject.states,
+    graph, //: graph.statesObject.states,
   });
 
   trieTreeCollection.forEach((name: any) => {
