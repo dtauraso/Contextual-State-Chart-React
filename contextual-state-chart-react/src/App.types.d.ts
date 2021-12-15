@@ -68,6 +68,7 @@ type Graph = {
   [key: string]: any;
 
   getState?: (this: Graph, stateName: string[]) => State | Wrapper | null;
+  getStateById?: (this: Graph, stateId: number) => State | Wrapper | null;
 };
 
 export {

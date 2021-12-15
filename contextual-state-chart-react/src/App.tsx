@@ -9,6 +9,7 @@ import { Graph, NamesTrie } from "./App.types";
 import { calculatorStateTree } from "./Calculator/CalculatorStateTree";
 import {
   getState,
+  getStateById,
   getVariable,
   stateTree,
 } from "./ContextualStateChart/StateTree";
@@ -294,6 +295,7 @@ const App = (props: any) => {
     statesObject: { states: {}, nextStateId: 0 },
     namesTrie: {},
     getState: getState,
+    getStateById: getStateById,
   };
   graph = makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;

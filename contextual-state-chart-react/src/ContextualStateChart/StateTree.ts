@@ -292,6 +292,7 @@ let stateTree = {
         levelId: { value: 0 },
         timeLineId: { value: 0 },
         machineRunId: { value: 0 },
+        stateRunCount: { value: 0 },
         // encode state names as strings
         // assumes users will be working on a small # of states at a time
         statesToRecord: { calculator: { value: 1 } },
@@ -340,6 +341,18 @@ const getState = function (this: Graph, stateName: string[]) {
     console.log(
       `stateId = ${stateId}, stateName = ${stateName} is not in graph.statesObject.states`
     );
+    return null;
+  }
+  return this.statesObject.states[stateId];
+};
+const getStateById = function (this: Graph, stateId: number) {
+  console.log({ stateId });
+  if (stateId >= Object.keys(this.statesObject.states).length || stateId < 0) {
+    return null;
+  }
+
+  if (!(stateId in this.statesObject.states)) {
+    console.log(`stateId = ${stateId} is not in graph.statesObject.states`);
     return null;
   }
   return this.statesObject.states[stateId];
@@ -552,6 +565,7 @@ export {
   stateTree,
   getStateId,
   getState,
+  getStateById,
   getVariable,
   setVariable,
   // insertVariableState,

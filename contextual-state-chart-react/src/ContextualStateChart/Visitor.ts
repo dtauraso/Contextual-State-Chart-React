@@ -576,10 +576,35 @@ const visitor = (startStateName: string[], graph: any) => {
     states: graph.statesObject.states,
   });
   nextStates.pushWrapper(newStateId);
+  let bottomName = ["run state machine", "calculator", "bottom"];
 
-  // let bottom = getState()
-  console.log({ levelId, timeLineId, parentTrackerName, nextStates, graph });
-
+  let bottom = graph.getState(bottomName);
+  console.log({
+    levelId,
+    timeLineId,
+    parentTrackerName,
+    nextStates,
+    bottom,
+    graph,
+  });
+  let stateRunCount = graph.getState(["tree"])?.getVariable("stateRunCount");
+  while (bottom.children.length > 0) {
+    if (stateRunCount.value >= 1) {
+      console.log("state run count is too high");
+      return false;
+    }
+    let i = graph.getState(bottomName)?.getVariable("i");
+    while (i.value < bottom.children.length) {
+      console.log({ children: bottom.children });
+      let currentBranch = graph.getState(bottom.children[i.value]);
+      console.log({ currentBranch });
+      let j = graph.getState(currentBranch.name).getVariable("j");
+      console.log({ j });
+      // let j = getVariableVisitor(graph, currentTracker.name, "j");
+      i.add(1);
+    }
+    stateRunCount.add(1);
+  }
   return;
   // let levelId = getVariableVisitor(graph, ["tree"], "levelId");
   // console.log({ levelId });
@@ -588,10 +613,10 @@ const visitor = (startStateName: string[], graph: any) => {
 
   // bottom acts as a reader of the tree timelines like a disk read write head on a disk drive
 
-  let bottomName = ["run state machine", "calculator", "bottom"];
+  // let bottomName = ["run state machine", "calculator", "bottom"];
 
   // let bottom = getState(graph, bottomName);
-  let stateRunCount = 0;
+  // let stateRunCount = 0;
   // while (bottom.children.length > 0) {
   //   // works to 101
   //   if (stateRunCount >= 101) {
