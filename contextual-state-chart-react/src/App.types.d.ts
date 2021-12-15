@@ -66,6 +66,8 @@ type Graph = {
   namesTrie: NamesTrie;
   statesObject: StatesObject;
   [key: string]: any;
+
+  getState?: (this: Graph, stateName: string[]) => State | Wrapper | null;
 };
 
 export {

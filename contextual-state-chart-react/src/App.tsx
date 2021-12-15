@@ -7,7 +7,11 @@ import {
 } from "./ContextualStateChart/Init/ContextualStateChartInit";
 import { Graph, NamesTrie } from "./App.types";
 import { calculatorStateTree } from "./Calculator/CalculatorStateTree";
-import { getVariable, stateTree } from "./ContextualStateChart/StateTree";
+import {
+  getState,
+  getVariable,
+  stateTree,
+} from "./ContextualStateChart/StateTree";
 import { visitor } from "./ContextualStateChart/Visitor";
 import { numberWrapper } from "./ContextualStateChart/StateTree";
 import {
@@ -289,7 +293,7 @@ const App = (props: any) => {
   let graph: Graph = {
     statesObject: { states: {}, nextStateId: 0 },
     namesTrie: {},
-    getVariable: getVariable,
+    getState: getState,
   };
   graph = makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;

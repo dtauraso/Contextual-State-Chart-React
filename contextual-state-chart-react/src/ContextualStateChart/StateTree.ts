@@ -201,7 +201,14 @@ const arrayWrapper = function () {
       return this;
     },
     pushWrapper: function pushWrapper(this: any, _this: any) {
-      this.newIndex = this.value.push(_this);
+      this.records = {
+        ...this.records,
+        [Object.keys(this.records).length]: {
+          id: this.id,
+          value: [...this.value],
+        },
+      };
+      this.value.push(_this);
       return this;
     },
     generic: function generic(this: any, callbackName: any, _this?: any) {
@@ -322,34 +329,34 @@ const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
   }
   return -1;
 };
-const getState = (graph: any, stateName: string[]) => {
-  // console.log({ stateName });
+const getState = function (this: Graph, stateName: string[]) {
+  console.log({ stateName });
   if (stateName === null) {
     return null;
   }
-  const stateId = getStateId(graph.namesTrie, stateName);
-  console.log({ stateId });
-  if (!(stateId in graph.statesObject.states)) {
+  const stateId = getStateId(this.namesTrie, stateName);
+
+  if (!(stateId in this.statesObject.states)) {
     console.log(
       `stateId = ${stateId}, stateName = ${stateName} is not in graph.statesObject.states`
     );
-    return false;
+    return null;
   }
-  return graph.statesObject.states[stateId];
+  return this.statesObject.states[stateId];
 };
 const getVariable = function (
   this: any,
-  // graph: Graph,
-  parentDataStateName: string[],
+  // parentDataStateName: string[],
   variableName: string
 ) {
-  // console.log({ this: this });
-  if (parentDataStateName === undefined) {
-    return null;
-  }
-  const parentDataState = getState(this, parentDataStateName);
-  const variableId = parentDataState?.variables?.[variableName];
-  return this.statesObject.states?.[variableId];
+  console.log({ this: this });
+  // if (parentDataStateName === undefined) {
+  //   return null;
+  // }
+  const states = this.states;
+  // const parentDataState = getState(this, parentDataStateName);
+  const variableId = this?.variables?.[variableName];
+  return this.states[variableId];
 };
 const setVariable = (graph: Graph, variableName: string, newValue: any) => {
   // console.log({ graph, state, variableName, newValue });
@@ -389,10 +396,10 @@ const setVariable = (graph: Graph, variableName: string, newValue: any) => {
     graph["changes"]["variables"][
       variableName
     ]?.parentDataStateNameString.split(",");
-  const parentDataState = getState(graph, parentDataStateName);
-  if (!(variableName in parentDataState.variables)) {
-    return;
-  }
+  // const parentDataState = getState(graph, parentDataStateName);
+  // if (!(variableName in parentDataState.variables)) {
+  //   return;
+  // }
   /**
    * save the change data from the user in a js object
    */
@@ -411,28 +418,28 @@ const setVariable = (graph: Graph, variableName: string, newValue: any) => {
       },
     },
   };
-  const variableId: number = parentDataState.variables[variableName];
+  // const variableId: number = parentDataState.variables[variableName];
   // graph.statesObject.states[variableId].value = newValue;
 };
 const printRecordTree = (graph: any, recordTreeRootName: string[]) => {
-  let recordTreeRoot = getState(graph, recordTreeRootName);
-  let afterState = getState(graph, recordTreeRoot.children[0]);
+  // let recordTreeRoot = getState(graph, recordTreeRootName);
+  // let afterState = getState(graph, recordTreeRoot.children[0]);
 
-  console.log("added record state", JSON.parse(JSON.stringify(recordTreeRoot)));
-  console.log("added record state", JSON.parse(JSON.stringify(afterState)));
-  if ("variables" in afterState) {
-    Object.keys(afterState?.variables).forEach((variableName) => {
-      console.log(
-        "added record state",
-        JSON.parse(JSON.stringify(variableName)),
-        JSON.parse(
-          JSON.stringify(
-            graph.statesObject.states[afterState.variables[variableName]].value
-          )
-        )
-      );
-    });
-  }
+  // console.log("added record state", JSON.parse(JSON.stringify(recordTreeRoot)));
+  // console.log("added record state", JSON.parse(JSON.stringify(afterState)));
+  // if ("variables" in afterState) {
+  //   Object.keys(afterState?.variables).forEach((variableName) => {
+  //     console.log(
+  //       "added record state",
+  //       JSON.parse(JSON.stringify(variableName)),
+  //       JSON.parse(
+  //         JSON.stringify(
+  //           graph.statesObject.states[afterState.variables[variableName]].value
+  //         )
+  //       )
+  //     );
+  //   });
+  // }
   console.log();
 };
 // const insertVariableState = (graph: any, state: any, variable: any) => {

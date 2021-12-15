@@ -79,7 +79,6 @@ const traverseContexts = ({
   stateTree,
   indexObject,
   states,
-  currentStateId,
 }: any) => {
   let paths: string[][] = [];
   getSubStatePaths2({
@@ -99,7 +98,6 @@ const traverseContexts = ({
       indexObject,
       currentStateName: path,
       states,
-      currentStateId,
     });
   });
   return paths;
@@ -263,6 +261,8 @@ const makeState = ({
             ),
           }
         : {}),
+      getVariable: getVariable,
+      states,
     };
   } else {
     traverseContexts({
@@ -389,4 +389,11 @@ root state for the search tries(26 tries)
     c/{randomNumber/, ....}/title -> [title/{randomNumber/, ....}, ]
 */
 
-export { insertName, setAttribute, getStateNames, makeArrays };
+export {
+  insertName,
+  setAttribute,
+  getStateNames,
+  makeArrays,
+  makeState,
+  makeVariable,
+};
