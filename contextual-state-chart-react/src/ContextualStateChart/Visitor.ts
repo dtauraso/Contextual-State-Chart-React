@@ -555,30 +555,28 @@ const visitor = (startStateName: string[], graph: any) => {
         a tree of trees for representing the end to end changes across the entire contextual state chart
     */
   // "tree"
-  let levelId = graph.getState(["tree"])?.getVariable("levelId");
-  let timeLineId = graph.getState(["tree"])?.getVariable("timeLineId");
+  let levelId = graph.getState(["tree"]).getVariable("levelId");
+  let timeLineId = graph.getState(["tree"]).getVariable("timeLineId");
   let parentTrackerName = [
     `level ${levelId.value}`,
     `timeLine ${timeLineId.value}`,
   ];
-  let nextStates = graph.getState(parentTrackerName)?.getVariable("nextStates");
+  let nextStates = graph.getState(parentTrackerName).getVariable("nextStates");
 
-  let trieTreeCollection: any = [];
   let newStateId = makeVariable({
-    trieTreeCollection,
-    stateTree: [
-      startStateName.map((name) => ({
-        value: name,
-      })),
-    ],
+    trieTreeCollection: [],
+    stateTree: startStateName.map((name) => ({
+      value: name,
+    })),
     indexObject: graph.statesObject,
     name: "0",
     graph: graph,
   });
   nextStates.pushWrapper(newStateId);
-  let bottomName = ["run state machine", "calculator", "bottom"];
 
-  let bottom = graph.getState(bottomName);
+  let bottomName = "stateRunTreeBottom";
+
+  let bottom = graph.getState(["tree"]).getVariable(bottomName);
   console.log({
     levelId,
     timeLineId,
@@ -587,36 +585,94 @@ const visitor = (startStateName: string[], graph: any) => {
     bottom,
     graph,
   });
-  let stateRunCount = graph.getState(["tree"])?.getVariable("stateRunCount");
-  while (bottom.children.length > 0) {
+  let stateRunCount = graph.getState(["tree"]).getVariable("stateRunCount");
+  while (bottom.value.length > 0) {
     if (stateRunCount.value >= 1) {
       console.log("state run count is too high");
       return false;
     }
-    let i = graph.getState(bottomName)?.getVariable("i");
-    while (i.value < bottom.children.length) {
-      console.log({ children: bottom.children });
-      let currentBranch = graph.getState(bottom.children[i.value]);
-      console.log({ currentBranch });
-      let j = graph.getState(currentBranch.name)?.getVariable("j");
-      console.log({ j });
-      let nextStates = graph
-        .getState(currentBranch.name)
-        ?.getVariable("nextStates");
-      console.log({ nextStates });
-      if (nextStates.value.length > 0) {
-        let winningStateName = graph
-          .getState(currentBranch.name)
-          ?.getVariable("WinningStateName");
+    let i = graph.getState(["tree"]).getVariable("i");
+    while (i.value < bottom.value.length) {
+      console.log({ children: bottom.value });
+      // currentBranch is null
+      let currentBranchName = graph
+        .getStateById(bottom.value[i.value])
+        .collect();
+      // .value.map(
+      //   (variableId: number) => graph.getStateById(variableId).value
+      // );
+      console.log({ currentBranchName });
+      // let j = graph.getState(currentBranch.name).getVariable("j");
+      // console.log({ j });
+      // let nextStates = graph
+      //   .getState(currentBranch.name)
+      //   .getVariable("nextStates");
+      // console.log({ nextStates });
+      // let winningStateName = graph
+      //   .getState(currentBranch.name)
+      //   .getVariable("winningStateName");
+      // let passes = false;
+      // while (!passes && j.value < nextStates.value.length) {
+      //   const currentTrialStateName = nextStates
+      //     .get(j.value)
+      //     .value.map(
+      //       (variableId: number) => graph.getStateById(variableId).value
+      //     );
+      //   const currentTrialState = graph.getState(currentTrialStateName);
+      //   console.log({ currentTrialState });
+      //   if (currentTrialState.functionCode(graph)) {
+      //     winningStateName.setValue(currentTrialState.name);
+      //     passes = true;
+      //     console.log({ winningStateName });
+      //   }
+      //   if (!passes) {
+      //     j.add(1);
+      //   }
+      // }
+      // const currentTrialState = graph.getState(winningStateName.value);
+      // console.log({ currentTrialState });
 
-        const currentTrialStateName = nextStates
-          .get(i.value)
-          .get(j.value)
-          .value.map(
-            (variableId: number) => graph.getStateById(variableId).value
-          );
-        console.log({ currentTrialStateName });
-      }
+      // does the state that won have children?
+      // if (currentTrialState.children.length > 0) {
+      //   /*
+      //   add 1 empty branch as a child to (0, 0) called (1, 0)
+      //   change jth bottom child name to name of (1, 0)'s first state
+      //   store first state as (1, 0)'s next state
+      //   */
+      //   const newBranchName = [
+      //     `level ${levelId.value + 1}`,
+      //     `timeLine ${timeLineId.value}`,
+      //   ];
+      //   graph = makeArrays(
+      //     {
+      //       [newBranchName[0]]: {
+      //         [newBranchName[1]]: {
+      //           state: {
+      //             children: {},
+      //             variables: {
+      //               nextStates: [
+      //                 currentTrialState.start.map((stateNamePart: string) => ({
+      //                   value: stateNamePart,
+      //                 })),
+      //               ],
+      //               winningStateName: [],
+      //               j: { value: 0 },
+      //             },
+      //           },
+      //         },
+      //       },
+      //     },
+      //     graph
+      //   );
+      //   console.log({ graph });
+      //   const newBranchId = getStateId(graph.namesTrie, newBranchName);
+      //   console.log({ newBranchId });
+      //   let stateRunTreeBottom = graph
+      //     .getState(["tree"])
+      //     .getVariable("stateRunTreeBottom");
+      //   console.log({ stateRunTreeBottom });
+      // nextStates.pushWrapper(newStateId);
+      // }
       i.add(1);
     }
     stateRunCount.add(1);

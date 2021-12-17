@@ -115,6 +115,12 @@ const arrayWrapper = function () {
       return this.graph.statesObject.states[this.value[i]];
       // return this.value[i];
     },
+    collect: function collect(this: any) {
+      return this.value.map(
+        (variableId: number) => this.graph.getStateById(variableId).value
+      );
+    },
+
     mapWrapper: function mapWrapper(this: any, callback: any) {
       /*
       make new array
@@ -263,7 +269,7 @@ let stateTree = {
         ...calculatorStateTree,
         "run state machine": {
           calculator: {
-            bottom: {
+            stateRunTree: {
               state: {
                 children: {
                   "level 0": {
@@ -273,15 +279,11 @@ let stateTree = {
                         variables: {
                           nextStates: [],
                           winningStateName: [],
-                          previousSiblingWinningStateName: [],
                           j: { value: 0 },
                         },
                       },
                     },
                   },
-                },
-                variables: {
-                  i: { value: 0 },
                 },
               },
               // reinterpret as a variable data structure
@@ -297,11 +299,8 @@ let stateTree = {
         // encode state names as strings
         // assumes users will be working on a small # of states at a time
         statesToRecord: { calculator: { value: 1 } },
-        bottomName: [
-          { value: "run state machine" },
-          { value: "calculator" },
-          { value: "bottom" },
-        ],
+        i: { value: 0 },
+        stateRunTreeBottom: [[{ value: "level 0" }, { value: "timeLine 0" }]],
       },
     },
   },
@@ -326,13 +325,13 @@ const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
     }
   }
   if ("id" in namesTrieTracker) {
-    console.log("here", { namesTrieTracker });
+    // console.log("here", { namesTrieTracker });
     return namesTrieTracker.id as number;
   }
   return -1;
 };
 const getState = function (this: Graph, stateName: string[]) {
-  console.log({ stateName });
+  // console.log({ stateName });
   if (stateName === null) {
     return null;
   }
@@ -347,7 +346,7 @@ const getState = function (this: Graph, stateName: string[]) {
   return this.statesObject.states[stateId];
 };
 const getStateById = function (this: Graph, stateId: number) {
-  console.log({ stateId });
+  // console.log({ stateId });
   if (stateId >= Object.keys(this.statesObject.states).length || stateId < 0) {
     return null;
   }
@@ -363,7 +362,11 @@ const getVariable = function (
   // parentDataStateName: string[],
   variableName: string
 ) {
-  console.log({ this: this });
+  if (typeof variableName === "object") {
+    console.log(variableName, "must be a string");
+    return null;
+  }
+  // console.log({ this: this });
   // if (parentDataStateName === undefined) {
   //   return null;
   // }
