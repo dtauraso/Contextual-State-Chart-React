@@ -226,6 +226,7 @@ const makeState = ({
       stateId: stateId,
     });
     graph.statesObject.states[stateId] = {
+      parents: currentState?.parents ? [...currentState.parents] : [],
       name: currentStateName,
       id: stateId,
       typeName: "state",
@@ -299,8 +300,6 @@ const makeArrays = (stateTree: any, graph: Graph) => {
       stateId: name.stateId,
     });
   });
-
-  return graph;
 
   // console.log({ states2, trieTreeCollection });
   // let states3: States = Object.keys(states2).reduce((acc: any, curr: number) => {

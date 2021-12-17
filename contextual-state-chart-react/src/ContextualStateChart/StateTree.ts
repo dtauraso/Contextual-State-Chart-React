@@ -10,6 +10,7 @@ import {
   isArray,
   isObject,
 } from "./Init/StatesObject";
+import { makeArrays, makeVariable } from "./Init/ContextualStateChartInit";
 
 const wrapper = {
   setId: function setId(this: any, id: number) {
@@ -116,6 +117,7 @@ const arrayWrapper = function () {
       // return this.value[i];
     },
     collect: function collect(this: any) {
+      console.log({ this: this });
       return this.value.map(
         (variableId: number) => this.graph.getStateById(variableId).value
       );
@@ -218,6 +220,24 @@ const arrayWrapper = function () {
       this.value.push(_this);
       return this;
     },
+    updateAt: function updateAt(this: any, i: number, newValue: number) {
+      this.records = {
+        ...this.records,
+        [Object.keys(this.records).length]: {
+          id: this.id,
+          value: this.value[i],
+        },
+      };
+      const newVariableId = makeVariable({
+        trieTreeCollection: [],
+        stateTree: newValue,
+        indexObject: this.graph.statesObject,
+        name: `${i}`,
+        graph: this.graph,
+      });
+      this.value[i] = newVariableId; //this.graph.statesObject.maxIndexId - 1; //newValue;
+      return this;
+    },
     generic: function generic(this: any, callbackName: any, _this?: any) {
       console.log(this, callbackName, _this);
       console.log(callbackName);
@@ -286,7 +306,6 @@ let stateTree = {
                   },
                 },
               },
-              // reinterpret as a variable data structure
             },
           },
         },

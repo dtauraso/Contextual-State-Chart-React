@@ -297,7 +297,7 @@ const App = (props: any) => {
     getState: getState,
     getStateById: getStateById,
   };
-  graph = makeArrays(stateTree, graph);
+  makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;
   console.log({ namesTrie, statesObject });
   visitor(["calculator"], graph);

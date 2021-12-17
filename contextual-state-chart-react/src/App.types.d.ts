@@ -19,6 +19,7 @@ type StringState = Wrapper & {};
 type ArrayState = Wrapper & {
   mapWrapper: (this: any, callback: any) => this;
   collect: (this: any) => [];
+  updateAt: (this: any, i: number, newValue: number) => this;
 };
 
 type Variable = {
