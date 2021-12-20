@@ -1,56 +1,49 @@
-// type Variables = {
-//   [key: string]: number;
-// };
-type Wrapper = {
-  value: any;
+type NullState = {};
+type NumberState = {
+  add: (this: NumberState, secondValue: number) => NumberState;
+};
+type ArrayState = {
+  collect: (this: VariableState) => [];
+};
+type VariableState = State & {
+  value:
+    | NullState
+    | boolean
+    | NumberState
+    | string
+    | ArrayState
+    | { [key: string]: number };
   id: number;
   name: string;
-  states: States;
-  setId: (this: any, id: number) => this;
-  setName: (this: any, name: string) => this;
-  setValue: (this: any, value: any) => this;
-  setReferenceToStatesObject: (this: any, statesObject: any) => this;
-  setGraphs: (this: any, states: States) => this;
-};
-type NullState = Wrapper & {};
-type BooleanState = Wrapper & {};
-type NumberState = Wrapper & {};
-type StringState = Wrapper & {};
-type ArrayState = Wrapper & {
-  mapWrapper: (this: any, callback: any) => this;
-  collect: (this: any) => [];
-  updateAt: (this: any, i: number, newValue: number) => this;
+  record: any;
+  graph: Graph;
+  setId: (this: VariableState, id: number) => VariableState;
+  setName: (this: VariableState, name: string) => VariableState;
+  setValue: (this: VariableState, value: any) => VariableState;
+  setGraphs: (this: VariableState, states: States) => VariableState;
 };
 
-type Variable = {
+type Variables = {
   [key: string]: number;
 };
+
+type ControlFlowState = State & {
+  parents: string[][];
+  name: string[];
+  functionCode: (graph: Graph, currentState: State) => boolean;
+  functionName: string;
+  start: string[][];
+  children: string[][];
+  next: string[][];
+  variables?: Variables;
+  stateRunCount: number;
+  getVariable: (this: State, variableName: string) => VariableState;
+};
 type State = {
-  parents?: string[][];
-  name?: string[];
-  functionCode?: (graph: any, currentState: any) => boolean;
-  functionName?: string;
-  start?: string[][];
-  children?: string[][];
-  next?: string[][];
-  prev?: string[];
-  variables?: Variable;
-  stateRunCount?: number;
-  id?: number;
-  getVariable?: (
-    graph: Graph,
-    parentDataStateName: string[],
-    variableName: string
-  ) => State;
+  id: number;
 };
 type States = {
-  [key: number]:
-    | State
-    | NullState
-    | BooleanState
-    | NumberState
-    | StringState
-    | ArrayState;
+  [key: number]: State;
 };
 type StatesObject = {
   nextStateId: number;
@@ -67,10 +60,10 @@ type NamesTrie =
 type Graph = {
   namesTrie: NamesTrie;
   statesObject: StatesObject;
-  [key: string]: any;
 
-  getState?: (this: Graph, stateName: string[]) => State | Wrapper | null;
-  getStateById?: (this: Graph, stateId: number) => State | Wrapper | null;
+  getState: (this: Graph, stateName: string[]) => State | number;
+  getStateById: (this: Graph, stateId: number) => State | number;
+  getVariableById: (this: Graph, variableId: number) => VariableState | number;
 };
 
 export {

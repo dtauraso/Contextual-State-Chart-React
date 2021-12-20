@@ -534,6 +534,25 @@ const makeRecordingTree = (graph: any, prevState: any) => {
    * }
    */
 };
+const getTrackerVariables = (graph: Graph) => {
+  let bottomName = "stateRunTreeBottom";
+
+  let bottom = graph.getState(["tree"]).getVariable(bottomName);
+  let i = graph.getState(["tree"]).getVariable("i");
+
+  const currentBranchName = graph
+    .getVariableById(bottom.value[i.value])
+    .collect();
+  console.log({ currentBranchName });
+  let j = graph.getState(currentBranchName).getVariable("j");
+  console.log({ j });
+  let nextStates = graph.getState(currentBranchName).getVariable("nextStates");
+  console.log({ nextStates });
+  let winningStateName = graph
+    .getState(currentBranchName)
+    .getVariable("winningStateName");
+  return { currentBranchName, j, winningStateName };
+};
 const visitor = (startStateName: string[], graph: any) => {
   /*
     setup trackers
@@ -605,19 +624,21 @@ const visitor = (startStateName: string[], graph: any) => {
 
       bottom.value[i] is the first item
       */
-      const currentBranchName = graph
-        .getStateById(bottom.value[i.value])
-        .collect();
-      console.log({ currentBranchName });
-      let j = graph.getState(currentBranchName).getVariable("j");
-      console.log({ j });
-      let nextStates = graph
-        .getState(currentBranchName)
-        .getVariable("nextStates");
-      console.log({ nextStates });
-      let winningStateName = graph
-        .getState(currentBranchName)
-        .getVariable("winningStateName");
+      // const currentBranchName = graph
+      //   .getStateById(bottom.value[i.value])
+      //   .collect();
+      // console.log({ currentBranchName });
+      // let j = graph.getState(currentBranchName).getVariable("j");
+      // console.log({ j });
+      // let nextStates = graph
+      //   .getState(currentBranchName)
+      //   .getVariable("nextStates");
+      // console.log({ nextStates });
+      // let winningStateName = graph
+      //   .getState(currentBranchName)
+      //   .getVariable("winningStateName");
+      let { currentBranchName, j, winningStateName } =
+        getTrackerVariables(graph);
       let passes = false;
       while (!passes && j.value < nextStates.value.length) {
         const currentTrialStateName = nextStates.get(j.value).collect();

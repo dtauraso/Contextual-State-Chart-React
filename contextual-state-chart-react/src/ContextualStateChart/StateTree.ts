@@ -376,6 +376,18 @@ const getStateById = function (this: Graph, stateId: number) {
   }
   return this.statesObject.states[stateId];
 };
+const getVariableById = function (this: Graph, stateId: number) {
+  // console.log({ stateId });
+  if (stateId >= Object.keys(this.statesObject.states).length || stateId < 0) {
+    return null;
+  }
+
+  if (!(stateId in this.statesObject.states)) {
+    console.log(`stateId = ${stateId} is not in graph.statesObject.states`);
+    return null;
+  }
+  return this.statesObject.states[stateId];
+};
 const getVariable = function (
   this: any,
   // parentDataStateName: string[],
@@ -428,11 +440,11 @@ const setVariable = (graph: Graph, variableName: string, newValue: any) => {
   object.proto.filterWrapper
   object.proto.reduceWrapper
  */
-  const parentDataStateName =
-    graph["changes"]["variables"][
-      variableName
-    ]?.parentDataStateNameString.split(",");
-  // const parentDataState = getState(graph, parentDataStateName);
+  // const parentDataStateName =
+  //   graph["changes"]["variables"][
+  //     variableName
+  //   ]?.parentDataStateNameString.split(",");
+  // // const parentDataState = getState(graph, parentDataStateName);
   // if (!(variableName in parentDataState.variables)) {
   //   return;
   // }
@@ -442,18 +454,17 @@ const setVariable = (graph: Graph, variableName: string, newValue: any) => {
   /**
    * {variableName: {parentDataStateNameString, newValue}}
    */
-
-  graph["changes"] = {
-    ...graph["changes"],
-    variables: {
-      ...graph["changes"]["variables"],
-      [variableName]: {
-        ...graph["changes"]["variables"][variableName],
-        setFunctionWasCalled: true,
-        value: newValue,
-      },
-    },
-  };
+  // graph["changes"] = {
+  //   ...graph["changes"],
+  //   variables: {
+  //     ...graph["changes"]["variables"],
+  //     [variableName]: {
+  //       ...graph["changes"]["variables"][variableName],
+  //       setFunctionWasCalled: true,
+  //       value: newValue,
+  //     },
+  //   },
+  // };
   // const variableId: number = parentDataState.variables[variableName];
   // graph.statesObject.states[variableId].value = newValue;
 };
@@ -589,6 +600,7 @@ export {
   getStateId,
   getState,
   getStateById,
+  getVariableById,
   getVariable,
   setVariable,
   // insertVariableState,

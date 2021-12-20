@@ -11,6 +11,7 @@ import {
   getState,
   getStateById,
   getVariable,
+  getVariableById,
   stateTree,
 } from "./ContextualStateChart/StateTree";
 import { visitor } from "./ContextualStateChart/Visitor";
@@ -294,8 +295,10 @@ const App = (props: any) => {
   let graph: Graph = {
     statesObject: { states: {}, nextStateId: 0 },
     namesTrie: {},
+    // getState
     getState: getState,
     getStateById: getStateById,
+    getVariableById: getVariableById,
   };
   makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;
