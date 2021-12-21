@@ -1,5 +1,11 @@
 import { insertName } from "./Init/TrieTree";
-import { Graph, NamesTrie, States } from "../App.types";
+import {
+  ControlFlowState,
+  Graph,
+  NamesTrie,
+  States,
+  VariableState,
+} from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
 import { returnTrue } from "../Calculator/CalculatorStateFunctions";
 import { getRunningStateParent, getRunningState } from "./Visitor";
@@ -324,6 +330,7 @@ let stateTree = {
     },
   },
 };
+const printTree = function (this: Graph) {};
 const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
   // console.log({ namesTrie, stateName });
   let namesTrieTracker = namesTrie;
@@ -349,10 +356,26 @@ const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
   }
   return -1;
 };
+const errorState = function (): ControlFlowState {
+  return {
+    parents: [[""]],
+    name: [""],
+    functionCode: (graph: any, currentState: any) => true,
+    functionName: "",
+    start: [[""]],
+    children: [[""]],
+    next: [[""]],
+    stateRunCount: 0,
+    id: 0,
+    getVariable: function (this: ControlFlowState, variableName: string) {
+      return -1;
+    },
+  };
+};
 const getState = function (this: Graph, stateName: string[]) {
   // console.log({ stateName });
   if (stateName === null) {
-    return null;
+    return errorState();
   }
   const stateId = getStateId(this.namesTrie, stateName);
 
@@ -360,19 +383,20 @@ const getState = function (this: Graph, stateName: string[]) {
     console.log(
       `stateId = ${stateId}, stateName = ${stateName} is not in graph.statesObject.states`
     );
-    return null;
+
+    return errorState();
   }
-  return this.statesObject.states[stateId];
+  return this.statesObject.states[stateId] as ControlFlowState;
 };
 const getStateById = function (this: Graph, stateId: number) {
   // console.log({ stateId });
   if (stateId >= Object.keys(this.statesObject.states).length || stateId < 0) {
-    return null;
+    return this;
   }
 
   if (!(stateId in this.statesObject.states)) {
     console.log(`stateId = ${stateId} is not in graph.statesObject.states`);
-    return null;
+    return this;
   }
   return this.statesObject.states[stateId];
 };
@@ -395,7 +419,7 @@ const getVariable = function (
 ) {
   if (typeof variableName === "object") {
     console.log(variableName, "must be a string");
-    return null;
+    return -1;
   }
   // console.log({ this: this });
   // if (parentDataStateName === undefined) {

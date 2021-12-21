@@ -1,4 +1,4 @@
-import { Graph } from "../App.types";
+import { ControlFlowState, Graph, State } from "../App.types";
 import {
   getStateId,
   getState,
@@ -11,7 +11,7 @@ import {
 } from "./StateTree";
 import { makeArrays, makeVariable } from "./Init/ContextualStateChartInit";
 // import { idText } from "typescript";
-import { addState, getStateNames } from "./Init/StatesObject";
+// import { addState, getStateNames } from "./Init/StatesObject";
 import { insertName, makeState } from "./Init/ContextualStateChartInit";
 
 let initEntry = {
@@ -163,52 +163,52 @@ const moveDown1Level = (
   // ).value;
 };
 
-const moveAcross1Level = (
-  graph: any,
-  currentTracker: any,
-  winningState: any,
-  nextStates: any
-) => {
-  console.log({ winningState });
+// const moveAcross1Level = (
+//   graph: any,
+//   currentTracker: any,
+//   winningState: any,
+//   nextStates: any
+// ) => {
+//   console.log({ winningState });
 
-  // updateVariableVisitor(
-  //   graph,
-  //   currentTracker.name,
-  //   "nextStates",
-  //   winningState.next
-  // );
-  let winningStateName = getVariableVisitor(
-    graph,
-    currentTracker.name,
-    "winningStateName"
-  );
-  let previousSiblingWinningStateName = getVariableVisitor(
-    graph,
-    currentTracker.name,
-    "previousSiblingWinningStateName"
-  );
-  // previousSiblingWinningStateName.setValue(winningStateName.value);
-  // updateVariableVisitor(
-  //   graph,
-  //   currentTracker.name,
-  //   "previousSiblingWinningStateName",
-  //   winningStateName.value
-  //   // getVariableVisitor(graph, currentTracker.name, "winningStateName").value
-  // );
-  // previousSiblingWinningStateName
-  // winningStateName.setValue([]);
-  // updateVariableVisitor(graph, currentTracker.name, "winningStateName", []);
-  console.log({ currentTracker });
-  console.log({ graph });
-  nextStates = getVariableVisitor(graph, currentTracker.name, "nextStates");
-  nextStates.setValue(winningState.next);
-  // nextStates = getVariableVisitor(
-  //   graph,
-  //   currentTracker.name,
-  //   "nextStates"
-  // ).value;
-  console.log({ nextStates });
-};
+//   // updateVariableVisitor(
+//   //   graph,
+//   //   currentTracker.name,
+//   //   "nextStates",
+//   //   winningState.next
+//   // );
+//   let winningStateName = getVariableVisitor(
+//     graph,
+//     currentTracker.name,
+//     "winningStateName"
+//   );
+//   let previousSiblingWinningStateName = getVariableVisitor(
+//     graph,
+//     currentTracker.name,
+//     "previousSiblingWinningStateName"
+//   );
+//   // previousSiblingWinningStateName.setValue(winningStateName.value);
+//   // updateVariableVisitor(
+//   //   graph,
+//   //   currentTracker.name,
+//   //   "previousSiblingWinningStateName",
+//   //   winningStateName.value
+//   //   // getVariableVisitor(graph, currentTracker.name, "winningStateName").value
+//   // );
+//   // previousSiblingWinningStateName
+//   // winningStateName.setValue([]);
+//   // updateVariableVisitor(graph, currentTracker.name, "winningStateName", []);
+//   console.log({ currentTracker });
+//   console.log({ graph });
+//   nextStates = getVariableVisitor(graph, currentTracker.name, "nextStates");
+//   nextStates.setValue(winningState.next);
+//   // nextStates = getVariableVisitor(
+//   //   graph,
+//   //   currentTracker.name,
+//   //   "nextStates"
+//   // ).value;
+//   console.log({ nextStates });
+// };
 
 const moveUpToParentNode = (graph: any, bottom: any, i: any) => {
   // move bottom's ith child up by 1 unit
@@ -240,19 +240,19 @@ const deleteCurrentNode = (graph: any, currentTracker: any) => {
 record unit test first using context additions
 use next states to build the end to end testing
 */
-const setupTrackers = (
-  graph: Graph,
-  levelId: Number,
-  timeLineId: Number,
-  startStateName: string[]
-): any => {
-  let parentTrackerName = [`level ${levelId}`, `timeLine ${timeLineId}`];
-  let nextStates = getVariableVisitor(graph, parentTrackerName, "nextStates");
-  // nextStates.setValue([startStateName]);
-  // updateVariableVisitor(graph, parentTrackerName, "nextStates", [
-  //   startStateName,
-  // ]);
-};
+// const setupTrackers = (
+//   graph: Graph,
+//   levelId: Number,
+//   timeLineId: Number,
+//   startStateName: string[]
+// ): any => {
+//   let parentTrackerName = [`level ${levelId}`, `timeLine ${timeLineId}`];
+//   let nextStates = getVariableVisitor(graph, parentTrackerName, "nextStates");
+//   // nextStates.setValue([startStateName]);
+//   // updateVariableVisitor(graph, parentTrackerName, "nextStates", [
+//   //   startStateName,
+//   // ]);
+// };
 const getRunningStateParent = (graph: any) => {
   // const bottomName = getVariableVisitor(graph, ["tree"], "bottomName").value;
 
@@ -464,29 +464,29 @@ const cleanupChanges = (graph: any) => {
 //     // console.log("here");
 //   }
 // };
-const pointA = (graph: any, currentTrackerName: string[]) => {
-  const previousSiblingWinningState = getVariableVisitor(
-    graph,
-    currentTrackerName,
-    "previousSiblingWinningStateName"
-  );
-  // console.log(JSON.parse(JSON.stringify(previousSiblingWinningState)));
+// const pointA = (graph: any, currentTrackerName: string[]) => {
+//   const previousSiblingWinningState = getVariableVisitor(
+//     graph,
+//     currentTrackerName,
+//     "previousSiblingWinningStateName"
+//   );
+//   // console.log(JSON.parse(JSON.stringify(previousSiblingWinningState)));
 
-  if (getRunningStateParent(graph) === null) {
-    // console.log(`A is root -> tree`);
-    return { name: ["tree"], isParent: true };
-    // return ["tree"]
-  }
-  // else if (previousSiblingWinningState.value === null) {
-  //   // console.log(`A is a parent -> ${getRunningStateParent(graph).name}`);
-  //   return { name: getRunningStateParent(graph).name, isParent: true };
-  //   // return getRunningStateParent(graph).name
-  // } else {
-  //   // console.log(`A is a prev sibling -> ${previousSiblingWinningState.value}`);
-  //   return { name: previousSiblingWinningState.value, isParent: false };
-  //   // return previousSiblingWinningState.value
-  // }
-};
+//   if (getRunningStateParent(graph) === null) {
+//     // console.log(`A is root -> tree`);
+//     return { name: ["tree"], isParent: true };
+//     // return ["tree"]
+//   }
+//   // else if (previousSiblingWinningState.value === null) {
+//   //   // console.log(`A is a parent -> ${getRunningStateParent(graph).name}`);
+//   //   return { name: getRunningStateParent(graph).name, isParent: true };
+//   //   // return getRunningStateParent(graph).name
+//   // } else {
+//   //   // console.log(`A is a prev sibling -> ${previousSiblingWinningState.value}`);
+//   //   return { name: previousSiblingWinningState.value, isParent: false };
+//   //   // return previousSiblingWinningState.value
+//   // }
+// };
 const makeRecordingTree = (graph: any, prevState: any) => {
   console.log("stateChanges", graph["stateChanges"]);
   const atLeastOneStatePassed = graph["stateChanges"].find(
@@ -535,23 +535,255 @@ const makeRecordingTree = (graph: any, prevState: any) => {
    */
 };
 const getTrackerVariables = (graph: Graph) => {
-  let bottomName = "stateRunTreeBottom";
+  const bottomName = "stateRunTreeBottom";
 
-  let bottom = graph.getState(["tree"]).getVariable(bottomName);
-  let i = graph.getState(["tree"]).getVariable("i");
+  const bottom = graph.getState(["tree"]).getVariable(bottomName);
+  const i = graph.getState(["tree"]).getVariable("i");
 
   const currentBranchName = graph
     .getVariableById(bottom.value[i.value])
     .collect();
   console.log({ currentBranchName });
-  let j = graph.getState(currentBranchName).getVariable("j");
+  const j = graph.getState(currentBranchName).getVariable("j");
   console.log({ j });
-  let nextStates = graph.getState(currentBranchName).getVariable("nextStates");
-  console.log({ nextStates });
-  let winningStateName = graph
+  // next states holds the correct thing
+  const nextStates = graph
+    .getState(currentBranchName)
+    .getVariable("nextStates");
+  console.log({ nextStates, graph });
+  // calculator
+  // winning state name keeps getting set to calculator
+  const winningStateName = graph
     .getState(currentBranchName)
     .getVariable("winningStateName");
-  return { currentBranchName, j, winningStateName };
+  return { currentBranchName, j, winningStateName, nextStates };
+};
+const setupTrackers = (startStateName: string[], graph: Graph) => {
+  const levelId = graph.getState(["tree"]).getVariable("levelId");
+  const timeLineId = graph.getState(["tree"]).getVariable("timeLineId");
+  const parentTrackerName = [
+    `level ${levelId.value}`,
+    `timeLine ${timeLineId.value}`,
+  ];
+  const nextStates = graph
+    .getState(parentTrackerName)
+    .getVariable("nextStates");
+
+  const newStateId = makeVariable({
+    trieTreeCollection: [],
+    stateTree: startStateName.map((name) => ({
+      value: name,
+    })),
+    indexObject: graph.statesObject,
+    name: "0",
+    graph: graph,
+  });
+  nextStates.pushWrapper(newStateId);
+
+  // let bottomName = "stateRunTreeBottom";
+
+  // let bottom = graph.getState(["tree"]).getVariable(bottomName);
+  // console.log({
+  //   levelId,
+  //   timeLineId,
+  //   parentTrackerName,
+  //   nextStates,
+  //   bottom,
+  //   graph,
+  // });
+};
+const runStates = (graph: Graph) => {
+  const { currentBranchName, j, winningStateName, nextStates } =
+    getTrackerVariables(graph);
+  console.log({
+    currentBranchName,
+    j,
+    w: JSON.parse(JSON.stringify(winningStateName.value)),
+    graph,
+  });
+  let passes = false;
+  while (!passes && j.value < nextStates.value.length) {
+    const currentTrialStateName = nextStates.get(j.value).collect();
+    const currentTrialState = graph.getState(currentTrialStateName);
+    console.log({ currentTrialState, graph });
+    if (
+      (currentTrialState as State).functionCode(graph, currentTrialState.name)
+    ) {
+      winningStateName.setValue([...currentTrialState.name]);
+      passes = true;
+      console.log({ winningStateName });
+    }
+    if (!passes) {
+      j.add(1);
+    }
+  }
+  console.log({ passes });
+  if (!passes) {
+    console.log("all the states failed");
+    return false;
+  }
+};
+const visitBranches = (graph: Graph) => {
+  const i = graph.getState(["tree"]).getVariable("i");
+  const bottom = graph.getState(["tree"]).getVariable("stateRunTreeBottom");
+
+  console.log({ i: i.value, bottomLength: bottom.value.length });
+  while (i.value < bottom.value.length) {
+    console.log({ bottom, graph, i: i.value });
+    // why did this work the first time
+    /*
+      1) bottom.value had an array of numbers where each number pointed to an aray of ids for a state name array
+
+      bottom.value[i] is the first item
+      */
+    // const currentBranchName = graph
+    //   .getStateById(bottom.value[i.value])
+    //   .collect();
+    // console.log({ currentBranchName });
+    // let j = graph.getState(currentBranchName).getVariable("j");
+    // console.log({ j });
+    // let nextStates = graph
+    //   .getState(currentBranchName)
+    //   .getVariable("nextStates");
+    // console.log({ nextStates });
+    // let winningStateName = graph
+    //   .getState(currentBranchName)
+    //   .getVariable("winningStateName");
+    // the currentTrialStateName is always the same
+    // the winning state name is always the same
+    // winning state name is getting copied into spot unless getTrackerVariables isn't called
+    // "dummb" is made but level 1 doesn't connect to it
+    // the same winning state object is being set to same thing
+    // const { currentBranchName, j, winningStateName } =
+    //   getTrackerVariables(graph);
+    // console.log({
+    //   currentBranchName,
+    //   j,
+    //   w: JSON.parse(JSON.stringify(winningStateName.value)),
+    //   graph,
+    // });
+    // const currentBranchName = graph
+    //   .getVariableById(bottom.value[i.value])
+    //   .collect();
+    // console.log({ currentBranchName });
+    // let j = graph.getState(currentBranchName).getVariable("j");
+    // console.log({ j });
+    // let nextStates = graph
+    //   .getState(currentBranchName)
+    //   .getVariable("nextStates");
+    // console.log({ nextStates });
+    // let winningStateName = graph
+    //   .getState(currentBranchName)
+    //   .getVariable("winningStateName");
+
+    // let passes = false;
+    // while (!passes && j.value < nextStates.value.length) {
+    //   const currentTrialStateName = nextStates.get(j.value).collect();
+    //   const currentTrialState = graph.getState(currentTrialStateName);
+    //   console.log({ currentTrialState, graph });
+    //   if (currentTrialState.functionCode(graph)) {
+    //     winningStateName.setValue([...currentTrialState.name]);
+    //     passes = true;
+    //     console.log({ winningStateName });
+    //   }
+    //   if (!passes) {
+    //     j.add(1);
+    //   }
+    // }
+    // console.log({ passes });
+    // if (!passes) {
+    //   console.log("all the states failed");
+    //   return false;
+    // }
+    runStates(graph);
+    const bottom = graph.getState(["tree"]).getVariable("stateRunTreeBottom");
+    const i = graph.getState(["tree"]).getVariable("i");
+    const currentBranchName = graph
+      .getVariableById(bottom.value[i.value])
+      .collect();
+    const winningStateName = graph
+      .getState(currentBranchName)
+      .getVariable("winningStateName");
+
+    const currentTrialState = graph.getState(winningStateName.value) as State;
+    console.log({ currentTrialState });
+
+    // does the state that won have children?
+    if (currentTrialState.children.length > 0) {
+      /*
+        add 1 empty branch as a child to (0, 0) called (1, 0)
+        change jth bottom child name to name of (1, 0)'s first state
+        store first state as (1, 0)'s next state
+        */
+      const newBranchName = [
+        `level ${levelId.value + 1}`,
+        `timeLine ${timeLineId.value}`,
+      ];
+      levelId.add(1);
+      // the expectd next level next states is made
+      // "dumb" is made
+      // calculator is made and already connected to the winning state
+      makeArrays(
+        {
+          [newBranchName[0]]: {
+            [newBranchName[1]]: {
+              state: {
+                parents: [[...currentBranchName]],
+                children: {},
+                variables: {
+                  nextStates: currentTrialState.start.map(
+                    (startState: string[]) =>
+                      startState.map((stateNamePart: string) => ({
+                        value: stateNamePart,
+                      }))
+                  ),
+                  winningStateName: [{ value: "dumb" }],
+                  j: { value: 0 },
+                },
+              },
+            },
+          },
+        },
+        graph
+      );
+      let currentBranch = graph.getState(currentBranchName);
+      currentBranch.children.push([...newBranchName]);
+      let stateRunTreeBottom = graph
+        .getState(["tree"])
+        .getVariable("stateRunTreeBottom");
+      stateRunTreeBottom.updateAt(
+        i.value,
+        newBranchName.map((namePart: string) => ({
+          value: namePart,
+        }))
+      );
+      // correct as of here
+      console.log("after push", { graph });
+    }
+
+    i.add(1);
+  }
+  i.setValue(0);
+};
+const visitAvaliableBranches = (graph: Graph) => {
+  const stateRunCountMax = 4;
+  const stateRunCount = graph.getState(["tree"]).getVariable("stateRunCount");
+
+  const bottom = graph.getState(["tree"]).getVariable("stateRunTreeBottom");
+
+  while (bottom.value.length > 0) {
+    console.log({ stateRunCount: stateRunCount.value });
+    if (stateRunCount.value >= stateRunCountMax) {
+      console.log(
+        `state run count is too high ${stateRunCount.value} >= ${stateRunCountMax}`
+      );
+      return false;
+    }
+
+    visitBranches(graph);
+
+    stateRunCount.add(1);
+  }
 };
 const visitor = (startStateName: string[], graph: any) => {
   /*
@@ -574,145 +806,8 @@ const visitor = (startStateName: string[], graph: any) => {
         a tree of trees for representing the end to end changes across the entire contextual state chart
     */
   // "tree"
-  let levelId = graph.getState(["tree"]).getVariable("levelId");
-  let timeLineId = graph.getState(["tree"]).getVariable("timeLineId");
-  let parentTrackerName = [
-    `level ${levelId.value}`,
-    `timeLine ${timeLineId.value}`,
-  ];
-  let nextStates = graph.getState(parentTrackerName).getVariable("nextStates");
-
-  let newStateId = makeVariable({
-    trieTreeCollection: [],
-    stateTree: startStateName.map((name) => ({
-      value: name,
-    })),
-    indexObject: graph.statesObject,
-    name: "0",
-    graph: graph,
-  });
-  nextStates.pushWrapper(newStateId);
-
-  let bottomName = "stateRunTreeBottom";
-
-  let bottom = graph.getState(["tree"]).getVariable(bottomName);
-  console.log({
-    levelId,
-    timeLineId,
-    parentTrackerName,
-    nextStates,
-    bottom,
-    graph,
-  });
-  const stateRunCountMax = 4;
-  let stateRunCount = graph.getState(["tree"]).getVariable("stateRunCount");
-  while (bottom.value.length > 0) {
-    console.log({ stateRunCount: stateRunCount.value });
-    if (stateRunCount.value >= stateRunCountMax) {
-      console.log(
-        `state run count is too high ${stateRunCount.value} >= ${stateRunCountMax}`
-      );
-      return false;
-    }
-    let i = graph.getState(["tree"]).getVariable("i");
-    console.log({ i: i.value, bottomLength: bottom.value.length });
-    while (i.value < bottom.value.length) {
-      console.log({ bottom, graph, i: i.value });
-      // why did this work the first time
-      /*
-      1) bottom.value had an array of numbers where each number pointed to an aray of ids for a state name array
-
-      bottom.value[i] is the first item
-      */
-      // const currentBranchName = graph
-      //   .getStateById(bottom.value[i.value])
-      //   .collect();
-      // console.log({ currentBranchName });
-      // let j = graph.getState(currentBranchName).getVariable("j");
-      // console.log({ j });
-      // let nextStates = graph
-      //   .getState(currentBranchName)
-      //   .getVariable("nextStates");
-      // console.log({ nextStates });
-      // let winningStateName = graph
-      //   .getState(currentBranchName)
-      //   .getVariable("winningStateName");
-      let { currentBranchName, j, winningStateName } =
-        getTrackerVariables(graph);
-      let passes = false;
-      while (!passes && j.value < nextStates.value.length) {
-        const currentTrialStateName = nextStates.get(j.value).collect();
-        const currentTrialState = graph.getState(currentTrialStateName);
-        console.log({ currentTrialState });
-        if (currentTrialState.functionCode(graph)) {
-          winningStateName.setValue(currentTrialState.name);
-          passes = true;
-          console.log({ winningStateName });
-        }
-        if (!passes) {
-          j.add(1);
-        }
-      }
-      console.log({ passes });
-      if (!passes) {
-        console.log("all the states failed");
-        return false;
-      }
-      const currentTrialState = graph.getState(winningStateName.value);
-      console.log({ currentTrialState });
-
-      // does the state that won have children?
-      if (currentTrialState.children.length > 0) {
-        /*
-        add 1 empty branch as a child to (0, 0) called (1, 0)
-        change jth bottom child name to name of (1, 0)'s first state
-        store first state as (1, 0)'s next state
-        */
-        const newBranchName = [
-          `level ${levelId.value + 1}`,
-          `timeLine ${timeLineId.value}`,
-        ];
-        levelId.add(1);
-        makeArrays(
-          {
-            [newBranchName[0]]: {
-              [newBranchName[1]]: {
-                state: {
-                  parents: [[...currentBranchName]],
-                  children: {},
-                  variables: {
-                    nextStates: currentTrialState.start.map(
-                      (startState: string[]) =>
-                        startState.map((stateNamePart: string) => ({
-                          value: stateNamePart,
-                        }))
-                    ),
-                    winningStateName: [],
-                    j: { value: 0 },
-                  },
-                },
-              },
-            },
-          },
-          graph
-        );
-        let currentBranch = graph.getState(currentBranchName);
-        currentBranch.children.push(newBranchName);
-        let stateRunTreeBottom = graph
-          .getState(["tree"])
-          .getVariable("stateRunTreeBottom");
-        stateRunTreeBottom.updateAt(
-          i.value,
-          newBranchName.map((namePart: string) => ({
-            value: namePart,
-          }))
-        );
-      }
-      i.add(1);
-    }
-    i.setValue(0);
-    stateRunCount.add(1);
-  }
+  setupTrackers(startStateName, graph);
+  visitAvaliableBranches(graph);
   return;
   // let levelId = getVariableVisitor(graph, ["tree"], "levelId");
   // console.log({ levelId });

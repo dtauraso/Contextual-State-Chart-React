@@ -31,7 +31,7 @@ import {
   setNames,
   getStates,
   getVariables,
-  getStateNames,
+  // getStateNames,
 } from "./StatesObject";
 
 import {
@@ -392,7 +392,7 @@ root state for the search tries(26 tries)
 export {
   insertName,
   setAttribute,
-  getStateNames,
+  // getStateNames,
   makeArrays,
   makeState,
   makeVariable,

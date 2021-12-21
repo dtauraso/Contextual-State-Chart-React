@@ -2,7 +2,7 @@ import React from "react";
 import {
   insertName,
   setAttribute,
-  getStateNames,
+  // getStateNames,
   makeArrays,
 } from "./ContextualStateChart/Init/ContextualStateChartInit";
 import { Graph, NamesTrie } from "./App.types";
