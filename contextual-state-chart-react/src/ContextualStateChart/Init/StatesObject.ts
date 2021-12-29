@@ -1,12 +1,11 @@
 import { State, StatesObject } from "../../App.types";
 import {
-  nullWrapper,
   booleanWrapper,
   numberWrapper,
   stringWrapper,
   arrayWrapper,
   objectWrapper,
-  stateWrapper,
+  ControlFlowStateWrapper,
 } from "../StateTree";
 const isNull = (json: any) => {
   return Object.prototype.toString.call(json) === "[object Null]";
@@ -376,16 +375,7 @@ const getVariables = ({
 }: GetVariablesParameters) => {
   // console.log({ maxId: variables.nextStateId });
   // variables.nextStateId += lastStateId;
-  if (isNull(json)) {
-    let newVariable = nullWrapper();
-    newVariable.setValue(json);
-    newVariable.setName(jsonName);
-    variables.nextStateId += 1;
-    variables.states[variables.nextStateId] = newVariable;
-    // variables.push(newVariable);
-    // newVariable.setId(variables.length - 1);
-    return variables.nextStateId;
-  } else if (isBoolean(json)) {
+  if (isBoolean(json)) {
     let newVariable = booleanWrapper();
     newVariable.setValue(json);
     newVariable.setName(jsonName);

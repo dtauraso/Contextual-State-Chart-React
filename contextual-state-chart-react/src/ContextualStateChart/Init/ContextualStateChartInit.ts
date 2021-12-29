@@ -1,7 +1,6 @@
 import { Children } from "react";
 import {
   Wrapper,
-  NullState,
   BooleanState,
   NumberState,
   StringState,
@@ -35,13 +34,12 @@ import {
 } from "./StatesObject";
 
 import {
-  nullWrapper,
   booleanWrapper,
   numberWrapper,
   stringWrapper,
   arrayWrapper,
   objectWrapper,
-  stateWrapper,
+  ControlFlowStateWrapper,
   stateTree,
   getVariable,
 } from "../StateTree";
@@ -104,11 +102,6 @@ const traverseContexts = ({
 };
 const returnTrueShort = (value: any) => true;
 const variableTypes: any = {
-  "[object Null]": {
-    cb: returnTrueShort,
-    typeName: "null",
-    wrapper: nullWrapper,
-  },
   "[object Boolean]": {
     cb: returnTrueShort,
     typeName: "boolean",
@@ -225,7 +218,35 @@ const makeState = ({
       name: currentStateName,
       stateId: stateId,
     });
-    graph.statesObject.states[stateId] = {
+    let children = currentState?.children
+      ? {
+          children: traverseContexts({
+            trieTreeCollection,
+            stateTree: currentState.children,
+            indexObject,
+            graph,
+          }),
+        }
+      : {};
+    let variables = currentState?.variables
+      ? {
+          variables: Object.keys(currentState.variables).reduce(
+            (acc: any, variableName: string) => {
+              acc[variableName] = makeVariable({
+                trieTreeCollection,
+                stateTree: currentState.variables?.[variableName],
+                indexObject,
+                name: variableName,
+                graph,
+              });
+              return acc;
+            },
+            {}
+          ),
+        }
+      : {};
+    graph.statesObject.states[stateId] = ControlFlowStateWrapper();
+    graph.statesObject.states[stateId].init({
       parents: currentState?.parents ? [...currentState.parents] : [],
       name: currentStateName,
       id: stateId,
@@ -236,36 +257,11 @@ const makeState = ({
       ...(currentState?.next ? { next: currentState.next } : {}),
       ...(currentState?.start ? { start: currentState.start } : {}),
       ...(currentState?.value ? { value: currentState.value } : {}),
-      ...(currentState?.children
-        ? {
-            children: traverseContexts({
-              trieTreeCollection,
-              stateTree: currentState.children,
-              indexObject,
-              graph,
-            }),
-          }
-        : {}),
-      ...(currentState?.variables
-        ? {
-            variables: Object.keys(currentState.variables).reduce(
-              (acc: any, variableName: string) => {
-                acc[variableName] = makeVariable({
-                  trieTreeCollection,
-                  stateTree: currentState.variables?.[variableName],
-                  indexObject,
-                  name: variableName,
-                  graph,
-                });
-                return acc;
-              },
-              {}
-            ),
-          }
-        : {}),
+      children,
+      variables,
       getVariable: getVariable,
       graph,
-    };
+    });
   } else {
     traverseContexts({
       trieTreeCollection,
@@ -292,7 +288,6 @@ const makeArrays = (stateTree: any, graph: Graph) => {
     currentStateName: [],
     graph, //: graph.statesObject.states,
   });
-
   trieTreeCollection.forEach((name: any) => {
     graph.namesTrie = insertName({
       names: graph.namesTrie,

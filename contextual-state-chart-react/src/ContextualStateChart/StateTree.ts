@@ -3,8 +3,8 @@ import {
   ControlFlowState,
   Graph,
   NamesTrie,
+  NumberState,
   States,
-  VariableState,
 } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
 import { returnTrue } from "../Calculator/CalculatorStateFunctions";
@@ -70,17 +70,13 @@ const wrapper = {
     this.statesObject = statesObject;
   },
 };
-const nullWrapper = function () {
-  return Object.create({
-    __proto__: wrapper,
-  });
-};
+
 const booleanWrapper = function () {
   return Object.create({
     __proto__: wrapper,
   });
 };
-const numberWrapper = function () {
+const numberWrapper = function (): NumberState {
   return Object.create({
     __proto__: wrapper,
 
@@ -271,13 +267,38 @@ const objectWrapper = function () {
     },
   });
 };
-const stateWrapper = function () {
+const ControlFlowStateWrapper = function () {
   return Object.create({
     __proto__: wrapper,
+
+    getVariable,
+    init: function init(
+      this: any,
+      {
+        parents,
+        name,
+        functionCode,
+        functionName,
+        start,
+        children,
+        next,
+        variables,
+      }: any
+    ) {
+      this.parents = parents;
+      this.name = name;
+      this.functionCode = functionCode;
+      this.functionName = functionName;
+      this.start = start;
+      this.children = children;
+      this.next = next;
+      this.variables = variables;
+      this.stateRunCount = 0;
+      this.getVariable = getVariable;
+    },
   });
 };
 const variableTypes: any = {
-  null: nullWrapper,
   boolean: booleanWrapper,
   number: numberWrapper,
   string: stringWrapper,
@@ -360,18 +381,22 @@ const errorState = function (): ControlFlowState {
   return {
     parents: [[""]],
     name: [""],
-    functionCode: (graph: any, currentState: any) => true,
+    functionCode: (graph: any, currentState: any) => false,
     functionName: "",
     start: [[""]],
     children: [[""]],
     next: [[""]],
     stateRunCount: 0,
-    id: 0,
+    id: -1,
     getVariable: function (this: ControlFlowState, variableName: string) {
-      return -1;
+      return {
+        value: false,
+        id: -1,
+      };
     },
   };
 };
+
 const getState = function (this: Graph, stateName: string[]) {
   // console.log({ stateName });
   if (stateName === null) {
@@ -391,24 +416,24 @@ const getState = function (this: Graph, stateName: string[]) {
 const getStateById = function (this: Graph, stateId: number) {
   // console.log({ stateId });
   if (stateId >= Object.keys(this.statesObject.states).length || stateId < 0) {
-    return this;
+    return errorState();
   }
 
   if (!(stateId in this.statesObject.states)) {
     console.log(`stateId = ${stateId} is not in graph.statesObject.states`);
-    return this;
+    return errorState();
   }
-  return this.statesObject.states[stateId];
+  return this.statesObject.states[stateId] as ControlFlowState;
 };
 const getVariableById = function (this: Graph, stateId: number) {
   // console.log({ stateId });
   if (stateId >= Object.keys(this.statesObject.states).length || stateId < 0) {
-    return null;
+    return -1;
   }
 
   if (!(stateId in this.statesObject.states)) {
     console.log(`stateId = ${stateId} is not in graph.statesObject.states`);
-    return null;
+    return -1;
   }
   return this.statesObject.states[stateId];
 };
@@ -428,6 +453,8 @@ const getVariable = function (
   // const states = this.states;
   // const parentDataState = getState(this, parentDataStateName);
   const variableId = this?.variables?.[variableName];
+  // const variable: any = this.graph.statesObject.states[variableId];
+  // if (variable.typeName === "number") return variable as NumberState;
   return this.graph.statesObject.states[variableId];
 };
 const setVariable = (graph: Graph, variableName: string, newValue: any) => {
@@ -613,13 +640,12 @@ const deleteNodesHelper = (namesTrie: any, states: any, name: any) => {
 };
 
 export {
-  nullWrapper,
   booleanWrapper,
   numberWrapper,
   stringWrapper,
   arrayWrapper,
   objectWrapper,
-  stateWrapper,
+  ControlFlowStateWrapper,
   stateTree,
   getStateId,
   getState,

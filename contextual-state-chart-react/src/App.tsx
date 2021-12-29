@@ -288,9 +288,9 @@ const App = (props: any) => {
   // console.log("updated values", myObject.value);
   // console.log(myObject.records);
 
-  let i = numberWrapper();
-  i.setValue(5);
-  i.add(i.value + 1).add(1);
+  // let i = numberWrapper();
+  // i.setValue(5);
+  // i.add(i.value + 1).add(1);
   // console.log({ i });
   let graph: Graph = {
     statesObject: { states: {}, nextStateId: 0 },

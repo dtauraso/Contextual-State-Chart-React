@@ -1,60 +1,53 @@
-// type Variables = {
-//   [key: string]: number;
-// };
-type Wrapper = {
-  value: any;
-  id: number;
+type Wrapper = State & {
   name: string;
-  states: States;
+  graph: Graph;
+  typeName: string;
   setId: (this: any, id: number) => this;
   setName: (this: any, name: string) => this;
   setValue: (this: any, value: any) => this;
   setReferenceToStatesObject: (this: any, statesObject: any) => this;
   setGraphs: (this: any, states: States) => this;
-  getVariable: (
-    graph: Graph,
-    // parentDataStateName: string[],
-    variableName: string
-  ) => State | Wrapper;
 };
-type NullState = Wrapper & {};
-type BooleanState = Wrapper & {};
-type NumberState = Wrapper & {};
-type StringState = Wrapper & {};
+type BooleanState = Wrapper & {
+  value: boolean;
+};
+type NumberState = Wrapper & {
+  value: number;
+};
+type StringState = Wrapper & {
+  value: string;
+};
 type ArrayState = Wrapper & {
-  mapWrapper: (this: any, callback: any) => this;
-  collect: (this: any) => [];
-  updateAt: (this: any, i: number, newValue: number) => this;
-};
-type NullState = {};
-type VariableState = State & {
-  value: NullState | boolean | number[];
+  value: number[];
+  mapWrapper: (this: ArrayState, callback: any) => ArrayState;
+  collect: (this: ArrayState) => [];
+  updateAt: (this: ArrayState, i: number, newValue: number) => ArrayState;
 };
 
+type ObjectState = Wrapper & {
+  value: Variable;
+};
 type Variable = {
   [key: string]: number;
 };
 type ControlFlowState = State & {
   parents: string[][];
   name: string[];
-  functionCode: (graph: any, currentState: any) => boolean;
+  functionCode: (graph: Graph, currentState: any) => boolean;
   functionName: string;
   start: string[][];
   children: string[][];
   next: string[][];
   variables?: Variable;
   stateRunCount: number;
-  // getVariable: (graph: Graph, variableName: string) => State;
-  getVariable: (
-    this: ControlFlowState,
-    variableName: string
-  ) => VariableState | -1;
+  // using "any" to avoid having to use ".typeName()" when getting the value of a variable
+  getVariable: (this: ControlFlowState, variableName: string) => any;
 };
 type State = {
   id: number;
 };
 type States = {
-  [key: number]: ControlFlowState | VariableState;
+  [key: number]: ControlFlowState | BooleanState | NumberState | ArrayState;
 };
 type StatesObject = {
   nextStateId: number;
@@ -74,16 +67,11 @@ type Graph = {
 
   getState: (this: Graph, stateName: string[]) => ControlFlowState;
   getStateById: (this: Graph, stateId: number) => ControlFlowState;
-  getVariable: (this: ControlFlowState, variableName: string) => VariableState;
-  getVariableById: (
-    this: ControlFlowState,
-    variableId: number
-  ) => VariableState;
+  getVariableById: (this: Graph, variableId: number) => any;
 };
 
 export {
   Wrapper,
-  NullState,
   BooleanState,
   NumberState,
   StringState,
@@ -95,5 +83,4 @@ export {
   NamesTrie,
   Graph,
   ControlFlowState,
-  VariableState,
 };
