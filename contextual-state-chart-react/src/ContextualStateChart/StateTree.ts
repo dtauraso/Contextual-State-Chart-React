@@ -283,6 +283,7 @@ const ControlFlowStateWrapper = function () {
         children,
         next,
         variables,
+        graph,
       }: any
     ) {
       this.parents = parents;
@@ -295,6 +296,7 @@ const ControlFlowStateWrapper = function () {
       this.variables = variables;
       this.stateRunCount = 0;
       this.getVariable = getVariable;
+      this.graph = graph;
     },
   });
 };
@@ -446,13 +448,15 @@ const getVariable = function (
     console.log(variableName, "must be a string");
     return -1;
   }
-  // console.log({ this: this });
+  // console.log({ this: this, variableName });
   // if (parentDataStateName === undefined) {
   //   return null;
   // }
   // const states = this.states;
   // const parentDataState = getState(this, parentDataStateName);
   const variableId = this?.variables?.[variableName];
+  // console.log({ variableId });
+  // console.log({ variable: this.graph.statesObject.states[variableId] });
   // const variable: any = this.graph.statesObject.states[variableId];
   // if (variable.typeName === "number") return variable as NumberState;
   return this.graph.statesObject.states[variableId];

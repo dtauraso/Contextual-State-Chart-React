@@ -566,6 +566,7 @@ const getTrackerVariables = (graph: Graph) => {
 };
 const setupTrackers = (startStateName: string[], graph: Graph) => {
   const levelId = graph.getState(["tree"]).getVariable("levelId");
+  console.log({ levelId, graph });
   const timeLineId = graph.getState(["tree"]).getVariable("timeLineId");
   const parentTrackerName = [
     `level ${levelId.value}`,
@@ -606,6 +607,7 @@ const runStates = (graph: Graph) => {
     j,
     w: JSON.parse(JSON.stringify(winningStateName.value)),
     graph,
+    nextStates,
   });
   let passes = false;
   while (!passes && j.value < nextStates.value.length) {

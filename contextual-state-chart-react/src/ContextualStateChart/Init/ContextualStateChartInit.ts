@@ -219,31 +219,27 @@ const makeState = ({
       stateId: stateId,
     });
     let children = currentState?.children
-      ? {
-          children: traverseContexts({
-            trieTreeCollection,
-            stateTree: currentState.children,
-            indexObject,
-            graph,
-          }),
-        }
+      ? traverseContexts({
+          trieTreeCollection,
+          stateTree: currentState.children,
+          indexObject,
+          graph,
+        })
       : {};
     let variables = currentState?.variables
-      ? {
-          variables: Object.keys(currentState.variables).reduce(
-            (acc: any, variableName: string) => {
-              acc[variableName] = makeVariable({
-                trieTreeCollection,
-                stateTree: currentState.variables?.[variableName],
-                indexObject,
-                name: variableName,
-                graph,
-              });
-              return acc;
-            },
-            {}
-          ),
-        }
+      ? Object.keys(currentState.variables).reduce(
+          (acc: any, variableName: string) => {
+            acc[variableName] = makeVariable({
+              trieTreeCollection,
+              stateTree: currentState.variables?.[variableName],
+              indexObject,
+              name: variableName,
+              graph,
+            });
+            return acc;
+          },
+          {}
+        )
       : {};
     graph.statesObject.states[stateId] = ControlFlowStateWrapper();
     graph.statesObject.states[stateId].init({
