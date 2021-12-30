@@ -119,9 +119,10 @@ const arrayWrapper = function () {
       // return this.value[i];
     },
     collect: function collect(this: any) {
+      // put json back together
       console.log({ this: this });
       return this.value.map(
-        (variableId: number) => this.graph.getStateById(variableId).value
+        (variableId: number) => this.graph.getVariableById(variableId).value
       );
     },
 
