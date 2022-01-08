@@ -37,7 +37,6 @@ const numberGetDigit = (graph: any) => {
   const input = graph.getState(calculatorName).getVariable(inputName);
   const i1 = graph.getState(calculatorName).getVariable(i1Name);
   const token = graph.getState(createExpressionName).getVariable(tokenName);
-  const expression = graph.getState(calculatorName).getVariable(expressionName);
 
   if (i1.genericReturnValue(greaterThanOrEqual, input.value.length)) {
     return true;
@@ -46,12 +45,8 @@ const numberGetDigit = (graph: any) => {
     return false;
   }
   token.updateVRAtom(token.concat(input.at(i1)));
-  console.log({ input, i1, token, expression });
-
-  console.log({ token, graph });
   i1.add(1);
 
-  // console.log("end of state", { graph });
   return true;
 };
 const saveNumber = (graph: any) => {
