@@ -5,6 +5,7 @@ import {
   NamesTrie,
   NumberState,
   States,
+  StringState,
 } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
 import { returnTrue } from "../Calculator/CalculatorStateFunctions";
@@ -33,6 +34,7 @@ const wrapper = {
       [Object.keys(this.records).length]: value,
     };
   },
+
   updateValue: function updateValue(this: any, value: any) {
     this.value = value;
     // this.records = {
@@ -46,6 +48,13 @@ const wrapper = {
       ...this.records,
       [Object.keys(this.records).length]: { id, value },
     };
+  },
+  updateVRAtom: function updateVRAtom(this: any, value: any) {
+    this.records = {
+      ...this.records,
+      [Object.keys(this.records).length]: { id: this.id, value: this.value },
+    };
+    this.value = value;
   },
   init: function init(
     this: any,
@@ -99,11 +108,31 @@ const numberWrapper = function (): NumberState {
       };
       return this;
     },
+    genericReturnValue: function generic(
+      this: any,
+      callback: Function,
+      b: any
+    ) {
+      // console.log({ this: this, callback, b });
+      // console.log(callbackName);
+      // let a = this.valu
+      // let v: Array<any> = [];
+      if (b == null) {
+        return -1;
+      }
+      return callback(this.value, b.value);
+    },
   });
 };
 const stringWrapper = function () {
   return Object.create({
     __proto__: wrapper,
+    at: function at(this: any, i: NumberState) {
+      return this.value[i.value];
+    },
+    concat: function concat(this: any, b: string) {
+      return this.value + b;
+    },
   });
 };
 const arrayWrapper = function () {
@@ -125,7 +154,9 @@ const arrayWrapper = function () {
         (variableId: number) => this.graph.getVariableById(variableId).value
       );
     },
-
+    at: function at(this: any, i: NumberState) {
+      return this.value[i.value];
+    },
     mapWrapper: function mapWrapper(this: any, callback: any) {
       /*
       make new array

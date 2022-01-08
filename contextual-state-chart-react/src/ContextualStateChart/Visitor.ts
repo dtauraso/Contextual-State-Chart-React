@@ -610,6 +610,7 @@ const runStates = (graph: Graph) => {
     console.log({ winningStateName });
     return false;
   }
+  return true;
 };
 const getWinningState = (graph: Graph) => {
   const bottom = graph.getState(["tree"]).getVariable("stateRunTreeBottom");
@@ -685,11 +686,10 @@ const visitBranches = (graph: Graph) => {
   const i = graph.getState(["tree"]).getVariable("i");
   const bottom = graph.getState(["tree"]).getVariable("stateRunTreeBottom");
 
-  // console.log({ i: i.value, bottomLength: bottom.value.length });
   while (i.value < bottom.value.length) {
-    // console.log({ bottom, graph, i: i.value });
-
-    runStates(graph);
+    if (!runStates(graph)) {
+      return false;
+    }
     const winningState = getWinningState(graph);
     console.log({ winningState });
     if (winningState.children.length > 0) {
@@ -698,6 +698,7 @@ const visitBranches = (graph: Graph) => {
     i.add(1);
   }
   i.setValue(0);
+  return true;
 };
 const visitAvaliableBranches = (graph: Graph) => {
   const stateRunCountMax = 4;
@@ -714,10 +715,13 @@ const visitAvaliableBranches = (graph: Graph) => {
       return false;
     }
 
-    visitBranches(graph);
+    if (!visitBranches(graph)) {
+      return false;
+    }
 
     stateRunCount.add(1);
   }
+  return true;
 };
 const visitor = (startStateName: string[], graph: any) => {
   /*
@@ -741,8 +745,10 @@ const visitor = (startStateName: string[], graph: any) => {
     */
   // "tree"
   setupTrackers(startStateName, graph);
-  visitAvaliableBranches(graph);
-  return;
+  if (!visitAvaliableBranches(graph)) {
+    return false;
+  }
+  return true;
   // let levelId = getVariableVisitor(graph, ["tree"], "levelId");
   // console.log({ levelId });
   // let timeLineId = getVariableVisitor(graph, ["tree"], "timeLineId");

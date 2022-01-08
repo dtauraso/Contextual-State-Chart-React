@@ -1,3 +1,4 @@
+import { NumberState } from "../App.types";
 import { getVariable, setVariable } from "../ContextualStateChart/StateTree";
 import { getRunningState } from "../ContextualStateChart/Visitor";
 // state names
@@ -12,6 +13,19 @@ const expressionName = "expression";
 
 // currentState needs to be reachable from graph
 // graph -> bottom.children[i] -> nextStates[j] = currentState
+const equal = (a: number, b: number) => {
+  return a === b;
+};
+const greaterThan = (a: number, b: number) => {
+  return a > b;
+};
+
+const greaterThanOrEqual = (a: number, b: number) => {
+  return greaterThan(a, b) || equal(a, b);
+};
+const digitRange = (x: string, l: string, r: string) => {
+  return x >= l && x <= r;
+};
 const numberGetDigit = (graph: any) => {
   // save createExpressionName , and the current state using getVariable
   /*
@@ -20,25 +34,23 @@ const numberGetDigit = (graph: any) => {
 
   }
   */
-  // const input = getVariable(graph, calculatorName, inputName).value;
-  // const i1 = getVariable(graph, calculatorName, i1Name);
-  // const token = getVariable(graph, createExpressionName, tokenName).value;
-  // let expression = getVariable(graph, calculatorName, expressionName).value;
-  // console.log({ input, i1, token, expression });
-  // if (i1.value >= input.length) {
-  return false;
-  // }
-  // console.log(input[i1.value]);
-  // if (!(input[i1.value] >= "0" && input[i1.value] <= "9")) {
-  return false;
-  // }
-  // console.log("numberGetDigit");
-  // setVariable(graph, tokenName, token + input[i1])
+  const input = graph.getState(calculatorName).getVariable(inputName);
+  const i1 = graph.getState(calculatorName).getVariable(i1Name);
+  const token = graph.getState(createExpressionName).getVariable(tokenName);
+  const expression = graph.getState(calculatorName).getVariable(expressionName);
 
-  // setVariable(graph, tokenName, token + input[i1.value]);
-  // token.concat(input[i1.value])
-  // i1.add(1);
-  // setVariable(graph, i1Name, i1 + 1);
+  if (i1.genericReturnValue(greaterThanOrEqual, input.value.length)) {
+    return true;
+  }
+  if (!digitRange(input.at(i1), "0", "9")) {
+    return false;
+  }
+  token.updateVRAtom(token.concat(input.at(i1)));
+  console.log({ input, i1, token, expression });
+
+  console.log({ token, graph });
+  i1.add(1);
+
   // console.log("end of state", { graph });
   return true;
 };
