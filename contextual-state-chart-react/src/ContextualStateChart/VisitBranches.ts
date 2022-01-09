@@ -1,5 +1,5 @@
 import { Graph } from "../App.types";
-import { pushBranch } from "./UpdateBranchTree";
+import { pushBranch, updateBranch } from "./UpdateBranchTree";
 import { RunStates, getWinningState } from "./Visitor";
 let tree = ["tree"];
 
@@ -20,6 +20,9 @@ const VisitBranches = (graph: Graph) => {
       // visit next states
       // replace bottom.children[i] with winningState.value
       console.log("here");
+      updateBranch(graph);
+      console.log("finished updating branch");
+      console.log({ states: graph.statesObject.states });
     } else if (winningState.next.length === 0) {
       // travel up the branch path to find the next actionable state or a subroot(root but not the root of the tree)
     }

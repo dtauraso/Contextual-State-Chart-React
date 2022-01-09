@@ -1,8 +1,9 @@
-import { Graph } from "../App.types";
+import { ArrayState, Graph, StringState } from "../App.types";
 
-import { makeArrays } from "./Init/ContextualStateChartInit";
+import { makeArrays, makeVariable } from "./Init/ContextualStateChartInit";
 let tree = ["tree"];
 
+// nextStateId may need to be updated after graph entries are added and deleted
 const pushBranch = (graph: Graph) => {
   /*
     (levelId, timeLineId)
@@ -64,4 +65,45 @@ const pushBranch = (graph: Graph) => {
   );
 };
 
-export { pushBranch };
+const updateBranch = (graph: Graph) => {
+  const bottom = graph.getState(tree).getVariable("stateRunTreeBottom");
+  const i = graph.getState(tree).getVariable("i");
+  const currentBranchName = graph
+    .getVariableById(bottom.value[i.value])
+    .collect();
+  const nextStates = graph
+    .getState(currentBranchName)
+    .getVariable("nextStates");
+  const winningStateName = graph
+    .getState(currentBranchName)
+    .getVariable("winningStateName");
+  const currentState = graph.getState(winningStateName.value);
+  console.log({ graph, nextStates, winningStateName, currentState });
+  nextStates.value.forEach((id1: number) => {
+    (graph.statesObject.states[id1] as ArrayState).value.forEach(
+      (id2: number) => {
+        console.log({ id2 });
+        delete graph.statesObject.states[id2];
+      }
+    );
+    delete graph.statesObject.states[id1];
+  });
+  nextStates.setValue([]);
+  const newNextStates: Array<Array<string>> = [];
+  //   makeArrays()
+
+  currentState.next.forEach((stateName: string[], i: number) => {
+    const newVariableId = makeVariable({
+      trieTreeCollection: null, //[],
+      stateTree: stateName.map((stateNamePart: string) => ({
+        value: stateNamePart,
+      })),
+      indexObject: graph.statesObject,
+      name: `${i}`,
+      graph,
+    });
+    newNextStates.push(newVariableId);
+  });
+  nextStates.setValue(newNextStates);
+};
+export { pushBranch, updateBranch };

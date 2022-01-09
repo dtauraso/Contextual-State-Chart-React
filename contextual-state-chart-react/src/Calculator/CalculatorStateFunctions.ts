@@ -42,6 +42,7 @@ const numberGetDigit = (graph: any) => {
     return true;
   }
   if (!digitRange(input.at(i1), "0", "9")) {
+    console.log("out of range");
     return false;
   }
   token.updateVRAtom(token.concat(input.at(i1)));
@@ -54,6 +55,7 @@ const saveNumber = (graph: any) => {
   // let token = getVariable(graph, createExpressionName, tokenName).value;
   // console.log({ token, test: Number(token) });
   // if (Number(token) === NaN) {
+  console.log("saveNumber");
   return false;
   // }
 

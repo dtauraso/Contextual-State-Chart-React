@@ -149,7 +149,13 @@ const arrayWrapper = function () {
     },
     collect: function collect(this: any) {
       // put json back together
-      console.log({ this: this });
+      console.log({
+        graph: this.graph,
+        ids: this.value,
+        items: this.value.map((variableId: number) =>
+          this.graph.getVariableById(variableId)
+        ),
+      });
       return this.value.map(
         (variableId: number) => this.graph.getVariableById(variableId).value
       );
@@ -449,7 +455,7 @@ const getState = function (this: Graph, stateName: string[]) {
 };
 const getStateById = function (this: Graph, stateId: number) {
   // console.log({ stateId });
-  if (stateId >= Object.keys(this.statesObject.states).length || stateId < 0) {
+  if (stateId >= this.statesObject.nextStateId || stateId < 0) {
     return errorState();
   }
 
@@ -460,8 +466,9 @@ const getStateById = function (this: Graph, stateId: number) {
   return this.statesObject.states[stateId] as ControlFlowState;
 };
 const getVariableById = function (this: Graph, stateId: number) {
-  // console.log({ stateId });
-  if (stateId >= Object.keys(this.statesObject.states).length || stateId < 0) {
+  console.log({ stateId, states: this.statesObject.states });
+
+  if (stateId >= this.statesObject.nextStateId || stateId < 0) {
     return -1;
   }
 
