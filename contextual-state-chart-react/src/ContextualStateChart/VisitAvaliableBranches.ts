@@ -1,8 +1,8 @@
 import { Graph } from "../App.types";
-import { visitBranches } from "./Visitor";
+import { VisitBranches } from "./Visitor";
 let tree = ["tree"];
 
-const visitAvaliableBranches = (graph: Graph) => {
+const VisitAvaliableBranches = (graph: Graph) => {
   const stateRunCountMax = 5;
   const stateRunCount = graph.getState(tree).getVariable("stateRunCount");
 
@@ -17,7 +17,7 @@ const visitAvaliableBranches = (graph: Graph) => {
       return false;
     }
 
-    if (!visitBranches(graph)) {
+    if (!VisitBranches(graph)) {
       return false;
     }
 
@@ -26,4 +26,4 @@ const visitAvaliableBranches = (graph: Graph) => {
   return true;
 };
 
-export { visitAvaliableBranches };
+export { VisitAvaliableBranches };

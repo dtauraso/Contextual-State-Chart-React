@@ -20,9 +20,9 @@ import { makeArrays, makeVariable } from "./Init/ContextualStateChartInit";
 // import { addState, getStateNames } from "./Init/StatesObject";
 import { insertName, makeState } from "./Init/ContextualStateChartInit";
 import { ExitStatus } from "typescript";
-import { visitAvaliableBranches } from "./VisitSubContextualStateCharts";
-import { visitBranches } from "./VisitNextStates";
-import { runStates } from "./TrialNextStates";
+import { VisitAvaliableBranches } from "./VisitAvaliableBranches";
+import { VisitBranches } from "./VisitBranches";
+import { RunStates } from "./RunStates";
 import { getTrackerVariables, getWinningState } from "./UtilityFunctions";
 let tree = ["tree"];
 let initEntry = {
@@ -591,7 +591,7 @@ const visitor = (startStateName: string[], graph: any) => {
     */
   // "tree"
   setupTrackers(startStateName, graph);
-  if (!visitAvaliableBranches(graph)) {
+  if (!VisitAvaliableBranches(graph)) {
     return false;
   }
   return true;
@@ -823,8 +823,8 @@ export {
   getRunningState,
   // getRecordingFlag,
   visitor,
-  visitBranches,
-  runStates,
+  VisitBranches,
+  RunStates,
   getWinningState,
   getTrackerVariables,
 };

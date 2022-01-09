@@ -2,7 +2,7 @@ import { Graph } from "../App.types";
 
 import { getTrackerVariables } from "./Visitor";
 
-const runStates = (graph: Graph) => {
+const RunStates = (graph: Graph) => {
   const { currentBranchName, j, winningStateName, nextStates } =
     getTrackerVariables(graph);
   // console.log({
@@ -35,4 +35,4 @@ const runStates = (graph: Graph) => {
   return true;
 };
 
-export { runStates };
+export { RunStates };

@@ -1,14 +1,14 @@
 import { Graph } from "../App.types";
 import { pushBranch } from "./UpdateBranchTree";
-import { runStates, getWinningState } from "./Visitor";
+import { RunStates, getWinningState } from "./Visitor";
 let tree = ["tree"];
 
-const visitBranches = (graph: Graph) => {
+const VisitBranches = (graph: Graph) => {
   const i = graph.getState(tree).getVariable("i");
   const bottom = graph.getState(tree).getVariable("stateRunTreeBottom");
 
   while (i.value < bottom.value.length) {
-    if (!runStates(graph)) {
+    if (!RunStates(graph)) {
       return false;
     }
     const winningState = getWinningState(graph);
@@ -29,4 +29,4 @@ const visitBranches = (graph: Graph) => {
   return true;
 };
 
-export { visitBranches };
+export { VisitBranches };
