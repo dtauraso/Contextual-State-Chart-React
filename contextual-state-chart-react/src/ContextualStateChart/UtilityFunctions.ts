@@ -6,18 +6,22 @@ const getTrackerVariables = (graph: Graph) => {
 
   const bottom = graph.getState(tree).getVariable(bottomName);
   const i = graph.getState(tree).getVariable("i");
-
+  const currentBranch = graph.getVariableById(bottom.at(i));
+  // getting the branch name
   const currentBranchName = graph
     .getVariableById(bottom.value[i.value])
     .collect();
-  console.log({ currentBranchName });
-  const j = graph.getState(currentBranchName).getVariable("j");
-  const nextStates = graph
-    .getState(currentBranchName)
-    .getVariable("nextStates");
-  const winningStateName = graph
-    .getState(currentBranchName)
-    .getVariable("winningStateName");
+  console.log({ currentBranch });
+  const j = currentBranch //graph.getState(currentBranchName)
+    .getVariable("j");
+  const nextStates =
+    // graph;
+    // .getState(currentBranchName)
+    currentBranch.getVariable("nextStates");
+  const winningStateName =
+    // graph
+    // .getState(currentBranchName)
+    currentBranch.getVariable("winningStateName");
   return { currentBranchName, j, winningStateName, nextStates };
 };
 

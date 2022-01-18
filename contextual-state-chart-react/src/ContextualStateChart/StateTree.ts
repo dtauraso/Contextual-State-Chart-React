@@ -18,6 +18,51 @@ import {
   isObject,
 } from "./Init/StatesObject";
 import { makeArrays, makeVariable } from "./Init/ContextualStateChartInit";
+let stateTree = {
+  tree: {
+    state: {
+      functionCode: returnTrue,
+      start: ["calculator"],
+      children: {
+        ...calculatorStateTree,
+        "run state machine": {
+          calculator: {
+            stateRunTree: {
+              state: {
+                children: {
+                  "level 0": {
+                    "timeLine 0": {
+                      state: {
+                        children: {},
+                        variables: {
+                          nextStates: [],
+                          winningStateName: [],
+                          j: { value: 0 },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      variables: {
+        levelId: { value: 0 },
+        timeLineId: { value: 0 },
+        machineRunId: { value: 0 },
+        stateRunCount: { value: 0 },
+        // encode state names as strings
+        // assumes users will be working on a small # of states at a time
+        statesToRecord: { calculator: { value: 1 } },
+        i: { value: 0 },
+        stateRunTreeBottom: [],
+      },
+    },
+  },
+};
+const printTree = function (this: Graph) {};
 
 const wrapper = {
   setId: function setId(this: any, id: number) {
@@ -149,13 +194,13 @@ const arrayWrapper = function () {
     },
     collect: function collect(this: any) {
       // put json back together
-      console.log({
-        graph: this.graph,
-        ids: this.value,
-        items: this.value.map((variableId: number) =>
-          this.graph.getVariableById(variableId)
-        ),
-      });
+      // console.log({
+      //   graph: this.graph,
+      //   ids: this.value,
+      //   items: this.value.map((variableId: number) =>
+      //     this.graph.getVariableById(variableId)
+      //   ),
+      // });
       return this.value.map(
         (variableId: number) => this.graph.getVariableById(variableId).value
       );
@@ -257,7 +302,17 @@ const arrayWrapper = function () {
           value: [...this.value],
         },
       };
-      this.value.push(_this);
+      const newVariableId = makeVariable({
+        trieTreeCollection: null, //[],
+        stateTree: {
+          value: _this,
+        },
+        indexObject: this.graph.statesObject,
+        name: `${this.value.length}`,
+        graph: this.graph,
+      });
+      this.value.push(newVariableId);
+
       return this;
     },
     updateAt: function updateAt(this: any, i: number, newValue: number) {
@@ -268,6 +323,7 @@ const arrayWrapper = function () {
           value: this.value[i],
         },
       };
+      console.log({ newValue, graph: this.graph });
       const newVariableId = makeVariable({
         trieTreeCollection: [],
         stateTree: newValue,
@@ -313,6 +369,7 @@ const ControlFlowStateWrapper = function () {
     init: function init(
       this: any,
       {
+        id,
         parents,
         name,
         functionCode,
@@ -324,6 +381,7 @@ const ControlFlowStateWrapper = function () {
         graph,
       }: any
     ) {
+      this.id = id;
       this.parents = parents;
       this.name = name;
       this.functionCode = functionCode;
@@ -336,6 +394,11 @@ const ControlFlowStateWrapper = function () {
       this.getVariable = getVariable;
       this.graph = graph;
     },
+    getParent: function getParent(this: any) {
+      console.log({ this: this });
+      // assumes there is only 1 parent
+      return this.graph.getState(this.parents[0]);
+    },
   });
 };
 const variableTypes: any = {
@@ -346,52 +409,6 @@ const variableTypes: any = {
   object: objectWrapper,
 };
 
-// import { numberWrapper } from "../App";
-let stateTree = {
-  tree: {
-    state: {
-      functionCode: returnTrue,
-      start: ["calculator"],
-      children: {
-        ...calculatorStateTree,
-        "run state machine": {
-          calculator: {
-            stateRunTree: {
-              state: {
-                children: {
-                  "level 0": {
-                    "timeLine 0": {
-                      state: {
-                        children: {},
-                        variables: {
-                          nextStates: [],
-                          winningStateName: [],
-                          j: { value: 0 },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      variables: {
-        levelId: { value: 0 },
-        timeLineId: { value: 0 },
-        machineRunId: { value: 0 },
-        stateRunCount: { value: 0 },
-        // encode state names as strings
-        // assumes users will be working on a small # of states at a time
-        statesToRecord: { calculator: { value: 1 } },
-        i: { value: 0 },
-        stateRunTreeBottom: [[{ value: "level 0" }, { value: "timeLine 0" }]],
-      },
-    },
-  },
-};
-const printTree = function (this: Graph) {};
 const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
   // console.log({ namesTrie, stateName });
   let namesTrieTracker = namesTrie;
@@ -434,6 +451,7 @@ const errorState = function (): ControlFlowState {
         id: -1,
       };
     },
+    getParent: function (this: ControlFlowState) {},
   };
 };
 
@@ -466,7 +484,7 @@ const getStateById = function (this: Graph, stateId: number) {
   return this.statesObject.states[stateId] as ControlFlowState;
 };
 const getVariableById = function (this: Graph, stateId: number) {
-  console.log({ stateId, states: this.statesObject.states });
+  // console.log({ stateId, states: this.statesObject.states });
 
   if (stateId >= this.statesObject.nextStateId || stateId < 0) {
     return -1;
@@ -660,27 +678,6 @@ const printRecordTree = (graph: any, recordTreeRootName: string[]) => {
 
 //   return updatedName;
 // };
-const deleteNodes = (graph: any, name: any) => {
-  // console.log({ node, name });
-  deleteNodesHelper(graph.namesTrie, graph.statesObject.states, name);
-};
-const deleteNodesHelper = (namesTrie: any, states: any, name: any) => {
-  // console.log({ namesTrie });
-  if (name.length === 0) {
-    if ("id" in namesTrie) {
-      // console.log({ id: namesTrie.id });
-      delete states[namesTrie.id];
-      delete namesTrie.id;
-    }
-  } else if (name[0] in namesTrie) {
-    deleteNodesHelper(namesTrie[name[0]], states, name.slice(1, name.length));
-    // namesTrie[name[0]].id has been deleted
-    if (Object.keys(namesTrie[name[0]]).length === 0) {
-      // console.log({ node });
-      delete namesTrie[name[0]];
-    }
-  }
-};
 
 export {
   booleanWrapper,
@@ -698,7 +695,5 @@ export {
   setVariable,
   // insertVariableState,
   // insertState,
-  deleteNodes,
-  deleteNodesHelper,
   printRecordTree,
 };

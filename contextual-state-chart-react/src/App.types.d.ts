@@ -22,6 +22,7 @@ type ArrayState = Wrapper & {
   mapWrapper: (this: ArrayState, callback: any) => ArrayState;
   collect: (this: ArrayState) => [];
   updateAt: (this: ArrayState, i: number, newValue: number) => ArrayState;
+  at: (this: any, i: NumberState) => any;
 };
 
 type ObjectState = Wrapper & {
@@ -42,6 +43,7 @@ type ControlFlowState = State & {
   stateRunCount: number;
   // using "any" to avoid having to use ".typeName()" when getting the value of a variable
   getVariable: (this: ControlFlowState, variableName: string) => any;
+  getParent: (this: ControlFlowState) => any;
 };
 type State = {
   id: number;

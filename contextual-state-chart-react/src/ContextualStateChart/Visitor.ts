@@ -10,8 +10,6 @@ import {
   getState,
   // insertVariableState,
   // insertState,
-  deleteNodes,
-  deleteNodesHelper,
   printRecordTree,
   getVariable,
 } from "./StateTree";
@@ -174,78 +172,6 @@ const moveDown1Level = (
   // ).value;
 };
 
-// const moveAcross1Level = (
-//   graph: any,
-//   currentTracker: any,
-//   winningState: any,
-//   nextStates: any
-// ) => {
-//   console.log({ winningState });
-
-//   // updateVariableVisitor(
-//   //   graph,
-//   //   currentTracker.name,
-//   //   "nextStates",
-//   //   winningState.next
-//   // );
-//   let winningStateName = getVariableVisitor(
-//     graph,
-//     currentTracker.name,
-//     "winningStateName"
-//   );
-//   let previousSiblingWinningStateName = getVariableVisitor(
-//     graph,
-//     currentTracker.name,
-//     "previousSiblingWinningStateName"
-//   );
-//   // previousSiblingWinningStateName.setValue(winningStateName.value);
-//   // updateVariableVisitor(
-//   //   graph,
-//   //   currentTracker.name,
-//   //   "previousSiblingWinningStateName",
-//   //   winningStateName.value
-//   //   // getVariableVisitor(graph, currentTracker.name, "winningStateName").value
-//   // );
-//   // previousSiblingWinningStateName
-//   // winningStateName.setValue([]);
-//   // updateVariableVisitor(graph, currentTracker.name, "winningStateName", []);
-//   console.log({ currentTracker });
-//   console.log({ graph });
-//   nextStates = getVariableVisitor(graph, currentTracker.name, "nextStates");
-//   nextStates.setValue(winningState.next);
-//   // nextStates = getVariableVisitor(
-//   //   graph,
-//   //   currentTracker.name,
-//   //   "nextStates"
-//   // ).value;
-//   console.log({ nextStates });
-// };
-
-const moveUpToParentNode = (graph: any, bottom: any, i: any) => {
-  // move bottom's ith child up by 1 unit
-  // let parentTracker = getState(
-  //   graph,
-  //   // getState(graph, bottom.children[i.value]).parent
-  // );
-  // console.log("parent tracker child count", currentTracker.children.length);
-  // remove the last one
-  // parentTracker.children.pop();
-  // will mess things up if parentTracker connects
-  // to more than 1 branch
-  // parentTracker.children = [];
-  // console.log({ parentTracker });
-  // bottom.children[i.value] = getState(
-  //   graph,
-  //   getState(graph, bottom.children[i.value]).parent
-  // ).name;
-};
-
-const deleteCurrentNode = (graph: any, currentTracker: any) => {
-  Object.keys(currentTracker.variables).forEach((variableName) => {
-    delete graph.statesObject.states[currentTracker.variables[variableName]];
-  });
-  deleteNodes(graph, currentTracker.name);
-};
 /*
 [..stateName, unitTest, 1stCycle, 1stRun]
 record unit test first using context additions
@@ -547,6 +473,9 @@ const makeRecordingTree = (graph: any, prevState: any) => {
 };
 
 const setupTrackers = (startStateName: string[], graph: Graph) => {
+  // fixing problem where the bottom array linked to state name arrays instead of
+  // the states the names pointed to
+  // inital conditions are wrong
   const levelId = graph.getState(tree).getVariable("levelId");
   const timeLineId = graph.getState(tree).getVariable("timeLineId");
   const parentTrackerName = [
@@ -566,7 +495,7 @@ const setupTrackers = (startStateName: string[], graph: Graph) => {
     name: "0",
     graph: graph,
   });
-  nextStates.pushWrapper(newStateId);
+  nextStates.value.push(newStateId);
 };
 
 const visitor = (startStateName: string[], graph: any) => {

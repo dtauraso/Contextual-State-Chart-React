@@ -54,6 +54,9 @@ const getSubStatePaths2 = ({
   paths,
   currentPath,
 }: GetSubStatePaths2Parameters) => {
+  if (node === undefined) {
+    return paths;
+  }
   if (typeof node === "string") {
     return;
   } else if ("value" in node) {
@@ -79,26 +82,29 @@ const traverseContexts = ({
   graph,
 }: any) => {
   let paths: string[][] = [];
+  // console.log({ stateTree });
   getSubStatePaths2({
     node: stateTree,
     paths,
     currentPath: [],
   });
-
+  let childrenIds: number[] = [];
   paths.forEach((path: string[]) => {
     let tracker = stateTree;
     path.forEach((contextName: string) => {
       tracker = tracker[contextName];
     });
-    makeState({
-      trieTreeCollection,
-      stateTree: tracker,
-      indexObject,
-      currentStateName: path,
-      graph,
-    });
+    childrenIds.push(
+      makeState({
+        trieTreeCollection,
+        stateTree: tracker,
+        indexObject,
+        currentStateName: path,
+        graph,
+      })
+    );
   });
-  return paths;
+  return { paths, childrenIds };
 };
 const returnTrueShort = (value: any) => true;
 const variableTypes: any = {
@@ -218,14 +224,14 @@ const makeState = ({
       name: currentStateName,
       stateId: stateId,
     });
-    let children = currentState?.children
-      ? traverseContexts({
-          trieTreeCollection,
-          stateTree: currentState.children,
-          indexObject,
-          graph,
-        })
-      : {};
+    const { paths, childrenIds } = traverseContexts({
+      trieTreeCollection,
+      stateTree: currentState.children,
+      indexObject,
+      graph,
+    });
+
+    let children = currentState?.children ? paths : {};
     let variables = currentState?.variables
       ? Object.keys(currentState.variables).reduce(
           (acc: any, variableName: string) => {
@@ -243,9 +249,9 @@ const makeState = ({
       : {};
     graph.statesObject.states[stateId] = ControlFlowStateWrapper();
     graph.statesObject.states[stateId].init({
+      id: stateId,
       parents: currentState?.parents ? [...currentState.parents] : [],
       name: currentStateName,
-      id: stateId,
       typeName: "state",
       ...(currentState?.functionCode
         ? { functionCode: currentState.functionCode }
@@ -258,6 +264,11 @@ const makeState = ({
       getVariable: getVariable,
       graph,
     });
+    childrenIds.forEach((chidlrenId: number) => {
+      graph.statesObject.states[chidlrenId].parents.push(currentStateName);
+    });
+
+    return stateId;
   } else {
     traverseContexts({
       trieTreeCollection,

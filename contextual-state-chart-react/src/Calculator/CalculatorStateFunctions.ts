@@ -42,7 +42,6 @@ const numberGetDigit = (graph: any) => {
     return true;
   }
   if (!digitRange(input.at(i1), "0", "9")) {
-    console.log("out of range");
     return false;
   }
   token.updateVRAtom(token.concat(input.at(i1)));
@@ -51,32 +50,23 @@ const numberGetDigit = (graph: any) => {
   return true;
 };
 const saveNumber = (graph: any) => {
-  // let expression = getVariable(graph, calculatorName, expressionName).value;
-  // let token = getVariable(graph, createExpressionName, tokenName).value;
-  // console.log({ token, test: Number(token) });
-  // if (Number(token) === NaN) {
-  console.log("saveNumber");
-  return false;
-  // }
+  const expression = graph.getState(calculatorName).getVariable(expressionName);
+  const token = graph.getState(createExpressionName).getVariable(tokenName);
+  if (Number(token.value) === NaN) {
+    return false;
+  }
 
-  // expression.push(Number(token));
+  expression.pushWrapper(Number(token.value));
+  const i1 = graph.getState(calculatorName).getVariable(i1Name);
+  const input = graph.getState(calculatorName).getVariable(inputName);
 
-  // let i1 = getVariable(graph, calculatorName, i1Name);
-  // let input = getVariable(graph, calculatorName, inputName).value;
-  // console.log({ i1, length: input.length });
-
-  // while (input[i1.value] && input[i1.value] === " ") {
-  //   i1.add(1);
-  //   // i1 += 1;
-  //   if (i1.value >= input.length) {
-  return false;
-  //   }
-  // }
-  // console.log("saveNumber");
-  // setVariable(graph, expressionName, expression);
-  // setVariable(graph, i1Name, i1);
-  // setVariable(graph, tokenName, "");
-  // console.log("end of state", { graph });
+  while (input.at(i1) && input.at(i1) === " ") {
+    i1.add(1);
+    if (i1.value >= input.length) {
+      return false;
+    }
+  }
+  token.updateVRAtom("");
   return true;
 };
 const isInputValid = (graph: any) => {
