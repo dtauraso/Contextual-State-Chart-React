@@ -519,11 +519,9 @@ const visitor = (startStateName: string[], graph: any) => {
         a tree of trees for representing the end to end changes across the entire contextual state chart
     */
   // "tree"
-  setupTrackers(startStateName, graph);
-  if (!VisitAvaliableBranches(graph)) {
-    return false;
-  }
-  return true;
+  // setupTrackers(startStateName, graph);
+  return VisitAvaliableBranches(["createExpression"], graph);
+
   // let levelId = getVariableVisitor(graph, ["tree"], "levelId");
   // console.log({ levelId });
   // let timeLineId = getVariableVisitor(graph, ["tree"], "timeLineId");

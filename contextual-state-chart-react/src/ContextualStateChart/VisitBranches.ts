@@ -8,6 +8,7 @@ import { RunStates, getWinningState } from "./Visitor";
 let tree = ["tree"];
 
 const VisitBranches = (graph: Graph) => {
+  return false;
   const i = graph.getState(tree).getVariable("i");
   const bottom = graph.getState(tree).getVariable("stateRunTreeBottom");
   let isBranchDone = false;

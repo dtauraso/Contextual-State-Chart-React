@@ -25,28 +25,6 @@ let stateTree = {
       start: ["calculator"],
       children: {
         ...calculatorStateTree,
-        "run state machine": {
-          calculator: {
-            stateRunTree: {
-              state: {
-                children: {
-                  "level 0": {
-                    "timeLine 0": {
-                      state: {
-                        children: {},
-                        variables: {
-                          nextStates: [],
-                          winningStateName: [],
-                          j: { value: 0 },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
       },
       variables: {
         levelId: { value: 0 },
@@ -56,14 +34,12 @@ let stateTree = {
         // encode state names as strings
         // assumes users will be working on a small # of states at a time
         statesToRecord: { calculator: { value: 1 } },
-        i: { value: 0 },
-        stateRunTreeBottom: [],
       },
     },
   },
 };
 const printTree = function (this: Graph) {};
-
+const convertToJson = function (this: Graph) {};
 const wrapper = {
   setId: function setId(this: any, id: number) {
     this.id = id;
@@ -394,10 +370,16 @@ const ControlFlowStateWrapper = function () {
       this.getVariable = getVariable;
       this.graph = graph;
     },
+    visitState: function visitState(this: any) {},
+
     getParent: function getParent(this: any) {
+      // only return parent when state is done running children and nexts
       console.log({ this: this });
       // assumes there is only 1 parent
       return this.graph.getState(this.parents[0]);
+    },
+    getChildren: function getChildren(this: any) {
+      // only return children when state is done trialling children
     },
   });
 };

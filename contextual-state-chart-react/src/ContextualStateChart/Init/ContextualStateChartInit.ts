@@ -264,8 +264,8 @@ const makeState = ({
       getVariable: getVariable,
       graph,
     });
-    childrenIds.forEach((chidlrenId: number) => {
-      graph.statesObject.states[chidlrenId].parents.push(currentStateName);
+    childrenIds.forEach((childrenId: number) => {
+      graph.statesObject.states[childrenId].parents.push(currentStateName);
     });
 
     return stateId;
