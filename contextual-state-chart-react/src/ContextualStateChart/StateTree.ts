@@ -369,6 +369,7 @@ const ControlFlowStateWrapper = function () {
       this.stateRunCount = 0;
       this.getVariable = getVariable;
       this.graph = graph;
+      this.branchIDParentID = {};
     },
     visitState: function visitState(this: any) {},
 
@@ -427,6 +428,7 @@ const errorState = function (): ControlFlowState {
     next: [[""]],
     stateRunCount: 0,
     id: -1,
+    branchIDParentID: {},
     getVariable: function (this: ControlFlowState, variableName: string) {
       return {
         value: false,

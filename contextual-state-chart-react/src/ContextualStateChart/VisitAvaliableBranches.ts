@@ -7,7 +7,8 @@ let tree = ["tree"];
 const VisitAvaliableBranches = (
   startStateName: string[],
   graph: Graph,
-  stateRunTreeBottom: { [branchId: number]: number }
+  // branchID -> parentStateID
+  stateRunTreeBottom: { [branchID: number]: number }
 ) => {
   // use a bottom array
   // store id of the current state being run on the level at it's point in the timeline
