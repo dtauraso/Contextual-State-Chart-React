@@ -25,15 +25,32 @@ const VisitAvaliableBranches = (
   Object.keys(stateRunTreeBottom)
     .map((branchID: string) => Number(branchID))
     .forEach((branchID: number) => {
+      let winningStateIDs = [-1];
       Object.keys(stateRunTreeBottom[branchID])
         .map((childStateID: string) => Number(childStateID))
-        .forEach((nextStateID: number, i: number) => {});
-      // const state = graph.getStateById(stateRunTreeBottom[branchID]);
-      /*
-          try all states
-            save the first passing state to the
-          */
-
+        .forEach((nextStateID: number, i: number) => {
+          if (winningStateIDs[0] >= 0) {
+            return;
+          }
+          const state = graph.getStateById(nextStateID);
+          if (state.functionCode(graph)) {
+            winningStateIDs[0] = i;
+          }
+        });
+      if (winningStateIDs[0] === -1) {
+        // all the states failed
+      } else if (winningStateIDs.length === 1) {
+        let state = graph.getStateById(winningStateIDs[0]);
+        if (state.start.length > 0) {
+          // children states
+        } else if (state.next.length > 0) {
+          // next states
+        } else if (state.next.length === 0) {
+          // end state
+        }
+      } else if (winningStateIDs.length > 1) {
+        // chldren
+      }
       return false;
     });
   // }

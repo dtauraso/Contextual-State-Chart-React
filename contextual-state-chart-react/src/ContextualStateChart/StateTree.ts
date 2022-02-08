@@ -421,7 +421,7 @@ const errorState = function (): ControlFlowState {
   return {
     parents: [[""]],
     name: [""],
-    functionCode: (graph: any, currentState: any) => false,
+    functionCode: (graph: any) => false,
     functionName: "",
     start: [[""]],
     children: [[""]],

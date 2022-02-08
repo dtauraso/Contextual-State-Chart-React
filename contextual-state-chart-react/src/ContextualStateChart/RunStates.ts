@@ -25,7 +25,7 @@ const RunStates = (graph: Graph) => {
     const currentTrialStateName = nextStates.get(j.value).collect();
     const currentTrialState = graph.getState(currentTrialStateName);
     console.log({ currentTrialState, graph });
-    if (currentTrialState.functionCode(graph, currentTrialState.name)) {
+    if (currentTrialState.functionCode(graph)) {
       winningStateName.setValue([...currentTrialState.name]);
       passes = true;
       console.log({ winningStateName });

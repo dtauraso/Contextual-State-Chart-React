@@ -34,7 +34,7 @@ type Variable = {
 type ControlFlowState = State & {
   parents: string[][];
   name: string[];
-  functionCode: (graph: Graph, currentState: any) => boolean;
+  functionCode: (graph: Graph) => boolean;
   functionName: string;
   start: string[][];
   children: string[][];
