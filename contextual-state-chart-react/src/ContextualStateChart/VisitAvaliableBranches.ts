@@ -7,19 +7,36 @@ let tree = ["tree"];
 const VisitAvaliableBranches = (
   startStateName: string[],
   graph: Graph,
-  // branchID -> parentStateID
-  stateRunTreeBottom: { [branchID: number]: number }
+  stateRunTreeBottom: { [branchID: number]: any }
+  // branchID -> childStateID -> parentStateID
 ) => {
-  // use a bottom array
-  // store id of the current state being run on the level at it's point in the timeline
-  // have the states add themselves to the bottom and have them note the parent that got them there
-  // going to need flags on the state for done with children and done with next states to know when to reset j
-  // parallel state will be treated like children states to keep consistency with what "parent" means
-  // across state tree and the tree the bottom array traverses through
   const stateRunCountMax = 2;
   const stateRunCount = graph.getState(tree).getVariable("stateRunCount");
-  const length = Object.keys(stateRunTreeBottom).length;
-  stateRunTreeBottom[length] = graph.getState(startStateName).id;
+  const firstBranchID = Object.keys(stateRunTreeBottom).length;
+  stateRunTreeBottom[firstBranchID] = [
+    // save winning entry with childState as branchID -> parentStateID
+    {
+      childStateID: graph.getState(startStateName).id,
+      parentStateID: 1,
+    },
+  ];
+  console.log({ stateRunTreeBottom });
+  // while (Object.keys(stateRunTreeBottom).length > 0) {
+  Object.keys(stateRunTreeBottom)
+    .map((branchID: string) => Number(branchID))
+    .forEach((branchID: number) => {
+      Object.keys(stateRunTreeBottom[branchID])
+        .map((childStateID: string) => Number(childStateID))
+        .forEach((nextStateID: number, i: number) => {});
+      // const state = graph.getStateById(stateRunTreeBottom[branchID]);
+      /*
+          try all states
+            save the first passing state to the
+          */
+
+      return false;
+    });
+  // }
 
   // const bottom = graph.getState(tree).getVariable("stateRunTreeBottom");
   // const i = graph.getState(tree).getVariable("i");
