@@ -27,10 +27,6 @@ const VisitAvaliableBranches = (
   // pretend the parent was run (for setup only)
   const parentState = graph.getStateById(1);
   parentState.branchIDParentID[firstBranchID] = -1;
-  // stateRunTreeBottom[firstBranchID]["nextStates"].forEach((idPair: any) => {
-  //   const childState = graph.getStateById(idPair.childStateID);
-  //   childState.branchIDParentID[firstBranchID] = 1;
-  // });
   console.log({ stateRunTreeBottom });
   // while (Object.keys(stateRunTreeBottom).length > 0) {
   Object.keys(stateRunTreeBottom)
