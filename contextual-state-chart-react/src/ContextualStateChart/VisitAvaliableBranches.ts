@@ -13,33 +13,62 @@ const VisitAvaliableBranches = (
   const stateRunCountMax = 2;
   const stateRunCount = graph.getState(tree).getVariable("stateRunCount");
   const firstBranchID = Object.keys(stateRunTreeBottom).length;
-  stateRunTreeBottom[firstBranchID] = [
-    // save winning entry with childState as branchID -> parentStateID
-    {
-      childStateID: graph.getState(startStateName).id,
-      parentStateID: 1,
-    },
-  ];
+  stateRunTreeBottom[firstBranchID] = {
+    isParallel: false,
+    nextStates: [
+      // save winning entry with childState as branchID -> parentStateID
+      {
+        childStateID: graph.getState(startStateName).id,
+        parentStateID: 1,
+      },
+    ],
+  };
+  // only a successfully run state can have an entry in it's branchIDParentID object
+  // pretend the parent was run (for setup only)
+  const parentState = graph.getStateById(1);
+  parentState.branchIDParentID[firstBranchID] = -1;
+  // stateRunTreeBottom[firstBranchID]["nextStates"].forEach((idPair: any) => {
+  //   const childState = graph.getStateById(idPair.childStateID);
+  //   childState.branchIDParentID[firstBranchID] = 1;
+  // });
   console.log({ stateRunTreeBottom });
   // while (Object.keys(stateRunTreeBottom).length > 0) {
   Object.keys(stateRunTreeBottom)
     .map((branchID: string) => Number(branchID))
     .forEach((branchID: number) => {
       let winningStateIDs = [-1];
-      Object.keys(stateRunTreeBottom[branchID])
-        .map((childStateID: string) => Number(childStateID))
-        .forEach((nextStateID: number, i: number) => {
-          if (winningStateIDs[0] >= 0) {
-            return;
-          }
-          const state = graph.getStateById(nextStateID);
-          if (state.functionCode(graph)) {
-            winningStateIDs[0] = i;
-          }
-        });
+      if (!stateRunTreeBottom[branchID]["isParallel"]) {
+        Object.keys(stateRunTreeBottom[branchID]["nextStates"])
+          .map((childStateID: string) => Number(childStateID))
+          .forEach((nextStateID: number, i: number) => {
+            if (winningStateIDs[0] >= 0) {
+              return;
+            }
+            const state = graph.getStateById(nextStateID);
+            if (state.functionCode(graph)) {
+              winningStateIDs[0] = i;
+            }
+          });
+      } else {
+        // parallel: not tested
+        Object.keys(stateRunTreeBottom[branchID]["nextStates"])
+          .map((childStateID: string) => Number(childStateID))
+          .forEach((nextStateID: number, i: number) => {
+            const state = graph.getStateById(nextStateID);
+            if (state.functionCode(graph)) {
+              if (winningStateIDs[0] === -1) {
+                winningStateIDs[0] = i;
+              } else {
+                winningStateIDs.push(i);
+              }
+            }
+          });
+      }
+
       if (winningStateIDs[0] === -1) {
         // all the states failed
       } else if (winningStateIDs.length === 1) {
+        // winning state is now a parent state
         let state = graph.getStateById(winningStateIDs[0]);
         if (state.start.length > 0) {
           // children states
@@ -49,7 +78,19 @@ const VisitAvaliableBranches = (
           // end state
         }
       } else if (winningStateIDs.length > 1) {
+        // parallel: not tested
         // chldren
+        winningStateIDs.forEach((winningStateID: number) => {
+          // each winning state is now a parent state
+          let state = graph.getStateById(winningStateID);
+          if (state.start.length > 0) {
+            // children states
+          } else if (state.next.length > 0) {
+            // children states
+          } else if (state.next.length === 0) {
+            // end state
+          }
+        });
       }
       return false;
     });
