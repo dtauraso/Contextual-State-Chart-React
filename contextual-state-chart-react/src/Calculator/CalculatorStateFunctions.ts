@@ -548,7 +548,7 @@ export {
   operatorGetOperator,
   saveOperator,
   //   parseChar,
-  //   getA2,
+  getA2,
   //   getA,
   //   getB2,
   //   getB,

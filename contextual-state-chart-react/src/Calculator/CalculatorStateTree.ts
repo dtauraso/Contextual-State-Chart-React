@@ -6,7 +6,7 @@ import {
   saveOperator,
 
   // parseChar,
-  // getA2,
+  getA2,
   // getA,
   // getB2,
   // getB,
@@ -138,7 +138,7 @@ let calculatorStateTree = {
                 // get, save, increment or update the array
                 a0: {
                   state: {
-                    functionCode: "getA2", // increment
+                    functionCode: getA2, // increment
                     next: [["resetForNextRoundOfInput"], ["op"], ["opIgnore"]],
                   },
                 },

@@ -37,7 +37,7 @@ const VisitAvaliableBranches = (
     Object.keys(stateRunTreeBottom)
       .map((branchID: string) => Number(branchID))
       .forEach((branchID: number) => {
-        if (statesRun >= 6) {
+        if (statesRun >= 9) {
           console.log("too many states were run");
           stateRunTreeBottom = {};
           return;
@@ -135,6 +135,36 @@ const VisitAvaliableBranches = (
               ).name,
             });
             // end state
+            let parentID = stateRunTreeBottom[branchID]["parentStateID"];
+            while (parentID !== -1) {
+              const parentState = graph.getStateById(parentID);
+              console.log({ parentState });
+              if (parentState.next?.length > 0) {
+                stateRunTreeBottom[branchID] = {
+                  ...stateRunTreeBottom[branchID],
+                  nextStates: parentState.next.map(
+                    (startStateName: string[]) =>
+                      graph.getState(startStateName).id
+                  ),
+                  parentStateID: parentState.branchIDParentID[branchID],
+                };
+                break;
+              }
+              parentID = parentState.branchIDParentID[branchID];
+              delete parentState.branchIDParentID[branchID];
+            }
+
+            console.log("done traveling up", { parentID });
+            console.log({
+              state: graph.getStateById(parentID),
+              stateRunTreeBottom,
+              nextStates: stateRunTreeBottom[branchID]["nextStates"].map(
+                (id: number) => graph.getStateById(id).name
+              ),
+              parent: graph.getStateById(
+                stateRunTreeBottom[branchID]["parentStateID"]
+              ).name,
+            });
           }
         } else if (winningStateIDs.length > 1) {
           // parallel: not tested
