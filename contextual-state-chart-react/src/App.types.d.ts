@@ -42,6 +42,9 @@ type ControlFlowState = State & {
   variables?: Variable;
   stateRunCount: number;
   branchIDParentID: { [branchID: number]: number };
+  areChildrenParallel: boolean;
+  areNextParallel: boolean;
+  activeChildStatesCount: number;
   // using "any" to avoid having to use ".typeName()" when getting the value of a variable
   getVariable: (this: ControlFlowState, variableName: string) => any;
   getParent: (this: ControlFlowState) => any;

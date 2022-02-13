@@ -8,6 +8,7 @@ import {
   StringState,
 } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
+import { NFAStateTree } from "../NFA/NFAStateTree";
 import { returnTrue } from "../Calculator/CalculatorStateFunctions";
 import { getRunningStateParent, getRunningState } from "./Visitor";
 import {
@@ -22,9 +23,13 @@ let stateTree = {
   tree: {
     state: {
       functionCode: returnTrue,
-      start: ["calculator"],
+      // start: ["calculator"],
+      // children: {
+      //   ...calculatorStateTree,
+      // },
+      start: ["NFA"],
       children: {
-        ...calculatorStateTree,
+        ...NFAStateTree,
       },
       variables: {
         levelId: { value: 0 },
@@ -355,6 +360,8 @@ const ControlFlowStateWrapper = function () {
         next,
         variables,
         graph,
+        areChildrenParallel,
+        areNextParallel,
       }: any
     ) {
       this.id = id;
@@ -370,6 +377,9 @@ const ControlFlowStateWrapper = function () {
       this.getVariable = getVariable;
       this.graph = graph;
       this.branchIDParentID = {};
+      this.areChildrenParallel = areChildrenParallel;
+      this.areNextParallel = areNextParallel;
+      this.activeChildStatesCount = 0;
     },
     visitState: function visitState(this: any) {},
 
@@ -429,6 +439,9 @@ const errorState = function (): ControlFlowState {
     stateRunCount: 0,
     id: -1,
     branchIDParentID: {},
+    areChildrenParallel: false,
+    areNextParallel: false,
+    activeChildStatesCount: 0,
     getVariable: function (this: ControlFlowState, variableName: string) {
       return {
         value: false,

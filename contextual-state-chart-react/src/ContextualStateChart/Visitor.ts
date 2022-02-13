@@ -520,7 +520,17 @@ const visitor = (startStateName: string[], graph: any) => {
     */
   // "tree"
   // setupTrackers(startStateName, graph);
-  return VisitAvaliableBranches(["createExpression"], graph, {});
+  let stateRunTreeBottom = {
+    0: {
+      isParallel: false,
+      nextStates: [
+        // childStateID:
+        graph.getState(startStateName).id,
+      ],
+      parentStateID: 0,
+    },
+  };
+  return VisitAvaliableBranches(["0"], graph, stateRunTreeBottom);
 
   // let levelId = getVariableVisitor(graph, ["tree"], "levelId");
   // console.log({ levelId });

@@ -8,6 +8,7 @@ const state9 = {
     state: {
       functionCode: returnTrue,
       areChildrenParallel: true,
+      start: [["x"], ["y"]],
       children: {
         x: { functionCode: returnTrue },
         y: { functionCode: returnTrue },
@@ -20,6 +21,7 @@ const state7 = {
     state: {
       functionCode: returnTrue,
       areChildrenParallel: true,
+      start: [["8"], ["a"], ["b"], ["c"], ["d"], ["e"], ["9"]],
       children: {
         ...state9,
         "8": {
@@ -52,59 +54,74 @@ const state7 = {
 };
 
 let NFAStateTree = {
-  "0": {
+  NFA: {
     state: {
       areChildrenParallel: true,
+      functionCode: returnTrue,
+      start: [["0"]],
       children: {
-        "1": {
+        "0": {
           state: {
-            areChildrenParallel: true,
-            children: {
-              "3": {
-                state: { functionCode: returnTrue },
-              },
-              "4": {
-                state: {
-                  functionCode: returnTrue,
-                  areChildrenParallel: true,
-                  children: { ...state7 },
-                },
-              },
-            },
             functionCode: returnTrue,
-          },
-        },
-        "2": {
-          state: {
             areChildrenParallel: true,
+            start: [["1"], ["2"]],
             children: {
-              "5": {
+              "1": {
                 state: {
+                  areChildrenParallel: true,
                   functionCode: returnTrue,
-                  areChildrenParallel: true,
-                  children: { ...state7 },
-                },
-              },
-              "6": {
-                state: {
-                  areChildrenParallel: true,
+                  start: [["3"], ["4"]],
                   children: {
-                    "10": {
+                    "3": {
+                      state: { functionCode: returnTrue },
+                    },
+                    "4": {
                       state: {
                         functionCode: returnTrue,
                         areChildrenParallel: true,
-                        children: { ...state9 },
+                        start: [["7"]],
+                        children: { ...state7 },
                       },
                     },
-                    functionCode: returnTrue,
                   },
                 },
               },
-              functionCode: returnTrue,
+              "2": {
+                state: {
+                  areChildrenParallel: true,
+                  functionCode: returnTrue,
+                  children: {
+                    "5": {
+                      state: {
+                        functionCode: returnTrue,
+                        areChildrenParallel: true,
+                        start: [["7"]],
+                        children: { ...state7 },
+                      },
+                    },
+                    "6": {
+                      state: {
+                        areChildrenParallel: true,
+                        functionCode: returnTrue,
+                        start: [["10"]],
+                        children: {
+                          "10": {
+                            state: {
+                              functionCode: returnTrue,
+                              areChildrenParallel: true,
+                              start: [["9"]],
+                              children: { ...state9 },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },
-        functionCode: returnTrue,
       },
     },
   },
