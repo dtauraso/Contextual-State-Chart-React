@@ -530,6 +530,9 @@ const visitor = (startStateName: string[], graph: any) => {
       parentStateID: 0,
     },
   };
+  const parentState = graph.getStateById(0);
+  parentState.branchIDParentID[0] = -1;
+  parentState.activeChildStatesCount = 0;
   return VisitAvaliableBranches(["0"], graph, stateRunTreeBottom);
 
   // let levelId = getVariableVisitor(graph, ["tree"], "levelId");

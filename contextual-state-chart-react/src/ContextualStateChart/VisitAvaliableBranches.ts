@@ -28,8 +28,7 @@ const VisitAvaliableBranches = (
   // };
   // only a successfully run state can have an entry in it's branchIDParentID object
   // pretend the parent was run (for setup only)
-  const parentState = graph.getStateById(1);
-  parentState.branchIDParentID[firstBranchID] = -1;
+
   console.log({ stateRunTreeBottom });
   // return;
   while (Object.keys(stateRunTreeBottom).length > 0) {
@@ -80,9 +79,86 @@ const VisitAvaliableBranches = (
         winningStateIDs.forEach((winningStateID: number, i: number) => {
           let currentBranchID = -1;
           if (i > 0) {
+            currentBranchID = Object.keys(stateRunTreeBottom).length;
             // add new empty branch
+            stateRunTreeBottom[currentBranchID] = {};
           } else {
             currentBranchID = branchID;
+          }
+          // all new branches will also have the same parent state
+          let parentState = graph.getStateById(
+            stateRunTreeBottom[branchID]["parentStateID"]
+          );
+          parentState.activeChildStatesCount += 1;
+
+          let state = graph.getStateById(
+            stateRunTreeBottom[branchID]["nextStates"][winningStateID]
+          );
+          console.log({ state });
+          if (state.start?.length > 0) {
+            // children states
+            state.branchIDParentID[currentBranchID] = parentState.id;
+
+            stateRunTreeBottom[currentBranchID] = {
+              ...stateRunTreeBottom[currentBranchID],
+              nextStates: state.start.map(
+                (startStateName: string[]) => graph.getState(startStateName).id
+              ),
+              parentStateID: state.id,
+              isParallel: state.areChildrenParallel,
+            };
+          } else if (state.next?.length > 0) {
+            state.branchIDParentID[currentBranchID] = parentState.id;
+
+            stateRunTreeBottom[currentBranchID] = {
+              ...stateRunTreeBottom[currentBranchID],
+              nextStates: state.next.map(
+                (startStateName: string[]) => graph.getState(startStateName).id
+              ),
+              parentStateID: parentState.id,
+              isParallel: state.areNextParallel,
+            };
+          } else if (state.next === undefined) {
+            let parentID = parentState.id;
+
+            /*
+            variable usage easy language api(similar to default language syntax)
+            recording variable(all kinds of variables) changes so each state can show what changed
+            arbitrarily complex context and indefinite levels of granulity(so user can understand the program and
+              think more about the context of the problem to solve)
+            let each state connect to any other state and any number of states
+            handle async and sync processes by design
+            clean standard way for me and other users to use(part of backend design and all of frontend)
+            not requiring any external libraries except for some standard libraries for the front end
+            Doesn't require a manual to understand
+            */
+            // if state machine has only 1 level this will happen first
+            if (parentID !== -1) {
+              // DFA and NFA stop condition
+              while (parentState.activeChildStatesCount === 0) {
+                parentState = graph.getStateById(parentID);
+                console.log({ parentState });
+                if (parentState.next?.length > 0) {
+                  stateRunTreeBottom[currentBranchID] = {
+                    ...stateRunTreeBottom[currentBranchID],
+                    nextStates: parentState.next.map(
+                      (startStateName: string[]) =>
+                        graph.getState(startStateName).id
+                    ),
+                    parentStateID:
+                      parentState.branchIDParentID[currentBranchID],
+                  };
+                  break;
+                }
+                parentID = parentState.branchIDParentID[currentBranchID];
+                delete parentState.branchIDParentID[currentBranchID];
+                // DFA only stop condition
+                if (parentID === -1) {
+                  break;
+                }
+                parentState = graph.getStateById(parentID);
+              }
+            }
           }
         });
         //   let state = graph.getStateById(
