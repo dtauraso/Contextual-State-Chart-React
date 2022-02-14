@@ -37,7 +37,7 @@ const VisitAvaliableBranches = (
     Object.keys(stateRunTreeBottom)
       .map((branchID: string) => Number(branchID))
       .forEach((branchID: number) => {
-        if (statesRun >= 4) {
+        if (statesRun >= 3) {
           console.log("too many states were run");
           stateRunTreeBottom = {};
           return;
@@ -75,14 +75,26 @@ const VisitAvaliableBranches = (
           // stateRunTreeBottom = [];
         }
         console.log({
-          winningStateIDs: winningStateIDs.map(
+          winningStateIDsAsNames: winningStateIDs.map(
             (stateID: number) =>
               graph.getStateById(
                 stateRunTreeBottom[branchID]["nextStates"][stateID]
               ).name
           ),
         });
+        console.log({ winningStateIDs });
         // need to refactor code
+        let parentState;
+        let state;
+        // save original branch data before it is replaced
+        const tempBottom = {
+          [branchID]: {
+            isParallel: stateRunTreeBottom[branchID]["isParallel"],
+            nextStates: [...stateRunTreeBottom[branchID]["nextStates"]],
+            parentStateID: stateRunTreeBottom[branchID]["parentStateID"],
+          },
+        };
+
         winningStateIDs.forEach((winningStateID: number, i: number) => {
           let currentBranchID = -1;
           if (i > 0) {
@@ -93,16 +105,32 @@ const VisitAvaliableBranches = (
             currentBranchID = branchID;
           }
           // all new branches will also have the same parent state
-          let parentState = graph.getStateById(
-            stateRunTreeBottom[branchID]["parentStateID"]
-          );
-
-          let state = graph.getStateById(
-            stateRunTreeBottom[branchID]["nextStates"][winningStateID]
+          // wrong: grabbing from first branch is unreliable
+          // let parentState = graph.getStateById(
+          //   stateRunTreeBottom[branchID]["parentStateID"]
+          // );
+          state = graph.getStateById(
+            tempBottom[branchID]["nextStates"][winningStateID]
           );
           console.log({ state });
+          // each branch comepletely updates itself before the next branch can look at
+          // the previous branch
           if (state.start?.length > 0) {
             // children states
+            // 1 parent per new branch
+            if (i > 0) {
+              // 1 new parent from ith winning state
+              parentState = graph.getStateById(
+                tempBottom[branchID]["nextStates"][winningStateID]
+              );
+              // state =
+              console.log({ i, winningStateID, parentName: parentState.name });
+            } else {
+              // same parent from branchID
+              parentState = graph.getStateById(
+                tempBottom[branchID]["parentStateID"]
+              );
+            }
             parentState.activeChildStatesCount += 1;
             state.branchIDParentID[currentBranchID] = parentState.id;
 
@@ -111,65 +139,69 @@ const VisitAvaliableBranches = (
               nextStates: state.start.map(
                 (startStateName: string[]) => graph.getState(startStateName).id
               ),
-              parentStateID: state.id,
+              parentStateID: parentState.id,
               isParallel: state.areChildrenParallel,
             };
-          } else if (state.next?.length > 0) {
-            parentState.activeChildStatesCount += 1;
-            state.branchIDParentID[currentBranchID] = parentState.id;
-
-            stateRunTreeBottom[currentBranchID] = {
-              ...stateRunTreeBottom[currentBranchID],
-              nextStates: state.next.map(
-                (startStateName: string[]) => graph.getState(startStateName).id
-              ),
-              parentStateID: parentState.id,
-              isParallel: state.areNextParallel,
-            };
-          } else if (state.next === undefined) {
-            let parentID = parentState.id;
-
-            /*
-            variable usage easy language api(similar to default language syntax)
-            recording variable(all kinds of variables) changes so each state can show what changed
-            arbitrarily complex context and indefinite levels of granulity(so user can understand the program and
-              think more about the context of the problem to solve)
-            let each state connect to any other state and any number of states
-            handle async and sync processes by design
-            clean standard way for me and other users to use(part of backend design and all of frontend)
-            not requiring any external libraries except for some standard libraries for the front end
-            Doesn't require a manual to understand
-            */
-            // if state machine has only 1 level this will happen first
-            if (parentID !== -1) {
-              // DFA and NFA stop condition
-              while (parentState.activeChildStatesCount === 0) {
-                parentState = graph.getStateById(parentID);
-                console.log({ parentState });
-                if (parentState.next?.length > 0) {
-                  stateRunTreeBottom[currentBranchID] = {
-                    ...stateRunTreeBottom[currentBranchID],
-                    nextStates: parentState.next.map(
-                      (startStateName: string[]) =>
-                        graph.getState(startStateName).id
-                    ),
-                    parentStateID:
-                      parentState.branchIDParentID[currentBranchID],
-                  };
-                  break;
-                }
-                parentState.activeChildStatesCount -= 1;
-                parentID = parentState.branchIDParentID[currentBranchID];
-
-                delete parentState.branchIDParentID[currentBranchID];
-                // DFA only stop condition
-                if (parentID === -1) {
-                  break;
-                }
-                parentState = graph.getStateById(parentID);
-              }
-            }
           }
+          console.log({ currentBranchID, stateRunTreeBottom });
+          // else if (state.next?.length > 0) {
+          // same parent for each new branch
+          //   parentState.activeChildStatesCount += 1;
+          //   state.branchIDParentID[currentBranchID] = parentState.id;
+
+          //   stateRunTreeBottom[currentBranchID] = {
+          //     ...stateRunTreeBottom[currentBranchID],
+          //     nextStates: state.next.map(
+          //       (startStateName: string[]) => graph.getState(startStateName).id
+          //     ),
+          //     parentStateID: parentState.id,
+          //     isParallel: state.areNextParallel,
+          //   };
+          // }
+          //  else if (state.next === undefined) {
+          //   let parentID = parentState.id;
+
+          //   /*
+          //   variable usage easy language api(similar to default language syntax)
+          //   recording variable(all kinds of variables) changes so each state can show what changed
+          //   arbitrarily complex context and indefinite levels of granulity(so user can understand the program and
+          //     think more about the context of the problem to solve)
+          //   let each state connect to any other state and any number of states
+          //   handle async and sync processes by design
+          //   clean standard way for me and other users to use(part of backend design and all of frontend)
+          //   not requiring any external libraries except for some standard libraries for the front end
+          //   Doesn't require a manual to understand
+          //   */
+          //   // if state machine has only 1 level this will happen first
+          //   if (parentID !== -1) {
+          //     // DFA and NFA stop condition
+          //     while (parentState.activeChildStatesCount === 0) {
+          //       parentState = graph.getStateById(parentID);
+          //       console.log({ parentState });
+          //       if (parentState.next?.length > 0) {
+          //         stateRunTreeBottom[currentBranchID] = {
+          //           ...stateRunTreeBottom[currentBranchID],
+          //           nextStates: parentState.next.map(
+          //             (startStateName: string[]) =>
+          //               graph.getState(startStateName).id
+          //           ),
+          //           parentStateID:
+          //             parentState.branchIDParentID[currentBranchID],
+          //         };
+          //         break;
+          //       }
+          //       parentState.activeChildStatesCount -= 1;
+          //       parentID = parentState.branchIDParentID[currentBranchID];
+
+          //       delete parentState.branchIDParentID[currentBranchID];
+          //       // DFA only stop condition
+          //       if (parentID === -1) {
+          //         break;
+          //       }
+          //       parentState = graph.getStateById(parentID);
+          //     }
+          //   }
+          // }
           Object.keys(stateRunTreeBottom).forEach((branchID: string) => {
             console.log(`branch id ${branchID}`);
             console.log(
@@ -194,7 +226,10 @@ const VisitAvaliableBranches = (
             );
           });
           console.log("---------------");
+          console.log({ tempBottom });
         });
+        console.log("########################");
+
         //   let state = graph.getStateById(
         //     stateRunTreeBottom[branchID]["nextStates"][winningStateID]
         //   );

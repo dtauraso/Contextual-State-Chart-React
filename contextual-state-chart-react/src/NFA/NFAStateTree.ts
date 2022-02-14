@@ -90,6 +90,7 @@ let NFAStateTree = {
                 state: {
                   areChildrenParallel: true,
                   functionCode: returnTrue,
+                  start: [["5"], ["6"]],
                   children: {
                     "5": {
                       state: {
