@@ -37,7 +37,7 @@ const VisitAvaliableBranches = (
     Object.keys(stateRunTreeBottom)
       .map((branchID: string) => Number(branchID))
       .forEach((branchID: number) => {
-        if (statesRun >= 3) {
+        if (statesRun >= 5) {
           console.log("too many states were run");
           stateRunTreeBottom = {};
           return;
@@ -94,7 +94,7 @@ const VisitAvaliableBranches = (
             parentStateID: stateRunTreeBottom[branchID]["parentStateID"],
           },
         };
-
+        console.log({ branchID });
         winningStateIDs.forEach((winningStateID: number, i: number) => {
           let currentBranchID = -1;
           if (i > 0) {
@@ -112,27 +112,22 @@ const VisitAvaliableBranches = (
           state = graph.getStateById(
             tempBottom[branchID]["nextStates"][winningStateID]
           );
-          console.log({ state });
+          // console.log({ state });
           // each branch comepletely updates itself before the next branch can look at
           // the previous branch
           if (state.start?.length > 0) {
             // children states
             // 1 parent per new branch
-            if (i > 0) {
-              // 1 new parent from ith winning state
-              parentState = graph.getStateById(
-                tempBottom[branchID]["nextStates"][winningStateID]
-              );
-              // state =
-              console.log({ i, winningStateID, parentName: parentState.name });
-            } else {
-              // same parent from branchID
-              parentState = graph.getStateById(
-                tempBottom[branchID]["parentStateID"]
-              );
-            }
+
+            parentState = graph.getStateById(
+              tempBottom[branchID]["nextStates"][winningStateID]
+            );
             parentState.activeChildStatesCount += 1;
-            state.branchIDParentID[currentBranchID] = parentState.id;
+            // parent -> grandparent link is wrong
+            // parentBranchID
+            state.branchIDParentID[currentBranchID] = graph.getStateById(
+              parentState.id
+            ).branchIDParentID[currentBranchID];
 
             stateRunTreeBottom[currentBranchID] = {
               ...stateRunTreeBottom[currentBranchID],
@@ -143,8 +138,9 @@ const VisitAvaliableBranches = (
               isParallel: state.areChildrenParallel,
             };
           }
-          console.log({ currentBranchID, stateRunTreeBottom });
+          // console.log({ currentBranchID, stateRunTreeBottom });
           // else if (state.next?.length > 0) {
+          // delete branchID data from state after updating stateRunTreeBottom
           // same parent for each new branch
           //   parentState.activeChildStatesCount += 1;
           //   state.branchIDParentID[currentBranchID] = parentState.id;
@@ -224,9 +220,25 @@ const VisitAvaliableBranches = (
                 )
                 .name.join("/ ")}`
             );
+            console.log(
+              `   parent activeChildStatesCount: ${
+                graph.getStateById(
+                  stateRunTreeBottom[Number(branchID)]["parentStateID"]
+                ).activeChildStatesCount
+              }`
+            );
+            let x = graph.getStateById(
+              stateRunTreeBottom[Number(branchID)]["parentStateID"]
+            ).branchIDParentID;
+            console.log(
+              `   parent branchIDParentID: ${Object.keys(x).map(
+                (item: string) =>
+                  `${item}: ${graph.getStateById(x[Number(item)]).name}`
+              )}`
+            );
           });
           console.log("---------------");
-          console.log({ tempBottom });
+          // console.log({ tempBottom });
         });
         console.log("########################");
 
