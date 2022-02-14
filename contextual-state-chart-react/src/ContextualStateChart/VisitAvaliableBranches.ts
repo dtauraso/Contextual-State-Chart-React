@@ -71,10 +71,17 @@ const VisitAvaliableBranches = (
                 }
               }
             });
-          console.log("here");
+          // console.log("here");
           // stateRunTreeBottom = [];
         }
-        console.log({ winningStateIDs });
+        console.log({
+          winningStateIDs: winningStateIDs.map(
+            (stateID: number) =>
+              graph.getStateById(
+                stateRunTreeBottom[branchID]["nextStates"][stateID]
+              ).name
+          ),
+        });
         // need to refactor code
         winningStateIDs.forEach((winningStateID: number, i: number) => {
           let currentBranchID = -1;
@@ -89,7 +96,6 @@ const VisitAvaliableBranches = (
           let parentState = graph.getStateById(
             stateRunTreeBottom[branchID]["parentStateID"]
           );
-          parentState.activeChildStatesCount += 1;
 
           let state = graph.getStateById(
             stateRunTreeBottom[branchID]["nextStates"][winningStateID]
@@ -97,6 +103,7 @@ const VisitAvaliableBranches = (
           console.log({ state });
           if (state.start?.length > 0) {
             // children states
+            parentState.activeChildStatesCount += 1;
             state.branchIDParentID[currentBranchID] = parentState.id;
 
             stateRunTreeBottom[currentBranchID] = {
@@ -108,6 +115,7 @@ const VisitAvaliableBranches = (
               isParallel: state.areChildrenParallel,
             };
           } else if (state.next?.length > 0) {
+            parentState.activeChildStatesCount += 1;
             state.branchIDParentID[currentBranchID] = parentState.id;
 
             stateRunTreeBottom[currentBranchID] = {
@@ -150,7 +158,9 @@ const VisitAvaliableBranches = (
                   };
                   break;
                 }
+                parentState.activeChildStatesCount -= 1;
                 parentID = parentState.branchIDParentID[currentBranchID];
+
                 delete parentState.branchIDParentID[currentBranchID];
                 // DFA only stop condition
                 if (parentID === -1) {
@@ -160,6 +170,30 @@ const VisitAvaliableBranches = (
               }
             }
           }
+          Object.keys(stateRunTreeBottom).forEach((branchID: string) => {
+            console.log(`branch id ${branchID}`);
+            console.log(
+              `  isParallel: ${
+                stateRunTreeBottom[Number(branchID)]["isParallel"]
+              }`
+            );
+            console.log(`  nextStates:`);
+            stateRunTreeBottom[Number(branchID)]["nextStates"].forEach(
+              (nextState: string) => {
+                console.log(
+                  `   ${graph.getStateById(Number(nextState)).name.join("/ ")}`
+                );
+              }
+            );
+            console.log(
+              `   parentState: ${graph
+                .getStateById(
+                  stateRunTreeBottom[Number(branchID)]["parentStateID"]
+                )
+                .name.join("/ ")}`
+            );
+          });
+          console.log("---------------");
         });
         //   let state = graph.getStateById(
         //     stateRunTreeBottom[branchID]["nextStates"][winningStateID]
