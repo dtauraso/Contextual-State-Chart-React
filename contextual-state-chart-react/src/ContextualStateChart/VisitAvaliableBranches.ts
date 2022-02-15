@@ -84,15 +84,13 @@ const VisitAvaliableBranches = (
         });
         console.log({ winningStateIDs });
         // need to refactor code
-        let parentState;
+        let originalBranchCanBeDeleted = false;
         let state;
         // save original branch data before it is replaced
+        const { isParallel, nextStates, parentStateID } =
+          stateRunTreeBottom[branchID];
         const tempBottom = {
-          [branchID]: {
-            isParallel: stateRunTreeBottom[branchID]["isParallel"],
-            nextStates: [...stateRunTreeBottom[branchID]["nextStates"]],
-            parentStateID: stateRunTreeBottom[branchID]["parentStateID"],
-          },
+          [branchID]: { isParallel, nextStates, parentStateID },
         };
         console.log({ branchID });
         winningStateIDs.forEach((winningStateID: number, i: number) => {
@@ -105,35 +103,13 @@ const VisitAvaliableBranches = (
             currentBranchID = branchID;
           }
           // all new branches will also have the same parent state
-          // wrong: grabbing from first branch is unreliable
-          // let parentState = graph.getStateById(
-          //   stateRunTreeBottom[branchID]["parentStateID"]
-          // );
           state = graph.getStateById(
             tempBottom[branchID]["nextStates"][winningStateID]
           );
           // console.log({ state });
-          // each branch comepletely updates itself before the next branch can look at
-          // the previous branch
           if (state.start?.length > 0) {
             // children states
-            // 1 parent per new branch
-            // state = graph.getStateById(
-            //   tempBottom[branchID]["nextStates"][winningStateID]
-            // );
-            // state.branchIDParentID[currentBranchID] = graph.getStateById(
-            //   stateRunTreeBottom[currentBranchID]["parentStateID"]
-            // ).id;
-            // parentState = graph.getStateById(
-            //   tempBottom[branchID]["nextStates"][winningStateID]
-            // );
-            console.log({
-              currentBranchID,
-              stateRunTreeBottom: JSON.parse(
-                JSON.stringify(stateRunTreeBottom)
-              ),
-              i,
-            });
+            // same parent for each new branch
 
             state.branchIDParentIDParentBranchID[currentBranchID] = {
               [tempBottom[branchID]["parentStateID"]]: branchID,
@@ -149,7 +125,11 @@ const VisitAvaliableBranches = (
               parentStateID: state.id,
               isParallel: state.areChildrenParallel,
             };
-            console.log({ state });
+            // can the branch just made find the parent branch id and show it's currently in stateRunTreeBottom
+            if (i > 0) {
+              originalBranchCanBeDeleted = true;
+            }
+            // console.log({ state });
           }
           // console.log({ currentBranchID, stateRunTreeBottom });
           // else if (state.next?.length > 0) {
@@ -457,6 +437,9 @@ const VisitAvaliableBranches = (
         //   });
         // }
         statesRun += 1;
+        if (originalBranchCanBeDeleted) {
+          // delete stateRunTreeBottom[branchID];
+        }
         return false;
       });
   }
