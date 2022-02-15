@@ -41,7 +41,9 @@ type ControlFlowState = State & {
   next: string[][];
   variables?: Variable;
   stateRunCount: number;
-  branchIDParentID: { [branchID: number]: number };
+  branchIDParentIDParentBranchID: {
+    [branchID: number]: { [parentBranchID: number]: number };
+  };
   areChildrenParallel: boolean;
   areNextParallel: boolean;
   activeChildStatesCount: number;

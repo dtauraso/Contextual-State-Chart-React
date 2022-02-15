@@ -531,7 +531,7 @@ const visitor = (startStateName: string[], graph: any) => {
     },
   };
   const parentState = graph.getStateById(0);
-  parentState.branchIDParentID[0] = -1;
+  parentState.branchIDParentIDParentBranchID = { 0: { 0: 0 } };
   parentState.activeChildStatesCount = 0;
   return VisitAvaliableBranches(["0"], graph, stateRunTreeBottom);
 

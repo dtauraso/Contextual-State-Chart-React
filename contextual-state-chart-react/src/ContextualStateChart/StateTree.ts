@@ -342,7 +342,7 @@ const objectWrapper = function () {
     },
   });
 };
-const ControlFlowStateWrapper = function () {
+const ControlFlowStateWrapper = function (): ControlFlowState {
   return Object.create({
     __proto__: wrapper,
 
@@ -376,7 +376,7 @@ const ControlFlowStateWrapper = function () {
       this.stateRunCount = 0;
       this.getVariable = getVariable;
       this.graph = graph;
-      this.branchIDParentID = {};
+      this.branchIDParentIDParentBranchID = {};
       this.areChildrenParallel = areChildrenParallel;
       this.areNextParallel = areNextParallel;
       this.activeChildStatesCount = 0;
@@ -438,7 +438,7 @@ const errorState = function (): ControlFlowState {
     next: [[""]],
     stateRunCount: 0,
     id: -1,
-    branchIDParentID: {},
+    branchIDParentIDParentBranchID: {},
     areChildrenParallel: false,
     areNextParallel: false,
     activeChildStatesCount: 0,

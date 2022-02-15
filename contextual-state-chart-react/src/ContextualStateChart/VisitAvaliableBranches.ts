@@ -134,10 +134,12 @@ const VisitAvaliableBranches = (
               ),
               i,
             });
-            state.branchIDParentID[currentBranchID] =
-              tempBottom[branchID]["parentStateID"];
+
+            state.branchIDParentIDParentBranchID[currentBranchID] = {
+              [tempBottom[branchID]["parentStateID"]]: branchID,
+            };
+
             state.activeChildStatesCount += 1;
-            // parentBranchID
 
             stateRunTreeBottom[currentBranchID] = {
               ...stateRunTreeBottom[currentBranchID],
@@ -240,11 +242,16 @@ const VisitAvaliableBranches = (
             );
             let x = graph.getStateById(
               stateRunTreeBottom[Number(branchID)]["parentStateID"]
-            ).branchIDParentID;
+            ).branchIDParentIDParentBranchID;
             console.log(
-              `   parent branchIDParentID: ${Object.keys(x).map(
-                (item: string) =>
-                  `${item}: ${graph.getStateById(x[Number(item)]).name}`
+              `   parent branchIDParentIDParentBranchID: ${Object.keys(x).map(
+                (item: string) => {
+                  const parentID = Number(Object.keys(x[Number(item)])[0]);
+
+                  return `${item}: {${graph.getStateById(parentID).name}: ${
+                    x[Number(item)][parentID]
+                  }}`;
+                }
               )}`
             );
           });
