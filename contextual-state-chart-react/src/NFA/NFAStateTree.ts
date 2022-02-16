@@ -10,8 +10,24 @@ const state9 = {
       areChildrenParallel: true,
       start: [["x"], ["y"]],
       children: {
-        x: { functionCode: returnTrue },
-        y: { functionCode: returnTrue },
+        x: {
+          state: {
+            functionCode: returnTrue,
+            areChildrenParallel: false,
+            areNextParallel: false,
+            children: {},
+            next: [],
+          },
+        },
+        y: {
+          state: {
+            functionCode: returnTrue,
+            areChildrenParallel: false,
+            areNextParallel: false,
+            children: {},
+            next: [],
+          },
+        },
       },
     },
   },

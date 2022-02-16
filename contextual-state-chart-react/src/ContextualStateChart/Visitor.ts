@@ -521,14 +521,17 @@ const visitor = (startStateName: string[], graph: any) => {
   // "tree"
   // setupTrackers(startStateName, graph);
   let stateRunTreeBottom = {
-    0: {
-      isParallel: false,
-      nextStates: [
-        // childStateID:
-        graph.getState(startStateName).id,
-      ],
-      parentStateID: 0,
+    branches: {
+      0: {
+        isParallel: false,
+        nextStates: [
+          // childStateID:
+          graph.getState(startStateName).id,
+        ],
+        parentStateID: 0,
+      },
     },
+    maxBranchID: 0,
   };
   const parentState = graph.getStateById(0);
   parentState.branchIDParentIDParentBranchID = { 0: { 0: 0 } };
