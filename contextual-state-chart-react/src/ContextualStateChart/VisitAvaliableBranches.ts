@@ -37,7 +37,8 @@ const VisitAvaliableBranches = (
     Object.keys(stateRunTreeBottom)
       .map((branchID: string) => Number(branchID))
       .forEach((branchID: number) => {
-        if (statesRun >= 5) {
+        // fails when statesRun === 8
+        if (statesRun >= 7) {
           console.log("too many states were run");
           stateRunTreeBottom = {};
           return;
@@ -84,7 +85,6 @@ const VisitAvaliableBranches = (
         });
         console.log({ winningStateIDs });
         // need to refactor code
-        let originalBranchCanBeDeleted = false;
         let state;
         // save original branch data before it is replaced
         const { isParallel, nextStates, parentStateID } =
@@ -93,6 +93,8 @@ const VisitAvaliableBranches = (
           [branchID]: { isParallel, nextStates, parentStateID },
         };
         console.log({ branchID });
+        let originalBranchChanged = false;
+        let originalBranchSpawnedDifferentChildBranch = false;
         winningStateIDs.forEach((winningStateID: number, i: number) => {
           let currentBranchID = -1;
           if (i > 0) {
@@ -125,11 +127,11 @@ const VisitAvaliableBranches = (
               parentStateID: state.id,
               isParallel: state.areChildrenParallel,
             };
-            // can the branch just made find the parent branch id and show it's currently in stateRunTreeBottom
-            if (i > 0) {
-              originalBranchCanBeDeleted = true;
+            if (i === 0) {
+              originalBranchChanged = true;
+            } else if (i > 0) {
+              originalBranchSpawnedDifferentChildBranch = true;
             }
-            // console.log({ state });
           }
           // console.log({ currentBranchID, stateRunTreeBottom });
           // else if (state.next?.length > 0) {
@@ -191,6 +193,210 @@ const VisitAvaliableBranches = (
           //     }
           //   }
           // }
+
+          //   let state = graph.getStateById(
+          //     stateRunTreeBottom[branchID]["nextStates"][winningStateID]
+          //   );
+
+          //   // else
+          //   return 0;
+          //   // traversing up end condition
+          //   // let parentID = stateRunTreeBottom[branchID]["parentStateID"];
+
+          //   // parentID !== -1; DFA only end condition
+          //   // const parentState = graph.getStateById(parentID);
+
+          //   // DFA and NFA end condition
+          //   // parentState.activeChildStatesCount === 0;
+          // });
+          // if (winningStateIDs[0] === -1) {
+          //   // all the states failed
+          // } else if (winningStateIDs.length === 1) {
+          //   // winning state is now a parent state
+          //   let state = graph.getStateById(
+          //     stateRunTreeBottom[branchID]["nextStates"][winningStateIDs[0]]
+          //   );
+          //   // console.log({ state });
+          //   if (state.start?.length > 0) {
+          //     // children states
+          //     state.branchIDParentID[branchID] =
+          //       stateRunTreeBottom[branchID]["parentStateID"];
+          //     stateRunTreeBottom[branchID] = {
+          //       ...stateRunTreeBottom[branchID],
+          //       nextStates: state.start.map(
+          //         (startStateName: string[]) => graph.getState(startStateName).id
+          //       ),
+          //       parentStateID: state.id,
+          //       isParallel: state.areChildrenParallel,
+          //     };
+          //     // console.log({
+          //     //   state,
+          //     //   stateRunTreeBottom,
+          //     //   nextStates: stateRunTreeBottom[branchID]["nextStates"].map(
+          //     //     (id: number) => graph.getStateById(id).name
+          //     //   ),
+          //     //   parent: graph.getStateById(
+          //     //     stateRunTreeBottom[branchID]["parentStateID"]
+          //     //   ).name,
+          //     // });
+          //   } else if (state.next?.length > 0) {
+          //     // console.log("here now");
+          //     // stateRunTreeBottom = [];
+          //     statesRun += 1;
+          //     // next states
+          //     state.branchIDParentID[branchID] =
+          //       stateRunTreeBottom[branchID]["parentStateID"];
+          //     stateRunTreeBottom[branchID] = {
+          //       ...stateRunTreeBottom[branchID],
+          //       nextStates: state.next.map(
+          //         (startStateName: string[]) => graph.getState(startStateName).id
+          //       ),
+          //       isParallel: state.areNextParallel,
+          //     };
+          //     // console.log({
+          //     //   state,
+          //     //   stateRunTreeBottom,
+          //     //   nextStates: stateRunTreeBottom[branchID]["nextStates"].map(
+          //     //     (id: number) => graph.getStateById(id).name
+          //     //   ),
+          //     //   parent: graph.getStateById(
+          //     //     stateRunTreeBottom[branchID]["parentStateID"]
+          //     //   ).name,
+          //     // });
+          //   } else if (state.next === undefined) {
+          //     // console.log({ state }, "is end state");
+          //     // console.log({
+          //     //   state,
+          //     //   stateRunTreeBottom,
+          //     //   nextStates: stateRunTreeBottom[branchID]["nextStates"].map(
+          //     //     (id: number) => graph.getStateById(id).name
+          //     //   ),
+          //     //   parent: graph.getStateById(
+          //     //     stateRunTreeBottom[branchID]["parentStateID"]
+          //     //   ).name,
+          //     // });
+          //     // end state
+          //     let parentID = stateRunTreeBottom[branchID]["parentStateID"];
+          //     // DFA stop condition
+          //     while (parentID !== -1) {
+          //       const parentState = graph.getStateById(parentID);
+          //       console.log({ parentState });
+          //       if (parentState.next?.length > 0) {
+          //         stateRunTreeBottom[branchID] = {
+          //           ...stateRunTreeBottom[branchID],
+          //           nextStates: parentState.next.map(
+          //             (startStateName: string[]) =>
+          //               graph.getState(startStateName).id
+          //           ),
+          //           parentStateID: parentState.branchIDParentID[branchID],
+          //         };
+          //         break;
+          //       }
+          //       parentID = parentState.branchIDParentID[branchID];
+          //       delete parentState.branchIDParentID[branchID];
+          //     }
+          //     // console.log("done traveling up", { parentID });
+          //     // console.log({
+          //     //   state: graph.getStateById(parentID),
+          //     //   stateRunTreeBottom,
+          //     //   nextStates: stateRunTreeBottom[branchID]["nextStates"].map(
+          //     //     (id: number) => graph.getStateById(id).name
+          //     //   ),
+          //     //   parent: graph.getStateById(
+          //     //     stateRunTreeBottom[branchID]["parentStateID"]
+          //     //   ).name,
+          //     // });
+          //   }
+          // } else if (winningStateIDs.length > 1) {
+          //   // parallel: not tested
+          //   console.log("here NFA");
+          //   let state = graph.getStateById(
+          //     stateRunTreeBottom[branchID]["nextStates"][winningStateIDs[0]]
+          //   );
+
+          //   console.log({ state });
+          //   // chldren
+          //   winningStateIDs.forEach((winningStateID: number, i: number) => {
+          //     let state = graph.getStateById(
+          //       stateRunTreeBottom[branchID]["nextStates"][winningStateID]
+          //     );
+
+          //     if (i > 1) {
+          //       if (state.start?.length > 0) {
+          //         let parentID = stateRunTreeBottom[branchID]["parentStateID"];
+          //         const parentState = graph.getStateById(parentID);
+          //         parentState.activeChildStatesCount += 1;
+          //         state.branchIDParentID[branchID] =
+          //           stateRunTreeBottom[branchID]["parentStateID"];
+          //         stateRunTreeBottom[Object.keys(stateRunTreeBottom).length] = {
+          //           isParallel: state.areChildrenParallel,
+          //           nextStates: state.start.map(
+          //             (startStateName: string[]) =>
+          //               graph.getState(startStateName).id
+          //           ),
+          //           parentStateID: state.id,
+          //         };
+          //       } else if (state.next?.length > 0) {
+          //         let parentID = stateRunTreeBottom[branchID]["parentStateID"];
+          //         const parentState = graph.getStateById(parentID);
+          //         parentState.activeChildStatesCount += 1;
+          //         state.branchIDParentID[branchID] =
+          //           stateRunTreeBottom[branchID]["parentStateID"];
+
+          //         stateRunTreeBottom[Object.keys(stateRunTreeBottom).length] = {
+          //           isParallel: state.areNextParallel,
+          //           nextStates: state.next.map(
+          //             (startStateName: string[]) =>
+          //               graph.getState(startStateName).id
+          //           ),
+          //           parentStateID: parentState.id,
+          //         };
+          //       } else if (state.next === undefined) {
+          //         let parentID = stateRunTreeBottom[branchID]["parentStateID"];
+          //         const parentState = graph.getStateById(parentID);
+
+          //         while (parentState.activeChildStatesCount === 0) {
+          //           const parentState = graph.getStateById(parentID);
+          //           console.log({ parentState });
+          //           if (parentState.next?.length > 0) {
+          //             stateRunTreeBottom[branchID] = {
+          //               ...stateRunTreeBottom[branchID],
+          //               nextStates: parentState.next.map(
+          //                 (startStateName: string[]) =>
+          //                   graph.getState(startStateName).id
+          //               ),
+          //               parentStateID: parentState.branchIDParentID[branchID],
+          //             };
+          //             break;
+          //           }
+          //           parentID = parentState.branchIDParentID[branchID];
+          //           delete parentState.branchIDParentID[branchID];
+          //         }
+          //         if (parentState.activeChildStatesCount > 0) {
+          //           parentState.activeChildStatesCount -= 1;
+          //           delete stateRunTreeBottom[branchID];
+          //         }
+          //       }
+          //     } else {
+          //     }
+          //     // each winning state is now a parent state
+          //     // let state = graph.getStateById(winningStateID);
+          //     // if (state.start?.length > 0) {
+          //     //   // children states
+          //     // } else if (state.next?.length > 0) {
+          //     //   // children states
+          //     // } else if (state.next?.length === 0) {
+          //     //   // end state
+          //     // }
+          //   });
+          // }
+
+          if (
+            !originalBranchChanged &&
+            originalBranchSpawnedDifferentChildBranch
+          ) {
+            delete stateRunTreeBottom[branchID];
+          }
           Object.keys(stateRunTreeBottom).forEach((branchID: string) => {
             console.log(`branch id ${branchID}`);
             console.log(
@@ -239,207 +445,7 @@ const VisitAvaliableBranches = (
           // console.log({ tempBottom });
         });
         console.log("########################");
-
-        //   let state = graph.getStateById(
-        //     stateRunTreeBottom[branchID]["nextStates"][winningStateID]
-        //   );
-
-        //   // else
-        //   return 0;
-        //   // traversing up end condition
-        //   // let parentID = stateRunTreeBottom[branchID]["parentStateID"];
-
-        //   // parentID !== -1; DFA only end condition
-        //   // const parentState = graph.getStateById(parentID);
-
-        //   // DFA and NFA end condition
-        //   // parentState.activeChildStatesCount === 0;
-        // });
-        // if (winningStateIDs[0] === -1) {
-        //   // all the states failed
-        // } else if (winningStateIDs.length === 1) {
-        //   // winning state is now a parent state
-        //   let state = graph.getStateById(
-        //     stateRunTreeBottom[branchID]["nextStates"][winningStateIDs[0]]
-        //   );
-        //   // console.log({ state });
-        //   if (state.start?.length > 0) {
-        //     // children states
-        //     state.branchIDParentID[branchID] =
-        //       stateRunTreeBottom[branchID]["parentStateID"];
-        //     stateRunTreeBottom[branchID] = {
-        //       ...stateRunTreeBottom[branchID],
-        //       nextStates: state.start.map(
-        //         (startStateName: string[]) => graph.getState(startStateName).id
-        //       ),
-        //       parentStateID: state.id,
-        //       isParallel: state.areChildrenParallel,
-        //     };
-        //     // console.log({
-        //     //   state,
-        //     //   stateRunTreeBottom,
-        //     //   nextStates: stateRunTreeBottom[branchID]["nextStates"].map(
-        //     //     (id: number) => graph.getStateById(id).name
-        //     //   ),
-        //     //   parent: graph.getStateById(
-        //     //     stateRunTreeBottom[branchID]["parentStateID"]
-        //     //   ).name,
-        //     // });
-        //   } else if (state.next?.length > 0) {
-        //     // console.log("here now");
-        //     // stateRunTreeBottom = [];
-        //     statesRun += 1;
-        //     // next states
-        //     state.branchIDParentID[branchID] =
-        //       stateRunTreeBottom[branchID]["parentStateID"];
-        //     stateRunTreeBottom[branchID] = {
-        //       ...stateRunTreeBottom[branchID],
-        //       nextStates: state.next.map(
-        //         (startStateName: string[]) => graph.getState(startStateName).id
-        //       ),
-        //       isParallel: state.areNextParallel,
-        //     };
-        //     // console.log({
-        //     //   state,
-        //     //   stateRunTreeBottom,
-        //     //   nextStates: stateRunTreeBottom[branchID]["nextStates"].map(
-        //     //     (id: number) => graph.getStateById(id).name
-        //     //   ),
-        //     //   parent: graph.getStateById(
-        //     //     stateRunTreeBottom[branchID]["parentStateID"]
-        //     //   ).name,
-        //     // });
-        //   } else if (state.next === undefined) {
-        //     // console.log({ state }, "is end state");
-        //     // console.log({
-        //     //   state,
-        //     //   stateRunTreeBottom,
-        //     //   nextStates: stateRunTreeBottom[branchID]["nextStates"].map(
-        //     //     (id: number) => graph.getStateById(id).name
-        //     //   ),
-        //     //   parent: graph.getStateById(
-        //     //     stateRunTreeBottom[branchID]["parentStateID"]
-        //     //   ).name,
-        //     // });
-        //     // end state
-        //     let parentID = stateRunTreeBottom[branchID]["parentStateID"];
-        //     // DFA stop condition
-        //     while (parentID !== -1) {
-        //       const parentState = graph.getStateById(parentID);
-        //       console.log({ parentState });
-        //       if (parentState.next?.length > 0) {
-        //         stateRunTreeBottom[branchID] = {
-        //           ...stateRunTreeBottom[branchID],
-        //           nextStates: parentState.next.map(
-        //             (startStateName: string[]) =>
-        //               graph.getState(startStateName).id
-        //           ),
-        //           parentStateID: parentState.branchIDParentID[branchID],
-        //         };
-        //         break;
-        //       }
-        //       parentID = parentState.branchIDParentID[branchID];
-        //       delete parentState.branchIDParentID[branchID];
-        //     }
-        //     // console.log("done traveling up", { parentID });
-        //     // console.log({
-        //     //   state: graph.getStateById(parentID),
-        //     //   stateRunTreeBottom,
-        //     //   nextStates: stateRunTreeBottom[branchID]["nextStates"].map(
-        //     //     (id: number) => graph.getStateById(id).name
-        //     //   ),
-        //     //   parent: graph.getStateById(
-        //     //     stateRunTreeBottom[branchID]["parentStateID"]
-        //     //   ).name,
-        //     // });
-        //   }
-        // } else if (winningStateIDs.length > 1) {
-        //   // parallel: not tested
-        //   console.log("here NFA");
-        //   let state = graph.getStateById(
-        //     stateRunTreeBottom[branchID]["nextStates"][winningStateIDs[0]]
-        //   );
-
-        //   console.log({ state });
-        //   // chldren
-        //   winningStateIDs.forEach((winningStateID: number, i: number) => {
-        //     let state = graph.getStateById(
-        //       stateRunTreeBottom[branchID]["nextStates"][winningStateID]
-        //     );
-
-        //     if (i > 1) {
-        //       if (state.start?.length > 0) {
-        //         let parentID = stateRunTreeBottom[branchID]["parentStateID"];
-        //         const parentState = graph.getStateById(parentID);
-        //         parentState.activeChildStatesCount += 1;
-        //         state.branchIDParentID[branchID] =
-        //           stateRunTreeBottom[branchID]["parentStateID"];
-        //         stateRunTreeBottom[Object.keys(stateRunTreeBottom).length] = {
-        //           isParallel: state.areChildrenParallel,
-        //           nextStates: state.start.map(
-        //             (startStateName: string[]) =>
-        //               graph.getState(startStateName).id
-        //           ),
-        //           parentStateID: state.id,
-        //         };
-        //       } else if (state.next?.length > 0) {
-        //         let parentID = stateRunTreeBottom[branchID]["parentStateID"];
-        //         const parentState = graph.getStateById(parentID);
-        //         parentState.activeChildStatesCount += 1;
-        //         state.branchIDParentID[branchID] =
-        //           stateRunTreeBottom[branchID]["parentStateID"];
-
-        //         stateRunTreeBottom[Object.keys(stateRunTreeBottom).length] = {
-        //           isParallel: state.areNextParallel,
-        //           nextStates: state.next.map(
-        //             (startStateName: string[]) =>
-        //               graph.getState(startStateName).id
-        //           ),
-        //           parentStateID: parentState.id,
-        //         };
-        //       } else if (state.next === undefined) {
-        //         let parentID = stateRunTreeBottom[branchID]["parentStateID"];
-        //         const parentState = graph.getStateById(parentID);
-
-        //         while (parentState.activeChildStatesCount === 0) {
-        //           const parentState = graph.getStateById(parentID);
-        //           console.log({ parentState });
-        //           if (parentState.next?.length > 0) {
-        //             stateRunTreeBottom[branchID] = {
-        //               ...stateRunTreeBottom[branchID],
-        //               nextStates: parentState.next.map(
-        //                 (startStateName: string[]) =>
-        //                   graph.getState(startStateName).id
-        //               ),
-        //               parentStateID: parentState.branchIDParentID[branchID],
-        //             };
-        //             break;
-        //           }
-        //           parentID = parentState.branchIDParentID[branchID];
-        //           delete parentState.branchIDParentID[branchID];
-        //         }
-        //         if (parentState.activeChildStatesCount > 0) {
-        //           parentState.activeChildStatesCount -= 1;
-        //           delete stateRunTreeBottom[branchID];
-        //         }
-        //       }
-        //     } else {
-        //     }
-        //     // each winning state is now a parent state
-        //     // let state = graph.getStateById(winningStateID);
-        //     // if (state.start?.length > 0) {
-        //     //   // children states
-        //     // } else if (state.next?.length > 0) {
-        //     //   // children states
-        //     // } else if (state.next?.length === 0) {
-        //     //   // end state
-        //     // }
-        //   });
-        // }
         statesRun += 1;
-        if (originalBranchCanBeDeleted) {
-          // delete stateRunTreeBottom[branchID];
-        }
         return false;
       });
   }
