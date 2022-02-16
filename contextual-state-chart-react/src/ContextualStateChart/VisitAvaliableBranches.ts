@@ -94,7 +94,7 @@ const VisitAvaliableBranches = (
         };
         console.log({ branchID });
         let originalBranchChanged = false;
-        let originalBranchSpawnedDifferentChildBranch = false;
+        let originalBranchIDSpawnedDifferentChildBranchID = false;
         winningStateIDs.forEach((winningStateID: number, i: number) => {
           let currentBranchID = -1;
           if (i > 0) {
@@ -130,7 +130,7 @@ const VisitAvaliableBranches = (
             if (i === 0) {
               originalBranchChanged = true;
             } else if (i > 0) {
-              originalBranchSpawnedDifferentChildBranch = true;
+              originalBranchIDSpawnedDifferentChildBranchID = true;
             }
           }
           // console.log({ currentBranchID, stateRunTreeBottom });
@@ -393,7 +393,7 @@ const VisitAvaliableBranches = (
 
           if (
             !originalBranchChanged &&
-            originalBranchSpawnedDifferentChildBranch
+            originalBranchIDSpawnedDifferentChildBranchID
           ) {
             delete stateRunTreeBottom[branchID];
           }
