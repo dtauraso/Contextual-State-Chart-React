@@ -27,7 +27,7 @@ let stateTree = {
       // children: {
       //   ...calculatorStateTree,
       // },
-      start: ["NFA"],
+      start: [["NFA"]],
       children: {
         ...NFAStateTree,
       },
