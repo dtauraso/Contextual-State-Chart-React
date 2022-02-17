@@ -528,14 +528,6 @@ const visitor = (startStateName: string[], graph: any) => {
         nextStates: "start",
         isParallel: false,
       },
-      // {
-      //   isParallel: false,
-      //   nextStates: [
-      //     // childStateID:
-      //     graph.getState(startStateName).id,
-      //   ],
-      //   parentStateID: 0,
-      // },
     },
     maxBranchID: 0,
   };
