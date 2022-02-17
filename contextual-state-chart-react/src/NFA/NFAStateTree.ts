@@ -16,7 +16,7 @@ const state9 = {
             areChildrenParallel: false,
             areNextParallel: false,
             children: {},
-            next: [],
+            // next: [],
           },
         },
         y: {
@@ -25,7 +25,7 @@ const state9 = {
             areChildrenParallel: false,
             areNextParallel: false,
             children: {},
-            next: [],
+            // next: [],
           },
         },
       },
@@ -50,7 +50,7 @@ const state7 = {
           state: {
             functionCode: returnTrue,
             areNextParallel: true,
-            next: [["c"], ["d"]],
+            // next: [], //[["c"], ["d"]],
           },
         },
         c: { state: { functionCode: returnTrue } },
@@ -58,7 +58,7 @@ const state7 = {
           state: {
             functionCode: returnTrue,
             areNextParallel: true,
-            next: [["e"]],
+            // next: [], //[["e"]],
           },
         },
         e: {

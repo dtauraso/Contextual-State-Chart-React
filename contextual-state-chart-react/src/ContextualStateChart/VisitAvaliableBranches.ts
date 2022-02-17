@@ -1,15 +1,22 @@
 import { isConstructorDeclaration } from "typescript";
-import { Graph } from "../App.types";
+import { ControlFlowState, Graph } from "../App.types";
 import { VisitBranches } from "./Visitor";
 let tree = ["tree"];
 
 // all branches should be able to run independently and terminate when they are done reguardless of how and when
 // VisitAvaliableBranches is called
+
 const VisitAvaliableBranches = (
   startStateName: string[],
   graph: Graph,
   stateRunTreeBottom: {
-    branches: { [branchID: number]: any };
+    branches: {
+      [branchID: number]: {
+        parentStateID: number;
+        nextStates: string;
+        isParallel: boolean;
+      };
+    };
     maxBranchID: number;
   }
   // branchID -> childStateID -> parentStateID
@@ -53,20 +60,24 @@ const VisitAvaliableBranches = (
         //   stateRunTreeBottom["branches"] = {};
         //   return;
         // }
-        let winningStateIDs = [-1];
+        let winningStateNames = [-1];
         if (!stateRunTreeBottom["branches"][branchID]["isParallel"]) {
-          stateRunTreeBottom["branches"][branchID]["nextStates"].forEach(
-            (nextStateID: number, i: number) => {
-              if (winningStateIDs[0] >= 0) {
+          const parentState2: ControlFlowState = graph.getStateById(
+            stateRunTreeBottom["branches"][branchID]["parentStateID"]
+          );
+
+          parentState2
+            .getEdges(stateRunTreeBottom["branches"][branchID]["nextStates"])
+            .forEach((nextStateName: string[], i: number) => {
+              if (winningStateNames[0] >= 0) {
                 return;
               }
-              const state = graph.getStateById(nextStateID);
+              const state = graph.getState(nextStateName);
               console.log({ state });
               if (state.functionCode(graph)) {
-                winningStateIDs[0] = i;
+                winningStateNames[0] = i;
               }
-            }
-          );
+            });
         } else {
           // parallel: passes
 
@@ -75,10 +86,10 @@ const VisitAvaliableBranches = (
             .forEach((nextStateID: number, i: number) => {
               const state = graph.getStateById(nextStateID);
               if (state.functionCode(graph)) {
-                if (winningStateIDs[0] === -1) {
-                  winningStateIDs[0] = i;
+                if (winningStateNames[0] === -1) {
+                  winningStateNames[0] = i;
                 } else {
-                  winningStateIDs.push(i);
+                  winningStateNames.push(i);
                 }
               }
             });
@@ -86,14 +97,14 @@ const VisitAvaliableBranches = (
           // stateRunTreeBottom = [];
         }
         console.log({
-          winningStateIDsAsNames: winningStateIDs.map(
+          winningStateIDsAsNames: winningStateNames.map(
             (stateID: number) =>
               graph.getStateById(
                 stateRunTreeBottom["branches"][branchID]["nextStates"][stateID]
               ).name
           ),
         });
-        console.log({ winningStateIDs });
+        console.log({ winningStateNames });
         // need to refactor code
         let state;
         // save original branch data before it is replaced
@@ -105,7 +116,7 @@ const VisitAvaliableBranches = (
         console.log({ branchID });
         let originalBranchChanged = false;
         let originalBranchIDSpawnedDifferentChildBranchID = false;
-        winningStateIDs.forEach((winningStateID: number, i: number) => {
+        winningStateNames.forEach((winningStateID: number, i: number) => {
           let currentBranchID = -1;
 
           // all new branches will also have the same parent state
@@ -113,11 +124,10 @@ const VisitAvaliableBranches = (
             tempBottom[branchID]["nextStates"][winningStateID]
           );
           if (i > 0) {
-            // need to hold max value
             stateRunTreeBottom["maxBranchID"] += 1;
-            currentBranchID = stateRunTreeBottom["maxBranchID"]; //Object.keys(stateRunTreeBottom).length;
-            // add new empty branch
+            currentBranchID = stateRunTreeBottom["maxBranchID"];
             if (state.start?.length > 0) {
+              // add new empty branch
               stateRunTreeBottom["branches"][currentBranchID] = {};
             }
           } else {
@@ -136,10 +146,7 @@ const VisitAvaliableBranches = (
             state.activeChildStatesCount += 1;
 
             stateRunTreeBottom["branches"][currentBranchID] = {
-              ...stateRunTreeBottom["branches"][currentBranchID],
-              nextStates: state.start.map(
-                (startStateName: string[]) => graph.getState(startStateName).id
-              ),
+              nextStates: "start",
               parentStateID: state.id,
               isParallel: state.areChildrenParallel,
             };
@@ -150,6 +157,14 @@ const VisitAvaliableBranches = (
             }
           } else if (state.next?.length > 0) {
           } else if (state.next === undefined) {
+            // path merge condition
+            // traverse branchID's up untill there is only 1 entry in parent's branchIDParentIDParentBranchID table
+            // delete parent condition
+            // parent's active child state count === 1
+            // activeChildStatesCount should match the number of child branches in the bottom level
+            // when parents are erased from table, does that mean activeChildStatesCount should decrease
+            // by 1
+            // no, because the branch paths have not been deleted yet
           }
           // console.log({ currentBranchID, stateRunTreeBottom });
           // else if (state.next?.length > 0) {
@@ -456,15 +471,15 @@ const VisitAvaliableBranches = (
                 ]
               ).branchIDParentIDParentBranchID;
               console.log(
-                `   parent branchIDParentIDParentBranchID: ${Object.keys(x).map(
-                  (item: string) => {
+                `   parent branchIDParentIDParentBranchID: ${Object.keys(x)
+                  .map((item: string) => {
                     const parentID = Number(Object.keys(x[Number(item)])[0]);
 
                     return `${item}: {${graph.getStateById(parentID).name}: ${
                       x[Number(item)][parentID]
                     }}`;
-                  }
-                )}`
+                  })
+                  .join(", ")}`
               );
             }
           );

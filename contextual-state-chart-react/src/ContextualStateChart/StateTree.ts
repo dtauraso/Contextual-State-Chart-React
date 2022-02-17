@@ -392,6 +392,13 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
     getChildren: function getChildren(this: any) {
       // only return children when state is done trialling children
     },
+    getEdges: function (this: ControlFlowState, edgesName: string) {
+      if (edgesName === "start") {
+        return this.start;
+      } else if (edgesName === "next") {
+        return this.next;
+      }
+    },
   });
 };
 const variableTypes: any = {
@@ -449,6 +456,9 @@ const errorState = function (): ControlFlowState {
       };
     },
     getParent: function (this: ControlFlowState) {},
+    getEdges: function (this: ControlFlowState, edgesName: string) {
+      return [];
+    },
   };
 };
 

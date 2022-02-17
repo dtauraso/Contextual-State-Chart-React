@@ -520,16 +520,22 @@ const visitor = (startStateName: string[], graph: any) => {
     */
   // "tree"
   // setupTrackers(startStateName, graph);
+
   let stateRunTreeBottom = {
     branches: {
       0: {
-        isParallel: false,
-        nextStates: [
-          // childStateID:
-          graph.getState(startStateName).id,
-        ],
         parentStateID: 0,
+        nextStates: "start",
+        isParallel: false,
       },
+      // {
+      //   isParallel: false,
+      //   nextStates: [
+      //     // childStateID:
+      //     graph.getState(startStateName).id,
+      //   ],
+      //   parentStateID: 0,
+      // },
     },
     maxBranchID: 0,
   };
