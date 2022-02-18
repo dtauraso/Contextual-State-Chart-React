@@ -160,6 +160,25 @@ const VisitAvaliableBranches = (
             // when parents are erased from table, does that mean activeChildStatesCount should decrease
             // by 1
             // no, because the branch paths have not been deleted yet
+            // while(Object.keys(graph.getStateById(parentStateID).branchIDParentIDParentBranchID).length > 1) {
+            const parentIDparentBranchID =
+              graph.getStateById(parentStateID).branchIDParentIDParentBranchID[
+                branchID
+              ];
+            const newParentStateID = Number(
+              Object.keys(parentIDparentBranchID)[0]
+            );
+            const newParentBranchID = parentIDparentBranchID[newParentStateID];
+
+            const newParentState = graph.getStateById(newParentBranchID);
+            stateRunTreeBottom["branches"][newParentBranchID] = {
+              parentStateID: newParentState.id,
+              nextStates: "next",
+              isParallel: newParentState.areNextParallel,
+            };
+            delete stateRunTreeBottom["branches"][branchID];
+            // stop loop when branch ends or when next states length > 0
+            // }
           }
           // console.log({ currentBranchID, stateRunTreeBottom });
           // else if (state.next?.length > 0) {
