@@ -113,11 +113,16 @@ const VisitAvaliableBranches = (
         let originalBranchIDSpawnedDifferentChildBranchID = false;
         // save branch tracker data for all successfull states
         // branch adjustment
+        // if next
+        //    use winning state's parent id for the link
+        //  else if start
+        //    use winning state id for the link
         // make new branches
         // if the winning states are from start
         //    update new branches with new levels
 
         // edges adjustment
+        // each branch is a winning state
         // if a winning state have start states
         //      setup new branch with the start state
         // else if a winning state have next states
