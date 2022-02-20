@@ -1,6 +1,16 @@
 import { isConstructorDeclaration } from "typescript";
 import { ControlFlowState, Graph } from "../App.types";
 import { VisitBranches } from "./Visitor";
+/*
+    variable usage easy language api(similar to default language syntax)
+    recording variable(all kinds of variables) changes so each state can show what changed
+    arbitrarily complex context and indefinite levels of granulity(so user can understand the program and
+      think more about the context of the problem to solve)
+    let each state connect to any other state and any number of states
+    handle async and sync processes by design
+    clean standard way for me and other users to use(part of backend design and all of frontend)
+    not requiring any external libraries except for some standard libraries for the front end
+        */
 let tree = ["tree"];
 
 // all branches should be able to run independently and terminate when they are done reguardless of how and when
@@ -38,7 +48,7 @@ const VisitAvaliableBranches = (
   // return;
   while (Object.keys(stateRunTreeBottom).length > 0) {
     console.log({ statesRun });
-    if (statesRun >= 3) {
+    if (statesRun >= 5) {
       console.log("too many states were run");
       break;
     }
@@ -186,6 +196,40 @@ const VisitAvaliableBranches = (
             isParallel: winningState.areNextParallel,
           };
         } else if (winningState.next === undefined) {
+          const parentIDparentBranchID =
+            winningState.branchIDParentIDParentBranchID[branchID];
+          const parentStateID = Number(Object.keys(parentIDparentBranchID)[0]);
+          const parentBranchID = parentIDparentBranchID[parentStateID];
+
+          const parentState = graph.getStateById(parentStateID);
+          console.log({
+            branchID,
+            parentStateID,
+            parentBranchID,
+            states: graph.statesObject.states,
+          });
+          console.log({
+            name: parentState.name.join(", "),
+            activeChildCount: parentState.activeChildStatesCount,
+          });
+          if (parentState.activeChildStatesCount > 1) {
+            delete stateRunTreeBottom["branches"][branchID];
+            parentState.activeChildStatesCount -= 1;
+          }
+          /*
+          end conditons for while
+          parentState.activeChildStatesCount > 1 || 
+          Object.keys(parentState.branchIDParentIDParentBranchID) === 0
+
+          what if there are edges but not an edge for branchID
+          current state's parentBranchID is in parentState.branchIDParentIDParentBranchID
+          parent state is runnng 1 thing and child branch connects to any one of the parent branches
+  
+          while (
+            parentState.activeChildStatesCount === 1 &&
+            parentBranchID !== -1
+          ) {}
+          */
         }
       });
     // edges adjustment
@@ -294,17 +338,6 @@ const VisitAvaliableBranches = (
     //   //  else if (state.next === undefined) {
     //   //   let parentID = parentState.id;
 
-    //   //   /*
-    //   //   variable usage easy language api(similar to default language syntax)
-    //   //   recording variable(all kinds of variables) changes so each state can show what changed
-    //   //   arbitrarily complex context and indefinite levels of granulity(so user can understand the program and
-    //   //     think more about the context of the problem to solve)
-    //   //   let each state connect to any other state and any number of states
-    //   //   handle async and sync processes by design
-    //   //   clean standard way for me and other users to use(part of backend design and all of frontend)
-    //   //   not requiring any external libraries except for some standard libraries for the front end
-    //   //   Doesn't require a manual to understand
-    //   //   */
     //   //   // if state machine has only 1 level this will happen first
     //   //   if (parentID !== -1) {
     //   //     // DFA and NFA stop condition
@@ -561,7 +594,7 @@ const VisitAvaliableBranches = (
         }
 
         console.log(
-          `   currentState: ${graph
+          `   currentState name: ${graph
             .getStateById(currentStateID)
             .name.join("/ ")}, id: ${currentStateID}`
         );
@@ -573,15 +606,15 @@ const VisitAvaliableBranches = (
         let x =
           graph.getStateById(currentStateID).branchIDParentIDParentBranchID;
         console.log(
-          `   current branchIDParentIDParentBranchID: ${Object.keys(x)
+          `   current branchIDParentIDParentBranchID: \n       ${Object.keys(x)
             .map((item: string) => {
               const parentID = Number(Object.keys(x[Number(item)])[0]);
 
-              return `branchID ${item}: { parentID ${
+              return `branchID ${item}: { parent name ${
                 graph.getStateById(parentID).name
               }:  parentBranchID ${x[Number(item)][parentID]}}`;
             })
-            .join(", ")}`
+            .join(", \n       ")}`
         );
       });
     console.log("---------------");

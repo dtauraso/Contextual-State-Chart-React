@@ -23,14 +23,14 @@ let stateTree = {
   tree: {
     state: {
       functionCode: returnTrue,
-      // start: ["calculator"],
-      // children: {
-      //   ...calculatorStateTree,
-      // },
-      start: [["NFA"]],
+      start: ["calculator"],
       children: {
-        ...NFAStateTree,
+        ...calculatorStateTree,
       },
+      // start: [["NFA"]],
+      // children: {
+      //   ...NFAStateTree,
+      // },
       variables: {
         levelId: { value: 0 },
         timeLineId: { value: 0 },
@@ -87,13 +87,15 @@ const wrapper = {
     id: number,
     name: any,
     value: any,
-    typeName: string
+    typeName: string,
+    stateId: number
   ) {
     this.id = id;
     this.name = name;
     this.value = value;
     this.typeName = typeName;
     this.records = {};
+    this.stateID = stateId;
   },
   setGraph: function setGraph(this: any, graph: Graph) {
     this.graph = graph;

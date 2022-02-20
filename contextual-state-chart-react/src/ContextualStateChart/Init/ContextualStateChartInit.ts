@@ -143,6 +143,7 @@ const makeVariable = ({
   indexObject,
   name,
   graph,
+  stateId,
 }: any): any => {
   if ("value" in stateTree) {
     const value = stateTree["value"];
@@ -155,7 +156,8 @@ const makeVariable = ({
       variableId,
       name,
       value,
-      variableTypes?.[typeNameString]?.typeName
+      variableTypes?.[typeNameString]?.typeName,
+      stateId
     );
     graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
@@ -176,7 +178,8 @@ const makeVariable = ({
       variableId,
       name,
       value,
-      variableTypes?.["[object Array]"]?.typeName
+      variableTypes?.["[object Array]"]?.typeName,
+      stateId
     );
     graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
@@ -201,7 +204,8 @@ const makeVariable = ({
       variableId,
       name,
       value,
-      variableTypes?.["[object Object]"]?.typeName
+      variableTypes?.["[object Object]"]?.typeName,
+      stateId
     );
     graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
@@ -241,7 +245,9 @@ const makeState = ({
               indexObject,
               name: variableName,
               graph,
+              stateId,
             });
+
             return acc;
           },
           {}
