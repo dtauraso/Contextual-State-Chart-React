@@ -524,17 +524,17 @@ const visitor = (startStateName: string[], graph: any) => {
   let stateRunTreeBottom = {
     branches: {
       0: {
-        parentStateID: 0,
+        currentStateID: 1,
         nextStates: "start",
         isParallel: false,
       },
     },
     maxBranchID: 0,
   };
-  const parentState = graph.getStateById(0);
-  parentState.branchIDParentIDParentBranchID = { 0: { 0: 0 } };
-  parentState.activeChildStatesCount = 0;
-  return VisitAvaliableBranches(["0"], graph, stateRunTreeBottom);
+  const currentState = graph.getStateById(1);
+  currentState.branchIDParentIDParentBranchID = { 0: { 0: 0 } };
+  currentState.activeChildStatesCount = 0;
+  return VisitAvaliableBranches(graph, stateRunTreeBottom);
 
   // let levelId = getVariableVisitor(graph, ["tree"], "levelId");
   // console.log({ levelId });
