@@ -6,7 +6,6 @@ interface InsertNameParameters {
   stateId: number;
 }
 const insertName = ({ names, name, stateId }: InsertNameParameters): any => {
-  // console.log({ names, name, stateId });
   if (name.length === 0) {
     // console.log("base case");
     if ("id" in names) {
@@ -30,5 +29,23 @@ const insertName = ({ names, name, stateId }: InsertNameParameters): any => {
     };
   }
 };
-
-export { insertName };
+interface SearchNameParameters {
+  names: NamesTrie;
+  name: string[];
+}
+const searchName = ({ names, name }: SearchNameParameters): boolean => {
+  if (names === undefined) {
+    return false;
+  }
+  if (name.length === 0) {
+    return "id" in names;
+  } else if (name[0] in names) {
+    return searchName({
+      names: names[name[0]],
+      name: name.slice(1, name.length),
+    });
+  } else {
+    return false;
+  }
+};
+export { insertName, searchName };

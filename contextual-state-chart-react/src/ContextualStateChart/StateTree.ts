@@ -23,14 +23,14 @@ let stateTree = {
   tree: {
     state: {
       functionCode: returnTrue,
-      start: ["calculator"],
-      children: {
-        ...calculatorStateTree,
-      },
-      // start: [["NFA"]],
+      // start: ["calculator"],
       // children: {
-      //   ...NFAStateTree,
+      //   ...calculatorStateTree,
       // },
+      start: [["NFA"]],
+      children: {
+        ...NFAStateTree,
+      },
       variables: {
         levelId: { value: 0 },
         timeLineId: { value: 0 },
@@ -381,7 +381,6 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
       this.branchIDParentIDParentBranchID = {};
       this.areChildrenParallel = areChildrenParallel;
       this.areNextParallel = areNextParallel;
-      this.activeChildStatesCount = 0;
     },
     visitState: function visitState(this: any) {},
 
@@ -450,7 +449,6 @@ const errorState = function (): ControlFlowState {
     branchIDParentIDParentBranchID: {},
     areChildrenParallel: false,
     areNextParallel: false,
-    activeChildStatesCount: 0,
     getVariable: function (this: ControlFlowState, variableName: string) {
       return {
         value: false,

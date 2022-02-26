@@ -39,7 +39,7 @@ const state7 = {
       areChildrenParallel: true,
       start: [["8"], ["a"], ["b"], ["c"], ["d"], ["e"], ["9"]],
       children: {
-        ...state9,
+        "9": state9["9"],
         "8": {
           state: { functionCode: returnTrue },
         },
@@ -68,7 +68,7 @@ const state7 = {
     },
   },
 };
-
+// there is no state shortcut for states with multiple parents
 let NFAStateTree = {
   NFA: {
     state: {
@@ -96,7 +96,7 @@ let NFAStateTree = {
                         functionCode: returnTrue,
                         areChildrenParallel: true,
                         start: [["7"]],
-                        children: { ...state7 },
+                        children: { "7": state7["7"] },
                       },
                     },
                   },
@@ -113,7 +113,7 @@ let NFAStateTree = {
                         functionCode: returnTrue,
                         areChildrenParallel: true,
                         start: [["7"]],
-                        children: { ...state7 },
+                        children: { "7": state7["7"] },
                       },
                     },
                     "6": {
@@ -127,7 +127,7 @@ let NFAStateTree = {
                               functionCode: returnTrue,
                               areChildrenParallel: true,
                               start: [["9"]],
-                              children: { ...state9 },
+                              children: { "9": state9["9"] },
                             },
                           },
                         },

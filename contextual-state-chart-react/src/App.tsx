@@ -303,7 +303,7 @@ const App = (props: any) => {
   makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;
   console.log({ namesTrie, statesObject });
-  // visitor(["NFA"], graph);
+  visitor(["NFA"], graph);
   // console.log(
   //   "namesTrie",
   //   JSON.parse(JSON.stringify(namesTrie)),

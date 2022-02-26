@@ -13,7 +13,7 @@ import {
   Graph,
 } from "../../App.types";
 // f(stateTree) => names and states arrays
-import { insertName } from "./TrieTree";
+import { insertName, searchName } from "./TrieTree";
 import {
   isNull,
   isBoolean,
@@ -88,23 +88,20 @@ const traverseContexts = ({
     paths,
     currentPath: [],
   });
-  let childrenIds: number[] = [];
   paths.forEach((path: string[]) => {
     let tracker = stateTree;
     path.forEach((contextName: string) => {
       tracker = tracker[contextName];
     });
-    childrenIds.push(
-      makeState({
-        trieTreeCollection,
-        stateTree: tracker,
-        indexObject,
-        currentStateName: path,
-        graph,
-      })
-    );
+    makeState({
+      trieTreeCollection,
+      stateTree: tracker,
+      indexObject,
+      currentStateName: path,
+      graph,
+    });
   });
-  return { paths, childrenIds };
+  return { paths };
 };
 const returnTrueShort = (value: any) => true;
 const variableTypes: any = {
@@ -224,11 +221,16 @@ const makeState = ({
     const currentState = stateTree["state"];
     const stateId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
-    trieTreeCollection.push({
+
+    if (searchName({ names: graph.namesTrie, name: currentStateName })) {
+      return stateId;
+    }
+    graph.namesTrie = insertName({
+      names: graph.namesTrie,
       name: currentStateName,
       stateId: stateId,
     });
-    const { paths, childrenIds } = traverseContexts({
+    const { paths } = traverseContexts({
       trieTreeCollection,
       stateTree: currentState.children,
       indexObject,
@@ -276,9 +278,6 @@ const makeState = ({
       getVariable: getVariable,
       graph,
     });
-    childrenIds.forEach((childrenId: number) => {
-      graph.statesObject.states[childrenId].parents.push(currentStateName);
-    });
 
     return stateId;
   } else {
@@ -307,13 +306,13 @@ const makeArrays = (stateTree: any, graph: Graph) => {
     currentStateName: [],
     graph, //: graph.statesObject.states,
   });
-  trieTreeCollection.forEach((name: any) => {
-    graph.namesTrie = insertName({
-      names: graph.namesTrie,
-      name: name.name,
-      stateId: name.stateId,
-    });
-  });
+  // trieTreeCollection.forEach((name: any) => {
+  //   graph.namesTrie = insertName({
+  //     names: graph.namesTrie,
+  //     name: name.name,
+  //     stateId: name.stateId,
+  //   });
+  // });
 
   // console.log({ states2, trieTreeCollection });
   // let states3: States = Object.keys(states2).reduce((acc: any, curr: number) => {
