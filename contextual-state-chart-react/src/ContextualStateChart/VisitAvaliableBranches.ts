@@ -697,9 +697,10 @@ const VisitAvaliableBranches = (
   const state_3 = graph.getStateById(4);
   const state_4 = graph.getStateById(5);
   const state_5 = graph.getStateById(17);
-
+  const state_6 = graph.getStateById(19);
   const state_7 = graph.getStateById(6);
-  // 6 and 18 are both state 7
+  const state_9 = graph.getStateById(8);
+  const state_10 = graph.getStateById(20);
 
   // const bottom = graph.getState(tree).getVariable("stateRunTreeBottom");
   // const i = graph.getState(tree).getVariable("i");
