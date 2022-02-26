@@ -13,7 +13,7 @@ import {
   Graph,
 } from "../../App.types";
 // f(stateTree) => names and states arrays
-import { insertName, searchName } from "./TrieTree";
+import { insertName, searchName, getStateId } from "./TrieTree";
 import {
   isNull,
   isBoolean,
@@ -222,8 +222,12 @@ const makeState = ({
     const stateId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
 
-    if (searchName({ names: graph.namesTrie, name: currentStateName })) {
-      return stateId;
+    const currentStateId = getStateId({
+      names: graph.namesTrie,
+      name: currentStateName,
+    });
+    if (currentStateId > -1) {
+      return currentStateId;
     }
     graph.namesTrie = insertName({
       names: graph.namesTrie,

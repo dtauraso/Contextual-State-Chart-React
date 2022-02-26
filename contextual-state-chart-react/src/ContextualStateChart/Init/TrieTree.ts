@@ -48,4 +48,23 @@ const searchName = ({ names, name }: SearchNameParameters): boolean => {
     return false;
   }
 };
-export { insertName, searchName };
+const getStateId = ({ names, name }: SearchNameParameters): number => {
+  if (names === undefined) {
+    return -1;
+  }
+  if (name.length === 0) {
+    if ("id" in names) {
+      return names["id"] as number;
+    } else {
+      return -1;
+    }
+  } else if (name[0] in names) {
+    return getStateId({
+      names: names[name[0]],
+      name: name.slice(1, name.length),
+    });
+  } else {
+    return -1;
+  }
+};
+export { insertName, searchName, getStateId };
