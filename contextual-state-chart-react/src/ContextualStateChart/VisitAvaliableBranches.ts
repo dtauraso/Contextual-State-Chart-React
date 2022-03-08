@@ -17,6 +17,59 @@ let tree = ["tree"];
 // all branches should be able to run independently and terminate when they are done reguardless of how and when
 // VisitAvaliableBranches is called
 
+const testAtStateRunCount = (stateRunCount: number, graph: Graph) => {
+  if (stateRunCount === 5) {
+    const NFA = graph.getStateById(1);
+    const state_0 = graph.getStateById(2);
+    const state_1 = graph.getStateById(3);
+    const state_2 = graph.getStateById(16);
+    const state_3 = graph.getStateById(4);
+    const state_4 = graph.getStateById(5);
+    const state_5 = graph.getStateById(17);
+    const state_6 = graph.getStateById(19);
+    const state_7 = graph.getStateById(6);
+    const state_9 = graph.getStateById(8);
+    const state_10 = graph.getStateById(20);
+    const states = [
+      NFA,
+      state_0,
+      state_1,
+      state_2,
+      state_3,
+      state_4,
+      state_5,
+      state_6,
+      state_7,
+      state_9,
+      state_10,
+    ];
+    // states.forEach((state) => {
+    //   console.log({
+    //     name: state.name.join(", "),
+    //     id: state.id,
+    //   });
+    //   Object.keys(state.branchIDParentIDParentBranchID).forEach((branchID) => {
+    //     console.log({
+    //       branchID,
+    //     });
+    //     const { activeChildStatesCount, parentBranch } =
+    //       state.branchIDParentIDParentBranchID[Number(branchID)];
+    //     const { parentID, parentBranchID } = parentBranch;
+    //     console.log({
+    //       activeChildStatesCount,
+    //       parentID,
+    //       parentBranchID,
+    //     });
+    //   });
+    //   console.log("\n\n");
+    // });
+    return (
+      state_0.branchIDParentIDParentBranchID["0"].activeChildStatesCount ===
+        2 &&
+      state_2.branchIDParentIDParentBranchID["1"].activeChildStatesCount === 2
+    );
+  }
+};
 const VisitAvaliableBranches = (
   graph: Graph,
   stateRunTreeBottom: {
@@ -49,7 +102,10 @@ const VisitAvaliableBranches = (
   // return;
   while (Object.keys(stateRunTreeBottom).length > 0) {
     console.log({ statesRun });
-    if (statesRun >= 5) {
+    if (statesRun >= 6) {
+      if (testAtStateRunCount(statesRun, graph)) {
+        console.log("passes");
+      }
       console.log("too many states were run");
       break;
     }
@@ -207,9 +263,9 @@ const VisitAvaliableBranches = (
             isParallel: winningState.areNextParallel,
           };
         } else if (winningState.next === undefined) {
-          let { parentID, parentBranchID } =
+          const { parentID, parentBranchID } =
             winningState.branchIDParentIDParentBranchID[branchID].parentBranch;
-          let parentState = graph.getStateById(parentID);
+          const parentState = graph.getStateById(parentID);
           // console.log({
           //   branchID,
           //   parentStateID,
@@ -220,47 +276,152 @@ const VisitAvaliableBranches = (
           //   name: parentState.name.join(", "),
           //   activeChildCount: parentState.activeChildStatesCount,
           // });
-          console.log("delete end state");
+          console.log("end state", {
+            parentBranchID,
+            branchID,
+            aCSC: JSON.parse(
+              JSON.stringify(
+                parentState.branchIDParentIDParentBranchID[parentBranchID]
+                  .activeChildStatesCount
+              )
+            ),
+            winningStateName: winningState.name.join(","),
+            parentStateName: parentState.name.join(","),
+          });
 
           let count = 0;
           while (parentBranchID !== -1) {
             console.log({ count });
-            if (count >= 3) {
+            if (count >= 10) {
+              console.log("leaving");
               break;
             }
             // move branch up or delete it
             // check if next states exists if branch was moved up
             // multiple paths only 1 child state each
             // can move up multiple times and then deleted
-            let parentBranch =
-              parentState.branchIDParentIDParentBranchID[parentBranchID];
-
+            // console.log(
+            //   JSON.parse(
+            //     JSON.stringify(
+            //       parentState.branchIDParentIDParentBranchID[parentBranchID]
+            //         .activeChildStatesCount
+            //     )
+            //   )
+            // );
             if (
               parentState.branchIDParentIDParentBranchID[parentBranchID]
                 .activeChildStatesCount > 1
             ) {
+              // console.log("delete");
+              // console.log({
+              //   parentState,
+              //   parentBranchID,
+              //   aCSC: JSON.parse(
+              //     JSON.stringify(
+              //       parentState.branchIDParentIDParentBranchID[parentBranchID]
+              //         .activeChildStatesCount
+              //     )
+              //   ),
+              // });
+              // 1 path split into multiple children paths
+              delete stateRunTreeBottom["branches"][branchID];
+              parentState.branchIDParentIDParentBranchID[
+                parentBranchID
+              ].activeChildStatesCount -= 1;
+
               if (
-                Object.keys(parentState.branchIDParentIDParentBranchID)
-                  .length === 1
+                parentState.branchIDParentIDParentBranchID[parentBranchID]
+                  .activeChildStatesCount > 0
               ) {
-                console.log("delete");
-                // 1 path split into multiple children paths
-                delete stateRunTreeBottom["branches"][branchID];
-                parentState.branchIDParentIDParentBranchID[
-                  parentBranchID
-                ].activeChildStatesCount -= 1;
-
-                if (
-                  parentState.branchIDParentIDParentBranchID[parentBranchID]
-                    .activeChildStatesCount > 0
-                ) {
-                  break;
-                }
+                // console.log("leave", {
+                //   parentBranchID,
+                //   aCSC: JSON.parse(
+                //     JSON.stringify(
+                //       parentState.branchIDParentIDParentBranchID[parentBranchID]
+                //         .activeChildStatesCount
+                //     )
+                //   ),
+                //   winningStateName: winningState.name.join(","),
+                //   parentStateName: parentState.name.join(","),
+                // });
+                break;
               }
-            }
+            } else if (
+              parentState.branchIDParentIDParentBranchID[parentBranchID]
+                .activeChildStatesCount === 1
+            ) {
+              console.log("move up tree");
+              // console.log({
+              //   parentState,
+              //   parentBranchID,
+              //   aCSC: JSON.parse(
+              //     JSON.stringify(
+              //       parentState.branchIDParentIDParentBranchID[parentBranchID]
+              //         .activeChildStatesCount
+              //     )
+              //   ),
+              // });
+              const nextParentID =
+                parentState.branchIDParentIDParentBranchID[parentBranchID]
+                  .parentBranch.parentID;
+              const nextParentBranchID =
+                parentState.branchIDParentIDParentBranchID[parentBranchID]
+                  .parentBranch.parentBranchID;
+              const nextActiveChildStatesCount =
+                parentState.branchIDParentIDParentBranchID[parentBranchID]
+                  .activeChildStatesCount;
+              console.log({
+                parentBranchID,
+                nextParentID,
 
+                nextParentBranchID,
+                nextActiveChildStatesCount,
+                // : JSON.parse(
+                //   JSON.stringify(
+                //     graph.getStateById(nextParentID)
+                //       .branchIDParentIDParentBranchID[nextParentBranchID]
+                //   )
+                // ),
+              });
+              if (parentBranchID === -1) {
+                // print current state name
+
+                //    delete branch
+                break;
+              }
+              // same parent is getting set over and over
+              // branchID -> parentBranchID
+              // currentStateID -> parentStateID
+              // isParallel -> parent.next.isParallel
+              // nextStates -> parent.next
+              // stateRunTreeBottom["branches"][parentBranchID] = {
+              //   currentStateID: parentState.id,
+              //   nextStates: parentState.next !== undefined ? "next" : undefined,
+              //   isParallel: parentState.areNextParallel,
+              // };
+              // console.log({
+              //   branches: JSON.parse(
+              //     JSON.stringify(stateRunTreeBottom["branches"])
+              //   ),
+              // });
+              // delete stateRunTreeBottom["branches"][branchID];
+
+              // const { currentStateID } =
+              //   stateRunTreeBottom["branches"][parentBranchID];
+              // const currentState = graph.getStateById(currentStateID);
+              // if (currentState.next === undefined) {
+              //   // break;
+              //   console.log({ name: currentState.name.join(", ") });
+              //   // print current state name
+              // }
+              // if (currentState.next?.length > 0) {
+              // break
+              // }
+            }
+            console.log("done adjusting");
             count += 1;
           }
+
           // remove end branch
           // what if there are 5 parents using a single branch
 
@@ -690,17 +851,6 @@ const VisitAvaliableBranches = (
     console.log("########################");
     statesRun += 1;
   }
-  const NFA = graph.getStateById(1);
-  const state_0 = graph.getStateById(2);
-  const state_1 = graph.getStateById(3);
-  const state_2 = graph.getStateById(16);
-  const state_3 = graph.getStateById(4);
-  const state_4 = graph.getStateById(5);
-  const state_5 = graph.getStateById(17);
-  const state_6 = graph.getStateById(19);
-  const state_7 = graph.getStateById(6);
-  const state_9 = graph.getStateById(8);
-  const state_10 = graph.getStateById(20);
 
   // const bottom = graph.getState(tree).getVariable("stateRunTreeBottom");
   // const i = graph.getState(tree).getVariable("i");
