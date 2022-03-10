@@ -102,7 +102,7 @@ const VisitAvaliableBranches = (
   // return;
   while (Object.keys(stateRunTreeBottom.branches).length > 0) {
     console.log({ statesRun });
-    if (statesRun >= 7) {
+    if (statesRun >= 8) {
       if (testAtStateRunCount(statesRun, graph)) {
         console.log("passes");
       }
@@ -116,7 +116,6 @@ const VisitAvaliableBranches = (
     Object.keys(stateRunTreeBottom["branches"])
       .map((branchID: string) => Number(branchID))
       .forEach((branchID: number) => {
-        // fails when statesRun === 8
         // if (statesRun >= 10) {
         //   console.log("too many states were run");
         //   stateRunTreeBottom["branches"] = {};
