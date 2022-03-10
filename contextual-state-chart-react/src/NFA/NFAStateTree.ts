@@ -81,6 +81,7 @@ let NFAStateTree = {
             functionCode: returnTrue,
             areChildrenParallel: true,
             start: [["1"], ["2"]],
+            // put in some next states for testing
             children: {
               "1": {
                 state: {
