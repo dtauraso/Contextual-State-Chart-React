@@ -102,7 +102,7 @@ const VisitAvaliableBranches = (
   // return;
   while (Object.keys(stateRunTreeBottom).length > 0) {
     console.log({ statesRun });
-    if (statesRun >= 6) {
+    if (statesRun >= 7) {
       if (testAtStateRunCount(statesRun, graph)) {
         console.log("passes");
       }
@@ -308,16 +308,19 @@ const VisitAvaliableBranches = (
             const { activeChildStatesCount } =
               parentState.branchIDParentIDParentBranchID[parentBranchID];
             if (activeChildStatesCount > 1) {
-              // console.log("delete");
-
+              console.log("delete");
+              // const { currentStateID } =
+              //   stateRunTreeBottom["branches"][prevBranchID];
+              // const currentState = graph.getStateById(currentStateID);
+              // console.log({ name: currentState.name.join(", ") });
               // 1 path split into multiple children paths
-              delete stateRunTreeBottom["branches"][branchID];
+              delete stateRunTreeBottom["branches"][prevBranchID];
               parentState.branchIDParentIDParentBranchID[
                 parentBranchID
               ].activeChildStatesCount -= 1;
 
               if (activeChildStatesCount > 0) {
-                // console.log("leave");
+                console.log("leave");
                 break;
               }
             } else if (activeChildStatesCount === 1) {
@@ -327,9 +330,10 @@ const VisitAvaliableBranches = (
 
               if (parentBranchID === -1) {
                 // print current state name
-                console.log({ name: parentState.name.join(", ") });
+                console.log("last branch", {
+                  name: parentState.name.join(", "),
+                });
 
-                //    delete branch
                 break;
               }
               stateRunTreeBottom["branches"][parentBranchID] = {
@@ -347,8 +351,8 @@ const VisitAvaliableBranches = (
                 stateRunTreeBottom["branches"][parentBranchID];
               const currentState = graph.getStateById(currentStateID);
               if (currentState.next === undefined) {
-                // break;
                 console.log({ name: currentState.name.join(", ") });
+
                 // print current state name
               }
               // console.log({
@@ -379,6 +383,7 @@ const VisitAvaliableBranches = (
                 currentState,
                 test: prevBranchID !== parentBranchID,
               });
+
               // let x = JSON.parse(
               //   JSON.stringify(currentState.branchIDParentIDParentBranchID)
               // );
@@ -388,10 +393,24 @@ const VisitAvaliableBranches = (
               // break
               // }
             }
-            console.log("done adjusting");
+            if (parentBranchID === -1) {
+              const { currentStateID } =
+                stateRunTreeBottom["branches"][prevBranchID];
+              const currentState = graph.getStateById(currentStateID);
+              if (currentState.next === undefined) {
+                delete stateRunTreeBottom["branches"][prevBranchID];
+              } else {
+                stateRunTreeBottom["branches"][prevBranchID] = {
+                  currentStateID: currentState.id,
+                  nextStates:
+                    currentState.next !== undefined ? "next" : undefined,
+                  isParallel: currentState.areNextParallel,
+                };
+              }
+            }
             count += 1;
           }
-
+          console.log("done adjusting");
           // remove end branch
           // what if there are 5 parents using a single branch
 
