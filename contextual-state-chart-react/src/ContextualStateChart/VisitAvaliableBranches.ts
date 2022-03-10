@@ -318,12 +318,12 @@ const VisitAvaliableBranches = (
               const { currentStateID } =
                 stateRunTreeBottom["branches"][parentBranchID];
               const currentState = graph.getStateById(currentStateID);
+              prevBranchID = parentBranchID;
 
               parentID =
                 currentState.branchIDParentIDParentBranchID[parentBranchID]
                   .parentBranch.parentID;
 
-              prevBranchID = parentBranchID;
               parentBranchID =
                 currentState.branchIDParentIDParentBranchID[parentBranchID]
                   .parentBranch.parentBranchID;
