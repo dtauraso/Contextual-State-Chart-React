@@ -11,6 +11,7 @@ import { VisitBranches } from "./Visitor";
     5)clean standard way for me and other users to use(part of backend design and all of frontend)
       graph, lines, hierarchy, views, side vews, modes
     6)not requiring any external libraries except for some standard libraries for the front end
+    7) hierarchy of states
         */
 let tree = ["tree"];
 
@@ -271,12 +272,9 @@ const VisitAvaliableBranches = (
             isParallel: winningState.areNextParallel,
           };
         } else if (winningState.next === undefined) {
-          let parentID =
-            winningState.branchIDParentIDParentBranchID[branchID].parentBranch
-              .parentID;
-          let parentBranchID: number =
-            winningState.branchIDParentIDParentBranchID[branchID].parentBranch
-              .parentBranchID;
+          let { parentID, parentBranchID } =
+            winningState.branchIDParentIDParentBranchID[branchID].parentBranch;
+
           let parentState = graph.getStateById(parentID);
 
           let prevBranchID = branchID;
