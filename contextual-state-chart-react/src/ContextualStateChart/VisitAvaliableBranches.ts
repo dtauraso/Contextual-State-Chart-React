@@ -100,7 +100,7 @@ const VisitAvaliableBranches = (
 
   console.log({ stateRunTreeBottom });
   // return;
-  while (Object.keys(stateRunTreeBottom).length > 0) {
+  while (Object.keys(stateRunTreeBottom.branches).length > 0) {
     console.log({ statesRun });
     if (statesRun >= 7) {
       if (testAtStateRunCount(statesRun, graph)) {
