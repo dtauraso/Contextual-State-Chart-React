@@ -524,6 +524,7 @@ const visitor = (startStateName: string[], graph: any) => {
   let stateRunTreeBottom = {
     branches: {
       0: {
+        branchCopyID: 0,
         currentStateID: 1,
         nextStates: "start",
         isParallel: false,

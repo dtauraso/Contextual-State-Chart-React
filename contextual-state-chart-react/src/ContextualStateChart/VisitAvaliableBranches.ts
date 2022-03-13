@@ -113,7 +113,12 @@ const VisitAvaliableBranches = (
     // console.log({
     //   stateRunTreeBottom: JSON.parse(JSON.stringify(stateRunTreeBottom)),
     // });
-
+    // new timelines
+    // the 1, nth state run
+    // any state that already has branches running at the time it's tried
+    // always put variable init on a new timeline
+    // first timelines also need a timeline for the variable init
+    // if the current timeline only has init variables, make new timeline for them
     Object.keys(stateRunTreeBottom["branches"])
       .map((branchID: string) => Number(branchID))
       .forEach((branchID: number) => {
