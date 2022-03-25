@@ -155,6 +155,7 @@ const VisitAvaliableBranches = (
               name is id of the states
               the same state is run for each cashier
             definitions for making a new branch
+            when is the variable set setup for each branch
             before running
               if state is parallel
                 if state has >= 1 branchs attached to it
