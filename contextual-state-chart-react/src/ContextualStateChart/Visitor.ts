@@ -521,10 +521,11 @@ const visitor = (startStateName: string[], graph: any) => {
   // "tree"
   // setupTrackers(startStateName, graph);
 
+  // a timeline node is also a state node
   let stateRunTreeBottom = {
     branches: {
       0: {
-        branchCopyID: 0,
+        parallelEnumerationOfCurrentState: 0,
         currentStateID: 1,
         nextStates: "start",
         isParallel: false,

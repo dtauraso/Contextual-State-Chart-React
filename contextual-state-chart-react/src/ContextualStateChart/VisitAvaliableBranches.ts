@@ -130,40 +130,65 @@ const VisitAvaliableBranches = (
         const { currentStateID, nextStates, isParallel } =
           stateRunTreeBottom["branches"][branchID];
         let winningStatePositions = [-1];
-        if (!isParallel) {
-          graph
-            .getStateById(currentStateID)
-            .getEdges(nextStates)
-            .forEach((nextStateName: string[], i: number) => {
+
+        graph
+          .getStateById(currentStateID)
+          .getEdges(nextStates)
+          .forEach((nextStateName: string[], i: number) => {
+            if (!isParallel) {
               if (winningStatePositions[0] >= 0) {
                 return;
               }
-              console.log({ nextStateName });
-              const state = graph.getState(nextStateName);
-              console.log({ state });
-              if (state.functionCode(graph)) {
-                winningStatePositions[0] = i;
-              }
-            });
-        } else {
-          // parallel: passes
+            }
+            // console.log({ nextStateName });
+            const state = graph.getState(nextStateName);
+            if (isParallel) {
+            }
+            /**
+            
+            many cashiers many customers
+            make sure 1 cashier maps to 1 customer
+            each cashier and each customer is time independent
+            1 branchID link table inside cashier and customer states
+              each state refers to the link table of their parent
+            n branchID link tables
+              name is id of the states
+              the same state is run for each cashier
+            definitions for making a new branch
+            before running
+              if state is parallel
+                if state has >= 1 branchs attached to it
+                  branchID++
+                  parallelEnumerationOfCurrentState
+              if nextStateName.linkToDifferentTimeline is true
+                parallelEnumerationOfCurrentState = stateRunTreeBottom["branches"][branchID]["parallelEnumerationOfCurrentState"]
+                if state.stateRunCounts[branchID].differentTimelineCountBeforeRunningState > 0
+                  state.stateRunCounts[branchID].differentTimelineCountBeforeRunningState -= 1
+                else if(state.stateRunCounts[branchID].differentTimelineCountBeforeRunningState === 0)
+                  state.currentTimeline = branchID
+                  run state
+            after running
+              state is the second to nth state successfully run
 
-          graph
-            .getStateById(currentStateID)
-            .getEdges(nextStates)
-            .forEach((nextStateName: string[], i: number) => {
-              const state = graph.getState(nextStateName);
-              if (state.functionCode(graph)) {
+             */
+            // console.log({ state });
+            if (state.functionCode(graph)) {
+              if (!isParallel) {
+                winningStatePositions[0] = i;
+              } else if (isParallel) {
                 if (winningStatePositions[0] === -1) {
                   winningStatePositions[0] = i;
                 } else {
+                  // winningStatePositions.push({newBranch: true, winningStatePosition: i})
                   winningStatePositions.push(i);
                 }
               }
-            });
-          // console.log("here");
-          // stateRunTreeBottom = [];
-        }
+            }
+          });
+
+        //   // console.log("here");
+        //   // stateRunTreeBottom = [];
+        // }
         // console.log({
         //   winningStateIDsAsNames: winningStatePositions.map(
         //     (stateID: number) =>
@@ -192,12 +217,14 @@ const VisitAvaliableBranches = (
         // if the winning states are from start
         //    update new branches with new levels
         winningStatePositions.forEach((winningStateID: number, i: number) => {
+          // const {winning}
           let currentBranchID = -1;
           const edges: string[][] = graph
             .getStateById(currentStateID)
             .getEdges(nextStates);
           // all new branches will also have the same parent state
           winningState = graph.getState(edges[winningStateID]);
+          ///////////
           if (i > 0) {
             stateRunTreeBottom["maxBranchID"] += 1;
             currentBranchID = stateRunTreeBottom["maxBranchID"];
@@ -205,6 +232,7 @@ const VisitAvaliableBranches = (
           } else {
             currentBranchID = branchID;
           }
+          ////////
           let parentStateID: number = -1;
           if (nextStates === "start") {
             parentStateID = currentStateID;
@@ -234,18 +262,22 @@ const VisitAvaliableBranches = (
           stateRunTreeBottom["branches"][currentBranchID] = {
             currentStateID: winningState.id,
           };
+          ////////
           if (i === 0) {
             originalBranchChanged = true;
           } else if (i > 0) {
             originalBranchIDSpawnedDifferentChildBranchID = true;
           }
+          /////////
         });
+        ////////
         if (
           !originalBranchChanged &&
           originalBranchIDSpawnedDifferentChildBranchID
         ) {
-          delete stateRunTreeBottom["branches"][branchID];
+          // delete stateRunTreeBottom["branches"][branchID];
         }
+        //////////
         // console.log({ states: graph.statesObject.states });
       });
 

@@ -10,136 +10,174 @@ let coffeeFrappuccino = {
 let StartbucksStateTree = {
   machine: {
     StarbucksMachine: {
-      functionCode: returnTrue,
-      areChildrenParallel: true,
-      start: [
-        { nextStateName: ["Coffee Shop"] },
-        { nextStateName: ["Customer"] },
-      ],
-      children: {
-        "Coffee Shop": {
-          currentTimelineID: -1,
-          functionCode: returnTrue,
-          areChildrenParallel: true,
-          start: [
-            { nextStateName: ["Cashier"] },
-            { nextStateName: ["Barista"] },
-          ],
-          children: {
-            Barista: {
+      state: {
+        functionCode: returnTrue,
+        areChildrenParallel: true,
+        start: [
+          { nextStateName: ["Coffee Shop"] },
+          { nextStateName: ["Customer"] },
+        ],
+        children: {
+          "Coffee Shop": {
+            state: {
+              currentTimelineID: -1,
               functionCode: returnTrue,
               areChildrenParallel: true,
-              start: [{ nextStateName: ["Make drink"] }],
+              start: [
+                { nextStateName: ["Cashier"] },
+                { nextStateName: ["Barista"] },
+              ],
               children: {
-                "Make drink": {
-                  functionCode: returnTrue,
-                  next: [{ nextStateName: ["Output buffer"] }],
-                },
-                "Output buffer": {
-                  functionCode: returnTrue,
-                  next: [
-                    {
-                      linkToDifferentTimeline: true,
-                      nextStateName: ["Sip coffee"],
-                    },
-                  ],
-                },
-              },
-            },
-            Cashier: {
-              areChildrenParallel: true,
-              start: [{ nextStateName: ["Take order", "from customer"] }],
-              children: {
-                "Take order": {
-                  "from customer": {
-                    state: {
-                      currentTimelineID: -1,
-
-                      // branch bottom inside graph
-                      // variable access, (branchID, parentStateName, variableName)
-                      functionCode: returnTrue,
-                      differentTimelineCount: 1,
-                      // if variable can't be fetched set variable to undefined and print error message
-                      // let machine crash
-                      variableAccessDataFromDifferentTimelines: {
-                        // parentStateName
-                        Customer: {
-                          timelineID: -1,
-                          variableName: "customerOrder",
+                Barista: {
+                  state: {
+                    functionCode: returnTrue,
+                    areChildrenParallel: true,
+                    start: [{ nextStateName: ["Make drink"] }],
+                    children: {
+                      "Make drink": {
+                        state: {
+                          functionCode: returnTrue,
+                          next: [{ nextStateName: ["Output buffer"] }],
                         },
                       },
-                      next: [{ nextStateName: ["Compute Price"] }],
+                      "Output buffer": {
+                        state: {
+                          functionCode: returnTrue,
+                          next: [
+                            {
+                              linkToDifferentTimeline: true,
+                              nextStateName: ["Sip coffee"],
+                            },
+                          ],
+                        },
+                      },
                     },
                   },
                 },
-                "Compute price": {
-                  functionCode: returnTrue,
-                  areNextParallel: true,
-                  next: [
-                    {
-                      linkToDifferentTimeline: true,
-                      nextStateName: ["Dig up money"],
+                Cashier: {
+                  state: {
+                    areChildrenParallel: true,
+                    start: [{ nextStateName: ["Take order", "from customer"] }],
+                    children: {
+                      "Take order": {
+                        "from customer": {
+                          state: {
+                            // branchID, parallelBranchEnumerationID
+                            currentTimelineID: -1,
+
+                            // branch bottom inside graph
+                            /* variable access, (   branchID,
+                                                    parallelBranchEnumerationID,
+                                                    parentStateName,
+                                                    variableName)
+                            */
+                            functionCode: returnTrue,
+                            // access same timeline counter reguardless of how many times the state
+                            // runs
+                            stateRunCounts: {
+                              parallelEnumerationOfCurrentStateNumber: {
+                                differentTimelineCountBeforeRunningState: 1,
+                              },
+                            },
+
+                            // if variable can't be fetched set variable to undefined and print error message
+                            // let machine crash
+                            variableAccessDataFromDifferentTimelines: {
+                              // parentStateName
+                              Customer: {
+                                timelineID: -1,
+                                variableName: "customerOrder",
+                              },
+                            },
+                            next: [{ nextStateName: ["Compute Price"] }],
+                          },
+                        },
+                      },
+                      "Compute price": {
+                        state: {
+                          functionCode: returnTrue,
+                          areNextParallel: true,
+                          next: [
+                            {
+                              linkToDifferentTimeline: true,
+                              nextStateName: ["Dig up money"],
+                            },
+                            {
+                              nextStateName: ["Compute change"],
+                            },
+                          ],
+                        },
+                      },
+                      "Compute change": {
+                        state: {
+                          functionCode: returnTrue,
+                          differentTimelineCount: 1,
+                          next: [
+                            { nextStateName: ["No change"] },
+                            {
+                              linkToDifferentTimeline: true,
+                              nextStateName: ["Put away change"],
+                            },
+                          ],
+                        },
+                      },
+                      "No change": {
+                        state: { functionCode: returnTrue },
+                      },
                     },
-                    {
-                      nextStateName: ["Compute change"],
-                    },
-                  ],
+                  },
                 },
-                "Compute change": {
-                  functionCode: returnTrue,
-                  differentTimelineCount: 1,
-                  next: [
-                    { nextStateName: ["No change"] },
-                    {
-                      linkToDifferentTimeline: true,
-                      nextStateName: ["Put away change"],
-                    },
-                  ],
-                },
-                "No change": {
-                  functionCode: returnTrue,
-                },
+              },
+              variables: {
+                init: { orderQueue: [], outputBuffer: [] },
               },
             },
           },
-          variables: {
-            init: { orderQueue: [], outputBuffer: [] },
-          },
-        },
-        Customer: {
-          functionCode: returnTrue,
-          children: {
-            "Place order": {
+          Customer: {
+            state: {
               functionCode: returnTrue,
-              areNextParallel: true,
-              next: [
-                {
-                  linkToDifferentTimeline: true,
-                  nextStateName: ["Take order", "from customer"],
+              children: {
+                "Place order": {
+                  state: {
+                    functionCode: returnTrue,
+                    areNextParallel: true,
+                    next: [
+                      {
+                        linkToDifferentTimeline: true,
+                        nextStateName: ["Take order", "from customer"],
+                      },
+                      { nextStateName: ["Dig up money"] },
+                      { nextStateName: ["Sip coffee"] },
+                    ],
+                  },
                 },
-                { nextStateName: ["Dig up money"] },
-                { nextStateName: ["Sip coffee"] },
-              ],
-            },
-            "Dig up money": {
-              functionCode: returnTrue,
-              differentTimelineCount: 1,
-              areNextParallel: true,
-              next: [
-                {
-                  linkToDifferentTimeline: true,
-                  nextStateName: ["Compute change"],
+                "Dig up money": {
+                  state: {
+                    functionCode: returnTrue,
+                    differentTimelineCount: 1,
+                    areNextParallel: true,
+                    next: [
+                      {
+                        linkToDifferentTimeline: true,
+                        nextStateName: ["Compute change"],
+                      },
+                      { nextStateName: ["Put away change"] },
+                    ],
+                  },
                 },
-                { nextStateName: ["Put away change"] },
-              ],
-            },
-            "Put away change": {
-              functionCode: returnTrue,
-              differentTimelineCount: 1,
-            },
-            "Sip coffee": {
-              functionCode: returnTrue,
-              differentTimelineCount: 1,
+                "Put away change": {
+                  state: {
+                    functionCode: returnTrue,
+                    differentTimelineCount: 1,
+                  },
+                },
+                "Sip coffee": {
+                  state: {
+                    functionCode: returnTrue,
+                    differentTimelineCount: 1,
+                  },
+                },
+              },
             },
           },
         },
