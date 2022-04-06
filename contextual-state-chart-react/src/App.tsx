@@ -263,7 +263,23 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 // have something to put on my portfolio and practice react skills while I finish the state machine algorithm
 // and language
 // use class based components
+const twoSumMappingTest = () => {
+  const listA = [
+    { branchID: 0, stateID: 1, countTillStateOfMachine: 4, currentCount: 0 },
+    { branchID: 1, stateID: 2, countTillStateOfMachine: 2, currentCount: 0 },
+  ];
 
+  const states = {
+    1: {
+      destinationTimelineStateIDs: [2],
+    },
+    2: {
+      destinationTimelineStateIDs: [1],
+    },
+  };
+
+  const counterpartTimeLine = {};
+};
 const App = (props: any) => {
   // test();
   // console.log(x.prototype, x);
@@ -303,7 +319,7 @@ const App = (props: any) => {
   makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;
   console.log({ namesTrie, statesObject });
-  visitor(["NFA"], graph);
+  // visitor(["NFA"], graph);
   // console.log(
   //   "namesTrie",
   //   JSON.parse(JSON.stringify(namesTrie)),

@@ -145,7 +145,18 @@ const VisitAvaliableBranches = (
             if (isParallel) {
             }
             /**
-            
+            don't use the state function for timeline communication
+            assume all connected timelines will run at the same time.
+            each branch maps to a different variable
+            currently setup to always use the selected timeline
+            how to make new 1:1 mappings when there are new cashiers and new customers
+              
+            selectedTimeline(timelineA): 0, // from stateRunTreeBottom["branches"]
+              currentTimelineIDs: {
+                selectedTimelineNumber: {
+                  timelineIDOfOtherTimeline: -1,  when is this value used; how is this value used to enforce 1:1 mapping
+                },
+              },
             many cashiers many customers
             make sure 1 cashier maps to 1 customer
             each cashier and each customer is time independent

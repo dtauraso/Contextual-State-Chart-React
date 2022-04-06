@@ -21,6 +21,7 @@ let StartbucksStateTree = {
           "Coffee Shop": {
             state: {
               currentTimelineID: -1,
+
               functionCode: returnTrue,
               areChildrenParallel: true,
               start: [
@@ -62,9 +63,6 @@ let StartbucksStateTree = {
                       "Take order": {
                         "from customer": {
                           state: {
-                            // branchID, parallelBranchEnumerationID
-                            currentTimelineID: -1,
-
                             // branch bottom inside graph
                             /* variable access, (   branchID,
                                                     parallelBranchEnumerationID,
@@ -75,20 +73,20 @@ let StartbucksStateTree = {
                             // access same timeline counter reguardless of how many times the state
                             // runs
                             stateRunCounts: {
-                              parallelEnumerationOfCurrentStateNumber: {
+                              timelineIDNumber: {
                                 differentTimelineCountBeforeRunningState: 1,
                               },
                             },
 
                             // if variable can't be fetched set variable to undefined and print error message
                             // let machine crash
-                            variableAccessDataFromDifferentTimelines: {
-                              // parentStateName
-                              Customer: {
-                                timelineID: -1,
-                                variableName: "customerOrder",
-                              },
-                            },
+                            // variableAccessDataFromDifferentTimelines: {
+                            //   // parentStateName
+                            //   Customer: {
+                            //     timelineID: -1,
+                            //     variableName: "customerOrder",
+                            //   },
+                            // },
                             next: [{ nextStateName: ["Compute Price"] }],
                           },
                         },
@@ -97,9 +95,15 @@ let StartbucksStateTree = {
                         state: {
                           functionCode: returnTrue,
                           areNextParallel: true,
+                          // branchID
+                          // accessing variables
+                          // accessing curently active branchID
+                          currentBranchID: -1,
                           next: [
+                            // transfer variables from parent state 1 to parent state 2
+                            // decrement the wait counter for next state
                             {
-                              linkToDifferentTimeline: true,
+                              variablesToTransferToDifferentTimeline: ["price"],
                               nextStateName: ["Dig up money"],
                             },
                             {
@@ -115,7 +119,9 @@ let StartbucksStateTree = {
                           next: [
                             { nextStateName: ["No change"] },
                             {
-                              linkToDifferentTimeline: true,
+                              variablesToTransferToDifferentTimeline: [
+                                "change",
+                              ],
                               nextStateName: ["Put away change"],
                             },
                           ],
@@ -125,6 +131,27 @@ let StartbucksStateTree = {
                         state: { functionCode: returnTrue },
                       },
                     },
+                    variables: {
+                      init: {},
+                      // otherTimelines: { Customer: 1 },
+                      // timelineLinkTables: {
+                      //   "cashier customer nth id pair": {
+                      //     branchIDOfCashier: "branchIDOfCustomer",
+                      //   },
+                      // },
+                    },
+                    // only 1 -> 1 mapping allowed
+                    // know what timelineID of different timeline to access ith version of variable inside parent
+                    // state to copy variable into
+                    // use 2sum solution with the keys being the destinationTimeline ID's
+                    // branches[ithTimelineID].currentStateID
+                    // test solution separately
+                    timelineIDs: {
+                      2: 1,
+                    },
+                    // if a state has an edge for a state with no timeline branch
+                    // state cannot be run
+                    destinationTimelines: ["Customer"],
                   },
                 },
               },
@@ -177,6 +204,35 @@ let StartbucksStateTree = {
                     differentTimelineCount: 1,
                   },
                 },
+              },
+              variables: {
+                init: {},
+                // otherTimelines: {
+                //   Cashier: 1,
+
+                //   // , startNameForLinkTable: true
+                // },
+                // timelineLinkTables: {
+                //   "cashier customer nth id pair": {
+                //     // selectable timelines
+                //     branchIDOfCustomer: {
+                //       branchIDOfCashier: -1,
+                //       selectable: true,
+                //     },
+                //   },
+                // },
+                currentTimelineID: 0, // from stateRunTreeBottom["branches"]
+                currentTimelineIDs: {
+                  timelineIDNumber: {
+                    timelineIDOfOtherTimeline: -1,
+                  },
+                },
+              },
+              timelineIDs: {
+                1: 2,
+              },
+              timelinePairs: {
+                Cashier: 1,
               },
             },
           },

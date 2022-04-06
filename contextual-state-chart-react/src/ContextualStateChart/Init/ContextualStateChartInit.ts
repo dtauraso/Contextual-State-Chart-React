@@ -296,6 +296,7 @@ const makeState = ({
 
 const arrayState = (states: States, i: number) => states[i] as ArrayState;
 
+const makeChildParentLinks = (states: State) => {};
 const makeArrays = (stateTree: any, graph: Graph) => {
   /*
   read the full state name
