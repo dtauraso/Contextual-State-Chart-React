@@ -264,21 +264,28 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 // and language
 // use class based components
 const twoSumMappingTest = () => {
-  const listA = [
-    { branchID: 0, stateID: 1, countTillStateOfMachine: 4, currentCount: 0 },
-    { branchID: 1, stateID: 2, countTillStateOfMachine: 2, currentCount: 0 },
-  ];
-
-  const states = {
-    1: {
-      destinationTimelineStateIDs: [2],
-    },
-    2: {
-      destinationTimelineStateIDs: [1],
-    },
+  const branches = {
+    0: { stateID: 1, countTillSameState: 4, currentCount: 0 },
+    2: { stateID: 2, countTillSameState: 2, currentCount: 0 },
+    4: { stateID: 3, countTillSameState: 2, currentCount: 0 },
+    6: { stateID: 4, countTillSameState: 2, currentCount: 0 },
+    8: { stateID: 5, countTillSameState: 2, currentCount: 0 },
   };
 
+  // 1 way map from timeline state to all others
+  const states = {
+    1: {
+      destinationTimelineStateIDs: [2, 3, 4, 5],
+    },
+    2: { destinationTimelineStateIDs: [3, 4, 5] },
+    3: { destinationTimelineStateIDs: [4, 5] },
+    4: { destinationTimelineStateIDs: [5] },
+    5: {},
+  };
   const counterpartTimeLine = {};
+
+  // add branches of duplicate states
+  // store branch mappings into the states object when found
 };
 const App = (props: any) => {
   // test();
@@ -319,7 +326,7 @@ const App = (props: any) => {
   makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;
   console.log({ namesTrie, statesObject });
-  // visitor(["NFA"], graph);
+  visitor(["NFA"], graph);
   // console.log(
   //   "namesTrie",
   //   JSON.parse(JSON.stringify(namesTrie)),

@@ -130,7 +130,27 @@ const VisitAvaliableBranches = (
         const { currentStateID, nextStates, isParallel } =
           stateRunTreeBottom["branches"][branchID];
         let winningStatePositions = [-1];
+        /*
+        sequential mode
+          no change
 
+        parallel mode
+          0th state
+            has active branches
+              store branchID into state.currentBranchID
+              function runs successfully
+                is new branch
+          1...(n - 1)th state
+            store branchID into state.currentBranchID
+            function runs successfully
+              is new branch
+        is the function running successfully always a condition for a new branch
+        what happens when 2 parallel states don't pass function run at the same time
+        both states will be true but not in the same loop
+        1) not retrying the same parallel state that already passed
+        2) setting up all next states to run again when the initial state runs successfully
+        for rerunning the initial state
+        */
         graph
           .getStateById(currentStateID)
           .getEdges(nextStates)
