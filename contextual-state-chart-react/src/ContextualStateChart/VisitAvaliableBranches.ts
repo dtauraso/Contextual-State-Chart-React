@@ -71,6 +71,11 @@ const testAtStateRunCount = (stateRunCount: number, graph: Graph) => {
     );
   }
 };
+/*
+stateRunTreeBottom
+  bottom set of nodes on the separate timelines
+
+*/
 const VisitAvaliableBranches = (
   graph: Graph,
   stateRunTreeBottom: {
@@ -144,12 +149,25 @@ const VisitAvaliableBranches = (
             store branchID into state.currentBranchID
             function runs successfully
               is new branch
+        any 2nd to nth state is automatically a new branch(not true solely based on enumerated
+          state)
+        state 9 was already visited 3 times. how is the mecahnism different than what it's already
+        doing and does it matter
         is the function running successfully always a condition for a new branch
         what happens when 2 parallel states don't pass function run at the same time
         both states will be true but not in the same loop
         1) not retrying the same parallel state that already passed
         2) setting up all next states to run again when the initial state runs successfully
+        3) making new timelines even when only 1 timeline even if there are no active branches?
+        3.5) delayed timing vs how to know when to make a new branch
+        4) enumerate new branches based on if the parallel state returned true
         for rerunning the initial state
+        4.5) after the parallel state has been run(pass or fail) lock it for it's branch so it can't be
+        rerun because the parallel states will be tried for many rounds untill they all pass
+        when and how are the edge locks removed after process is done
+        delete the locked edges when the timeine is finished and we are traversing up
+        IEEE_Software_Design_2PC.pdf
+        IEEE Software Blog_ Your Local Coffee Shop Performs Resource Scaling.pdf
         */
         graph
           .getStateById(currentStateID)
@@ -406,6 +424,8 @@ const VisitAvaliableBranches = (
               if (currentState.next === undefined) {
                 delete stateRunTreeBottom["branches"][prevBranchID];
               } else {
+                // what if currentState.nextAreParallel is true
+                // this timeline will enter a different timeline that hasn't been used yet
                 stateRunTreeBottom["branches"][prevBranchID] = {
                   currentStateID: currentState.id,
                   nextStates:

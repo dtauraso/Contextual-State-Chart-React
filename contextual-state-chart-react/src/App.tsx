@@ -264,28 +264,80 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 // and language
 // use class based components
 const twoSumMappingTest = () => {
-  const branches = {
+  interface BranchesList {
+    [key: number]: any;
+  }
+  const branches: BranchesList = {
     0: { stateID: 1, countTillSameState: 4, currentCount: 0 },
-    2: { stateID: 2, countTillSameState: 2, currentCount: 0 },
-    4: { stateID: 3, countTillSameState: 2, currentCount: 0 },
-    6: { stateID: 4, countTillSameState: 2, currentCount: 0 },
-    8: { stateID: 5, countTillSameState: 2, currentCount: 0 },
+    5: { stateID: 2, countTillSameState: 2, currentCount: 0 },
+    10: { stateID: 3, countTillSameState: 2, currentCount: 0 },
+    15: { stateID: 4, countTillSameState: 2, currentCount: 0 },
+    20: { stateID: 6, countTillSameState: 2, currentCount: 0 },
   };
 
+  interface StatesList {
+    [key: number]: any;
+  }
   // 1 way map from timeline state to all others
-  const states = {
+  const states: StatesList = {
     1: {
-      destinationTimelineStateIDs: [2, 3, 4, 5],
+      destinationTimelineStateIDs: [2, 3, 4, 6],
     },
-    2: { destinationTimelineStateIDs: [3, 4, 5] },
-    3: { destinationTimelineStateIDs: [4, 5] },
-    4: { destinationTimelineStateIDs: [5] },
-    5: {},
+    2: { destinationTimelineStateIDs: [3, 4, 6] },
+    3: { destinationTimelineStateIDs: [4, 6] },
+    4: { destinationTimelineStateIDs: [6] },
+    6: { destinationTimelineStateIDs: [] },
   };
-  const counterpartTimeLine = {};
+  interface CounterpartTimeline {
+    [key: number]: [number];
+  }
+  let counterpartTimeLine: CounterpartTimeline = {};
 
   // add branches of duplicate states
   // store branch mappings into the states object when found
+  Object.keys(branches)
+    .map(Number)
+    .forEach((branchID: number, i: number) => {
+      // console.log({ states, branchID });
+      let itemsToBeAdded = states[
+        branches[branchID].stateID
+      ].destinationTimelineStateIDs.filter(
+        (ID: number) => !(ID in counterpartTimeLine)
+      );
+      console.log(i, { itemsToBeAdded });
+      states[branches[branchID].stateID].destinationTimelineStateIDs.forEach(
+        (ID: number) => {}
+      );
+      // what if there is the same timeline for different rounds of traversing the bottom
+      // {timelineID: {otherStateID, otherTimelineID}}}
+      // will have more than 1 timeliineID per otherStateID
+      // write again from perspective of visitor function not the getVariable function
+      // {otherStateID: {otherTimelineID}} = this.parentState().multimappings[this.currentTimeline]
+      // this.graph[otherStateID].variables[otherTimelineID]
+      counterpartTimeLine = {
+        ...counterpartTimeLine,
+        ...states[branches[branchID].stateID].destinationTimelineStateIDs
+          .filter((ID: number) => !(ID in counterpartTimeLine))
+          .reduce(
+            (accumulator: any, stateID: any) => ({
+              ...accumulator,
+              [stateID]: [branchID],
+            }),
+            {}
+          ),
+        ...states[branches[branchID].stateID].destinationTimelineStateIDs
+          .filter((ID: number) => ID in counterpartTimeLine)
+          .reduce(
+            (accumulator: any, stateID: any) => ({
+              ...accumulator,
+              [stateID]: [...counterpartTimeLine[stateID], branchID],
+            }),
+            {}
+          ),
+      };
+      console.log({ counterpartTimeLine });
+      // states[branchID].destinationtimeline;
+    });
 };
 const App = (props: any) => {
   // test();
@@ -326,7 +378,8 @@ const App = (props: any) => {
   makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;
   console.log({ namesTrie, statesObject });
-  visitor(["NFA"], graph);
+  twoSumMappingTest();
+  // visitor(["NFA"], graph);
   // console.log(
   //   "namesTrie",
   //   JSON.parse(JSON.stringify(namesTrie)),
