@@ -309,11 +309,16 @@ const twoSumMappingTest = () => {
         (ID: number) => {}
       );
       // what if there is the same timeline for different rounds of traversing the bottom
-      // {timelineID: {otherStateID, otherTimelineID}}}
+      // multimappings = {timelineID: {otherStateID: otherTimelineID}}}
       // will have more than 1 timeliineID per otherStateID
-      // write again from perspective of visitor function not the getVariable function
-      // {otherStateID: {otherTimelineID}} = this.parentState().multimappings[this.currentTimeline]
-      // this.graph[otherStateID].variables[otherTimelineID]
+      // visitor function perspective
+      // variableName = variableNameFromEdge
+      // {otherStateID: otherTimelineID} = edgeState.parentState().multimappings[edgeState.currentTimeline]
+      // otherStateID === edgeState.id
+      // otherTimelineID = edgeState.parentState()
+      // .multimappings[edgeState.currentTimeline][edgeState.id]
+      // ithVariableCopyOnOtherTimeline = graph[edgeState.id].variables[otherTimelineID][variableName]
+      // ithVariableCopyOnCurrentTimeline = edgeState.parentState().variables[edgeState.currentTimeline][variableName]
       counterpartTimeLine = {
         ...counterpartTimeLine,
         ...states[branches[branchID].stateID].destinationTimelineStateIDs
