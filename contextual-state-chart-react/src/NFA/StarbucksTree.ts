@@ -109,6 +109,10 @@ let StartbucksStateTree = {
                             {
                               nextStateName: ["Compute change"],
                             },
+                            {
+                              variablesToTransferToDifferentTimeline: ["price"],
+                              nextStateName: ["auditorStateName"],
+                            },
                           ],
                         },
                       },
@@ -151,7 +155,7 @@ let StartbucksStateTree = {
                     },
                     // if a state has an edge for a state with no timeline branch
                     // state cannot be run
-                    destinationTimelines: ["Customer"],
+                    destinationTimelines: ["Customer", "Auditor", "VIP"],
                   },
                 },
               },

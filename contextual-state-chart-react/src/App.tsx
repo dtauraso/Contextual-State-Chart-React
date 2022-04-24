@@ -288,10 +288,21 @@ const twoSumMappingTest = () => {
     4: { destinationTimelineStateIDs: [6] },
     6: { destinationTimelineStateIDs: [] },
   };
-  interface CounterpartTimeline {
-    [key: number]: [number];
+  /*
+
+
+
+
+
+
+  {timelineID: {otherStateID: otherTimelineID}}}
+  {0 : {2 : 5}}
+  */
+  interface CounterpartTimelines {
+    [key: number]: any;
+    //{ otherStateID: number; otherBranchID: number };
   }
-  let counterpartTimeLine: CounterpartTimeline = {};
+  let counterpartTimeLines: CounterpartTimelines = {};
 
   // add branches of duplicate states
   // store branch mappings into the states object when found
@@ -299,16 +310,48 @@ const twoSumMappingTest = () => {
     .map(Number)
     .forEach((branchID: number, i: number) => {
       // console.log({ states, branchID });
-      let itemsToBeAdded = states[
-        branches[branchID].stateID
-      ].destinationTimelineStateIDs.filter(
-        (ID: number) => !(ID in counterpartTimeLine)
-      );
-      console.log(i, { itemsToBeAdded });
+
       states[branches[branchID].stateID].destinationTimelineStateIDs.forEach(
-        (ID: number) => {}
+        (stateID: number) => {
+          if (!(stateID in counterpartTimeLines)) {
+            counterpartTimeLines[stateID] = { sourceBranch: branchID };
+            // {
+            //   otherStateID: branches[branchID].stateID,
+            //   otherBranchID: branchID,
+            // };
+          }
+        }
       );
+
+      if (branches[branchID].stateID in counterpartTimeLines) {
+        // console.log(
+        //   `match: ${branches[branchID].stateID} is in counterpartTimeLines`
+        // );
+        // console.log(
+        //   `destination branch is ${branchID}, destination stateID is ${branches[branchID].stateID}`
+        // );
+        console.log(
+          `{${
+            counterpartTimeLines[branches[branchID].stateID].sourceBranch
+          }: {${branches[branchID].stateID}: ${branchID} } }`
+        );
+      }
+      console.log({ counterpartTimeLines });
+
+      // let itemsToBeAdded = states[
+      //   branches[branchID].stateID
+      // ].destinationTimelineStateIDs.filter(
+      //   (ID: number) => !(ID in counterpartTimeLines)
+      // );
+      // console.log(i, { itemsToBeAdded });
+      // states[branches[branchID].stateID].destinationTimelineStateIDs.forEach(
+      //   (ID: number) => {}
+      // );
       // what if there is the same timeline for different rounds of traversing the bottom
+      // knowing not to retry a previously past branch of a current id
+      // vs making a new branch with a different id when the current state isn't parallel
+      // make sure current state is parallel and do logic by branchID
+      // why otherStateID
       // multimappings = {timelineID: {otherStateID: otherTimelineID}}}
       // will have more than 1 timeliineID per otherStateID
       // visitor function perspective
@@ -319,28 +362,28 @@ const twoSumMappingTest = () => {
       // .multimappings[edgeState.currentTimeline][edgeState.id]
       // ithVariableCopyOnOtherTimeline = graph[edgeState.id].variables[otherTimelineID][variableName]
       // ithVariableCopyOnCurrentTimeline = edgeState.parentState().variables[edgeState.currentTimeline][variableName]
-      counterpartTimeLine = {
-        ...counterpartTimeLine,
-        ...states[branches[branchID].stateID].destinationTimelineStateIDs
-          .filter((ID: number) => !(ID in counterpartTimeLine))
-          .reduce(
-            (accumulator: any, stateID: any) => ({
-              ...accumulator,
-              [stateID]: [branchID],
-            }),
-            {}
-          ),
-        ...states[branches[branchID].stateID].destinationTimelineStateIDs
-          .filter((ID: number) => ID in counterpartTimeLine)
-          .reduce(
-            (accumulator: any, stateID: any) => ({
-              ...accumulator,
-              [stateID]: [...counterpartTimeLine[stateID], branchID],
-            }),
-            {}
-          ),
-      };
-      console.log({ counterpartTimeLine });
+      // counterpartTimeLines = {
+      //   ...counterpartTimeLines,
+      //   ...states[branches[branchID].stateID].destinationTimelineStateIDs
+      //     .filter((ID: number) => !(ID in counterpartTimeLines))
+      //     .reduce(
+      //       (accumulator: any, stateID: any) => ({
+      //         ...accumulator,
+      //         [stateID]: [branchID],
+      //       }),
+      //       {}
+      //     ),
+      //   ...states[branches[branchID].stateID].destinationTimelineStateIDs
+      //     .filter((ID: number) => ID in counterpartTimeLines)
+      //     .reduce(
+      //       (accumulator: any, stateID: any) => ({
+      //         ...accumulator,
+      //         [stateID]: [...counterpartTimeLines[stateID], branchID],
+      //       }),
+      //       {}
+      //     ),
+      // };
+      // console.log({ counterpartTimeLines });
       // states[branchID].destinationtimeline;
     });
 };
@@ -372,17 +415,17 @@ const App = (props: any) => {
   // i.setValue(5);
   // i.add(i.value + 1).add(1);
   // console.log({ i });
-  let graph: Graph = {
-    statesObject: { states: {}, nextStateId: 0 },
-    namesTrie: {},
-    // getState
-    getState: getState,
-    getStateById: getStateById,
-    getVariableById: getVariableById,
-  };
-  makeArrays(stateTree, graph);
-  let { statesObject, namesTrie } = graph;
-  console.log({ namesTrie, statesObject });
+  // let graph: Graph = {
+  //   statesObject: { states: {}, nextStateId: 0 },
+  //   namesTrie: {},
+  //   // getState
+  //   getState: getState,
+  //   getStateById: getStateById,
+  //   getVariableById: getVariableById,
+  // };
+  // makeArrays(stateTree, graph);
+  // let { statesObject, namesTrie } = graph;
+  // console.log({ namesTrie, statesObject });
   twoSumMappingTest();
   // visitor(["NFA"], graph);
   // console.log(

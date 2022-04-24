@@ -80,6 +80,7 @@ const traverseContexts = ({
   stateTree,
   indexObject,
   graph,
+  childrenStateNames,
 }: any) => {
   let paths: string[][] = [];
   // console.log({ stateTree });
@@ -99,6 +100,7 @@ const traverseContexts = ({
       indexObject,
       currentStateName: path,
       graph,
+      childrenStateNames,
     });
   });
   return { paths };
@@ -216,6 +218,7 @@ const makeState = ({
   indexObject,
   currentStateName,
   graph,
+  childrenStateNames,
 }: any): any => {
   if ("state" in stateTree) {
     const currentState = stateTree["state"];
@@ -234,11 +237,26 @@ const makeState = ({
       name: currentStateName,
       stateId: stateId,
     });
+
+    // childrenStateNames.push(stateId);
+
+    // let childrenStateNames2: String[] = [];
+    // Object.keys(stateTree["state"].children).forEach((childNamePart: any) => {
+    //   makeState({
+    //     trieTreeCollection,
+    //     stateTree: stateTree["state"].children[childNamePart],
+    //     indexObject,
+    //     currentStateName: [childNamePart],
+    //     graph,
+    //     childrenStateNames: childrenStateNames2,
+    //   });
+    // });
     const { paths } = traverseContexts({
       trieTreeCollection,
       stateTree: currentState.children,
       indexObject,
       graph,
+      childrenStateNames,
     });
 
     let children = currentState?.children ? paths : {};
@@ -283,13 +301,26 @@ const makeState = ({
       graph,
     });
 
-    return stateId;
+    // return stateId;
   } else {
+    Object.keys(stateTree).forEach((childNamePart: any) => {
+      // childrenStateNames2
+      // makeState({
+      //   trieTreeCollection,
+      //   stateTree: stateTree["state"].children[childNamePart],
+      //   indexObject,
+      //   currentStateName: [...currentStateName, childNamePart],
+      //   graph,
+      //   childrenStateNames: childrenStateNames2
+      // });
+    });
+
     traverseContexts({
       trieTreeCollection,
       stateTree,
       indexObject,
       graph,
+      childrenStateNames,
     });
   }
 };
@@ -310,6 +341,7 @@ const makeArrays = (stateTree: any, graph: Graph) => {
     indexObject: graph.statesObject,
     currentStateName: [],
     graph, //: graph.statesObject.states,
+    childrenStateNames: [],
   });
   // trieTreeCollection.forEach((name: any) => {
   //   graph.namesTrie = insertName({
