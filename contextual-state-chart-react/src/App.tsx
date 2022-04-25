@@ -314,7 +314,10 @@ const twoSumMappingTest = () => {
       states[branches[branchID].stateID].destinationTimelineStateIDs.forEach(
         (stateID: number) => {
           if (!(stateID in counterpartTimeLines)) {
-            counterpartTimeLines[stateID] = { sourceBranch: branchID };
+            counterpartTimeLines[stateID] = {
+              sourceBranch: branchID,
+              stateID: branches[branchID].stateID,
+            };
             // {
             //   otherStateID: branches[branchID].stateID,
             //   otherBranchID: branchID,
@@ -334,6 +337,13 @@ const twoSumMappingTest = () => {
           `{${
             counterpartTimeLines[branches[branchID].stateID].sourceBranch
           }: {${branches[branchID].stateID}: ${branchID} } }`
+        );
+        console.log(
+          `{${branchID}: {${
+            counterpartTimeLines[branches[branchID].stateID].stateID
+          }: ${
+            counterpartTimeLines[branches[branchID].stateID].sourceBranch
+          } } }`
         );
       }
       console.log({ counterpartTimeLines });
@@ -355,8 +365,14 @@ const twoSumMappingTest = () => {
       // multimappings = {timelineID: {otherStateID: otherTimelineID}}}
       // will have more than 1 timeliineID per otherStateID
       // visitor function perspective
+      // storing the parent state ID so the child state(edgeState) can access it
       // variableName = variableNameFromEdge
-      // {otherStateID: otherTimelineID} = edgeState.parentState().multimappings[edgeState.currentTimeline]
+      // {[otherStateID]: otherTimelineID} = multimappings[currentTimeline]
+      // otherState = edgeState.branchIDParentIDParentBranchID[currentTimeline].parentBranch.parentID
+      // multimappings = graph.getStateByID[edgeState.branchIDParentIDParentBranchID[currentTimeline].parentBranch.parentID].multimappings
+      // otherTimelineID = multimappings[currentTimeline][edgeState.branchIDParentIDParentBranchID[currentTimeline].parentBranch.parentID]
+      // otherTimelineID = multimappings[currentTimeline][edgeState.parentState(currentTimeline)]
+      // ithVariableCopyOnOtherTimeline = otherState.variables[otherTimelineID]
       // otherStateID === edgeState.id
       // otherTimelineID = edgeState.parentState()
       // .multimappings[edgeState.currentTimeline][edgeState.id]
