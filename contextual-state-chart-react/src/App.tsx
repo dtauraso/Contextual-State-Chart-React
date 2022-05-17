@@ -267,42 +267,59 @@ const twoSumMappingTest = () => {
   interface BranchesList {
     [key: number]: any;
   }
+  // needs at least 2 sets of connection
   const branches: BranchesList = {
-    0: { stateID: 1, countTillSameState: 4, currentCount: 0 },
-    5: { stateID: 2, countTillSameState: 2, currentCount: 0 },
-    10: { stateID: 3, countTillSameState: 2, currentCount: 0 },
-    15: { stateID: 4, countTillSameState: 2, currentCount: 0 },
-    20: { stateID: 6, countTillSameState: 2, currentCount: 0 },
+    0: { stateID: 1 },
+    1: { stateID: 1 },
+
+    2: { stateID: 2 },
+
+    6: { stateID: 3 },
+
+    10: { stateID: 4 },
+    15: { stateID: 6 },
+    20: { stateID: 7 },
+    25: { stateID: 4 },
+    30: { stateID: 6 },
+    35: { stateID: 7 },
   };
 
+  // should not have n source IDs going into a single destination ID
   interface StatesList {
     [key: number]: any;
   }
   // 1 way map from timeline state to all others
   const states: StatesList = {
     1: {
-      destinationTimelineStateIDs: [2, 3, 4, 6],
+      destinationTimelineStateIDs: [4, 6, 7],
     },
-    2: { destinationTimelineStateIDs: [3, 4, 6] },
-    3: { destinationTimelineStateIDs: [4, 6] },
-    4: { destinationTimelineStateIDs: [6] },
-    6: { destinationTimelineStateIDs: [] },
+    2: { destinationTimelineStateIDs: [] },
+    3: { destinationTimelineStateIDs: [] },
+
+    4: {
+      destinationTimelineStateIDs: [1],
+    },
+    6: { destinationTimelineStateIDs: [1] },
+    7: { destinationTimelineStateIDs: [1] },
   };
   /*
+  keep each destination timeline state ID distinct with respect to the state it came from
+  the key structure need to match the destination timeline ID so it can be found when the destination timeline ID
+  is visited
 
 
 
 
+  {sourceSID: {destinationTID: {sourceSID, sourceBID}}}
+  add entries
 
-
-  {timelineID: {otherStateID: otherTimelineID}}}
-  {0 : {2 : 5}}
   */
   interface CounterpartTimelines {
     [key: number]: any;
     //{ otherStateID: number; otherBranchID: number };
   }
-  let counterpartTimeLines: CounterpartTimelines = {};
+  // let counterpartTimeLines: CounterpartTimelines = {};
+  let stateIDBranchID: CounterpartTimelines = {};
 
   // add branches of duplicate states
   // store branch mappings into the states object when found
@@ -310,43 +327,97 @@ const twoSumMappingTest = () => {
     .map(Number)
     .forEach((branchID: number, i: number) => {
       // console.log({ states, branchID });
-
-      states[branches[branchID].stateID].destinationTimelineStateIDs.forEach(
-        (stateID: number) => {
-          if (!(stateID in counterpartTimeLines)) {
-            counterpartTimeLines[stateID] = {
-              sourceBranch: branchID,
-              stateID: branches[branchID].stateID,
-            };
-            // {
-            //   otherStateID: branches[branchID].stateID,
-            //   otherBranchID: branchID,
-            // };
+      const { stateID } = branches[branchID];
+      if (!(stateID in stateIDBranchID)) {
+        stateIDBranchID[stateID] = { [branchID]: true };
+      } else if (!(branchID in stateIDBranchID[stateID])) {
+        stateIDBranchID[stateID][branchID] = true;
+      }
+      console.log(JSON.parse(JSON.stringify(stateIDBranchID)));
+      // console.log({ i, branchID, stateID });
+      states[stateID].destinationTimelineStateIDs.forEach(
+        (destinationStateID: number) => {
+          if (destinationStateID in stateIDBranchID) {
+            console.log({
+              stateID0: stateID,
+              branchID0: Number(Object.keys(stateIDBranchID[stateID])[0]),
+              stateID1: destinationStateID,
+              branchID1: Number(
+                Object.keys(stateIDBranchID[destinationStateID])[0]
+              ),
+            });
+            const branchID0 = Number(Object.keys(stateIDBranchID[stateID])[0]);
+            const branchID1 = Number(
+              Object.keys(stateIDBranchID[destinationStateID])[0]
+            );
+            delete stateIDBranchID[stateID][branchID0];
+            if (Object.keys(stateIDBranchID[stateID]).length === 0) {
+              delete stateIDBranchID[stateID];
+            }
+            delete stateIDBranchID[destinationStateID][branchID1];
+            if (Object.keys(stateIDBranchID[destinationStateID]).length === 0) {
+              delete stateIDBranchID[destinationStateID];
+            }
+            console.log(JSON.parse(JSON.stringify(stateIDBranchID)));
           }
         }
       );
 
-      if (branches[branchID].stateID in counterpartTimeLines) {
-        // console.log(
-        //   `match: ${branches[branchID].stateID} is in counterpartTimeLines`
-        // );
-        // console.log(
-        //   `destination branch is ${branchID}, destination stateID is ${branches[branchID].stateID}`
-        // );
-        console.log(
-          `{${
-            counterpartTimeLines[branches[branchID].stateID].sourceBranch
-          }: {${branches[branchID].stateID}: ${branchID} } }`
-        );
-        console.log(
-          `{${branchID}: {${
-            counterpartTimeLines[branches[branchID].stateID].stateID
-          }: ${
-            counterpartTimeLines[branches[branchID].stateID].sourceBranch
-          } } }`
-        );
-      }
-      console.log({ counterpartTimeLines });
+      // states[stateID].destinationTimelineStateIDs.forEach((stateID: number) => {
+      // console.log({ stateID, statData: states[stateID] });
+      // console.log({
+      //   counterpartTimeLines: JSON.parse(
+      //     JSON.stringify(counterpartTimeLines)
+      //   ),
+      // });
+      // if (!(stateID in counterpartTimeLines)) {
+      //   counterpartTimeLines[stateID] = {
+      //     sourceBranch: branchID,
+      //     stateID: branches[branchID].stateID,
+      //   };
+      //   // {
+      //   //   otherStateID: branches[branchID].stateID,
+      //   //   otherBranchID: branchID,
+      //   // };
+      // }
+      // connect a pair of branches if there is a connection and both exist
+      // each state -> branches
+      // store current branch and state info with the branch
+      // if (!(stateID in counterpartTimeLines)) {
+      //   counterpartTimeLines[stateID] = {
+      //     [states[stateID].currentBranchID]: [
+      //       { sourceSID: branches[branchID].stateID, sourceBID: branchID },
+      //     ],
+      //   };
+      // } else {
+      //   // console.log(`${i}: ${stateID} already exists`);
+      //   counterpartTimeLines[stateID][states[stateID].currentBranchID].push(
+      //     { sourceSID: branches[branchID].stateID, sourceBID: branchID }
+      //   );
+      // }
+      // });
+
+      // if (branches[branchID].stateID in counterpartTimeLines) {
+      //   // console.log(
+      //   //   `match: ${branches[branchID].stateID} is in counterpartTimeLines`
+      //   // );
+      //   // console.log(
+      //   //   `destination branch is ${branchID}, destination stateID is ${branches[branchID].stateID}`
+      //   // );
+      //   console.log(
+      //     `{${
+      //       counterpartTimeLines[branches[branchID].stateID].sourceBranch
+      //     }: {${branches[branchID].stateID}: ${branchID} } }`
+      //   );
+      //   console.log(
+      //     `{${branchID}: {${
+      //       counterpartTimeLines[branches[branchID].stateID].stateID
+      //     }: ${
+      //       counterpartTimeLines[branches[branchID].stateID].sourceBranch
+      //     } } }`
+      //   );
+      // }
+      // console.log({ counterpartTimeLines });
 
       // let itemsToBeAdded = states[
       //   branches[branchID].stateID
