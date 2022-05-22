@@ -263,6 +263,21 @@ https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
 // have something to put on my portfolio and practice react skills while I finish the state machine algorithm
 // and language
 // use class based components
+interface CounterpartTimelines {
+  [key: number]: any;
+  //{ otherStateID: number; otherBranchID: number };
+}
+
+const deleteEntry = (
+  stateIDBranchID: CounterpartTimelines,
+  stateID: number,
+  branchID: number
+) => {
+  delete stateIDBranchID[stateID][branchID];
+  if (Object.keys(stateIDBranchID[stateID]).length === 0) {
+    delete stateIDBranchID[stateID];
+  }
+};
 const twoSumMappingTest = () => {
   interface BranchesList {
     [key: number]: any;
@@ -273,8 +288,10 @@ const twoSumMappingTest = () => {
     1: { stateID: 1 },
 
     2: { stateID: 2 },
+    4: { stateID: 2 },
 
     6: { stateID: 3 },
+    9: { stateID: 3 },
 
     10: { stateID: 4 },
     15: { stateID: 6 },
@@ -288,191 +305,47 @@ const twoSumMappingTest = () => {
   interface StatesList {
     [key: number]: any;
   }
-  // 1 way map from timeline state to all others
+  // 1 to 1 map
   const states: StatesList = {
     1: {
-      destinationTimelineStateIDs: [4, 6, 7],
+      destinationTimelineStateID: 4,
     },
-    2: { destinationTimelineStateIDs: [] },
-    3: { destinationTimelineStateIDs: [] },
-
+    2: { destinationTimelineStateID: 6 },
+    3: { destinationTimelineStateID: 7 },
     4: {
-      destinationTimelineStateIDs: [1],
+      destinationTimelineStateID: 1,
     },
-    6: { destinationTimelineStateIDs: [1] },
-    7: { destinationTimelineStateIDs: [1] },
+    6: { destinationTimelineStateID: 2 },
+    7: { destinationTimelineStateID: 3 },
   };
-  /*
-  keep each destination timeline state ID distinct with respect to the state it came from
-  the key structure need to match the destination timeline ID so it can be found when the destination timeline ID
-  is visited
-
-
-
-
-  {sourceSID: {destinationTID: {sourceSID, sourceBID}}}
-  add entries
-
-  */
-  interface CounterpartTimelines {
-    [key: number]: any;
-    //{ otherStateID: number; otherBranchID: number };
-  }
-  // let counterpartTimeLines: CounterpartTimelines = {};
   let stateIDBranchID: CounterpartTimelines = {};
-
-  // add branches of duplicate states
-  // store branch mappings into the states object when found
+  let pairs: any = [];
   Object.keys(branches)
     .map(Number)
-    .forEach((branchID: number, i: number) => {
-      // console.log({ states, branchID });
+    .forEach((branchID: number) => {
       const { stateID } = branches[branchID];
       if (!(stateID in stateIDBranchID)) {
         stateIDBranchID[stateID] = { [branchID]: true };
       } else if (!(branchID in stateIDBranchID[stateID])) {
         stateIDBranchID[stateID][branchID] = true;
       }
-      console.log(JSON.parse(JSON.stringify(stateIDBranchID)));
-      // console.log({ i, branchID, stateID });
-      states[stateID].destinationTimelineStateIDs.forEach(
-        (destinationStateID: number) => {
-          if (destinationStateID in stateIDBranchID) {
-            console.log({
-              stateID0: stateID,
-              branchID0: Number(Object.keys(stateIDBranchID[stateID])[0]),
-              stateID1: destinationStateID,
-              branchID1: Number(
-                Object.keys(stateIDBranchID[destinationStateID])[0]
-              ),
-            });
-            const branchID0 = Number(Object.keys(stateIDBranchID[stateID])[0]);
-            const branchID1 = Number(
-              Object.keys(stateIDBranchID[destinationStateID])[0]
-            );
-            delete stateIDBranchID[stateID][branchID0];
-            if (Object.keys(stateIDBranchID[stateID]).length === 0) {
-              delete stateIDBranchID[stateID];
-            }
-            delete stateIDBranchID[destinationStateID][branchID1];
-            if (Object.keys(stateIDBranchID[destinationStateID]).length === 0) {
-              delete stateIDBranchID[destinationStateID];
-            }
-            console.log(JSON.parse(JSON.stringify(stateIDBranchID)));
-          }
-        }
-      );
+      // find 1 pair
+      const { destinationTimelineStateID: destinationStateID } =
+        states[stateID];
+      if (destinationStateID in stateIDBranchID) {
+        const stateID0 = stateID;
+        const branchID0 = Number(Object.keys(stateIDBranchID[stateID])[0]);
+        const stateID1 = destinationStateID;
+        const branchID1 = Number(
+          Object.keys(stateIDBranchID[destinationStateID])[0]
+        );
+        deleteEntry(stateIDBranchID, stateID, branchID0);
+        deleteEntry(stateIDBranchID, destinationStateID, branchID1);
 
-      // states[stateID].destinationTimelineStateIDs.forEach((stateID: number) => {
-      // console.log({ stateID, statData: states[stateID] });
-      // console.log({
-      //   counterpartTimeLines: JSON.parse(
-      //     JSON.stringify(counterpartTimeLines)
-      //   ),
-      // });
-      // if (!(stateID in counterpartTimeLines)) {
-      //   counterpartTimeLines[stateID] = {
-      //     sourceBranch: branchID,
-      //     stateID: branches[branchID].stateID,
-      //   };
-      //   // {
-      //   //   otherStateID: branches[branchID].stateID,
-      //   //   otherBranchID: branchID,
-      //   // };
-      // }
-      // connect a pair of branches if there is a connection and both exist
-      // each state -> branches
-      // store current branch and state info with the branch
-      // if (!(stateID in counterpartTimeLines)) {
-      //   counterpartTimeLines[stateID] = {
-      //     [states[stateID].currentBranchID]: [
-      //       { sourceSID: branches[branchID].stateID, sourceBID: branchID },
-      //     ],
-      //   };
-      // } else {
-      //   // console.log(`${i}: ${stateID} already exists`);
-      //   counterpartTimeLines[stateID][states[stateID].currentBranchID].push(
-      //     { sourceSID: branches[branchID].stateID, sourceBID: branchID }
-      //   );
-      // }
-      // });
-
-      // if (branches[branchID].stateID in counterpartTimeLines) {
-      //   // console.log(
-      //   //   `match: ${branches[branchID].stateID} is in counterpartTimeLines`
-      //   // );
-      //   // console.log(
-      //   //   `destination branch is ${branchID}, destination stateID is ${branches[branchID].stateID}`
-      //   // );
-      //   console.log(
-      //     `{${
-      //       counterpartTimeLines[branches[branchID].stateID].sourceBranch
-      //     }: {${branches[branchID].stateID}: ${branchID} } }`
-      //   );
-      //   console.log(
-      //     `{${branchID}: {${
-      //       counterpartTimeLines[branches[branchID].stateID].stateID
-      //     }: ${
-      //       counterpartTimeLines[branches[branchID].stateID].sourceBranch
-      //     } } }`
-      //   );
-      // }
-      // console.log({ counterpartTimeLines });
-
-      // let itemsToBeAdded = states[
-      //   branches[branchID].stateID
-      // ].destinationTimelineStateIDs.filter(
-      //   (ID: number) => !(ID in counterpartTimeLines)
-      // );
-      // console.log(i, { itemsToBeAdded });
-      // states[branches[branchID].stateID].destinationTimelineStateIDs.forEach(
-      //   (ID: number) => {}
-      // );
-      // what if there is the same timeline for different rounds of traversing the bottom
-      // knowing not to retry a previously past branch of a current id
-      // vs making a new branch with a different id when the current state isn't parallel
-      // make sure current state is parallel and do logic by branchID
-      // why otherStateID
-      // multimappings = {timelineID: {otherStateID: otherTimelineID}}}
-      // will have more than 1 timeliineID per otherStateID
-      // visitor function perspective
-      // storing the parent state ID so the child state(edgeState) can access it
-      // variableName = variableNameFromEdge
-      // {[otherStateID]: otherTimelineID} = multimappings[currentTimeline]
-      // otherState = edgeState.branchIDParentIDParentBranchID[currentTimeline].parentBranch.parentID
-      // multimappings = graph.getStateByID[edgeState.branchIDParentIDParentBranchID[currentTimeline].parentBranch.parentID].multimappings
-      // otherTimelineID = multimappings[currentTimeline][edgeState.branchIDParentIDParentBranchID[currentTimeline].parentBranch.parentID]
-      // otherTimelineID = multimappings[currentTimeline][edgeState.parentState(currentTimeline)]
-      // ithVariableCopyOnOtherTimeline = otherState.variables[otherTimelineID]
-      // otherStateID === edgeState.id
-      // otherTimelineID = edgeState.parentState()
-      // .multimappings[edgeState.currentTimeline][edgeState.id]
-      // ithVariableCopyOnOtherTimeline = graph[edgeState.id].variables[otherTimelineID][variableName]
-      // ithVariableCopyOnCurrentTimeline = edgeState.parentState().variables[edgeState.currentTimeline][variableName]
-      // counterpartTimeLines = {
-      //   ...counterpartTimeLines,
-      //   ...states[branches[branchID].stateID].destinationTimelineStateIDs
-      //     .filter((ID: number) => !(ID in counterpartTimeLines))
-      //     .reduce(
-      //       (accumulator: any, stateID: any) => ({
-      //         ...accumulator,
-      //         [stateID]: [branchID],
-      //       }),
-      //       {}
-      //     ),
-      //   ...states[branches[branchID].stateID].destinationTimelineStateIDs
-      //     .filter((ID: number) => ID in counterpartTimeLines)
-      //     .reduce(
-      //       (accumulator: any, stateID: any) => ({
-      //         ...accumulator,
-      //         [stateID]: [...counterpartTimeLines[stateID], branchID],
-      //       }),
-      //       {}
-      //     ),
-      // };
-      // console.log({ counterpartTimeLines });
-      // states[branchID].destinationtimeline;
+        pairs.push({ stateID0, branchID0, stateID1, branchID1 });
+      }
     });
+  console.log({ pairs });
 };
 const App = (props: any) => {
   // test();
@@ -513,7 +386,7 @@ const App = (props: any) => {
   // makeArrays(stateTree, graph);
   // let { statesObject, namesTrie } = graph;
   // console.log({ namesTrie, statesObject });
-  twoSumMappingTest();
+  // twoSumMappingTest();
   // visitor(["NFA"], graph);
   // console.log(
   //   "namesTrie",
