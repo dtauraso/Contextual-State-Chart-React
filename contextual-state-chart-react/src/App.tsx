@@ -375,19 +375,19 @@ const App = (props: any) => {
   // i.setValue(5);
   // i.add(i.value + 1).add(1);
   // console.log({ i });
-  // let graph: Graph = {
-  //   statesObject: { states: {}, nextStateId: 0 },
-  //   namesTrie: {},
-  //   // getState
-  //   getState: getState,
-  //   getStateById: getStateById,
-  //   getVariableById: getVariableById,
-  // };
-  // makeArrays(stateTree, graph);
-  // let { statesObject, namesTrie } = graph;
-  // console.log({ namesTrie, statesObject });
-  // twoSumMappingTest();
-  // visitor(["NFA"], graph);
+  let graph: Graph = {
+    statesObject: { states: {}, nextStateId: 0 },
+    namesTrie: {},
+    // getState
+    getState: getState,
+    getStateById: getStateById,
+    getVariableById: getVariableById,
+  };
+  makeArrays(stateTree, graph);
+  let { statesObject, namesTrie } = graph;
+  console.log({ namesTrie, statesObject });
+  twoSumMappingTest();
+  visitor(["NFA"], graph);
   // console.log(
   //   "namesTrie",
   //   JSON.parse(JSON.stringify(namesTrie)),

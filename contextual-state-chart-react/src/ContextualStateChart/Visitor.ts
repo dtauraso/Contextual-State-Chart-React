@@ -17,7 +17,7 @@ import { makeArrays, makeVariable } from "./Init/ContextualStateChartInit";
 // import { idText } from "typescript";
 // import { addState, getStateNames } from "./Init/StatesObject";
 import { insertName, makeState } from "./Init/ContextualStateChartInit";
-import { ExitStatus } from "typescript";
+import { ExitStatus, StaticKeyword } from "typescript";
 import { VisitAvaliableBranches } from "./VisitAvaliableBranches";
 import { VisitBranches } from "./VisitBranches";
 import { RunStates } from "./RunStates";
@@ -533,14 +533,34 @@ const visitor = (startStateName: string[], graph: any) => {
     },
     maxBranchID: 0,
   };
-  const currentState = graph.getStateById(1);
-  currentState.branchIDParentIDParentBranchID = {
-    0: {
-      activeChildStatesCount: 0,
-      parentBranch: { parentID: 0, parentBranchID: -1 },
+  /*
+  stateID: {branchID: {activeChildStateIDs, parentStateID, parentBranchID}}
+  */
+  let runTree: {
+    [stateID: number]: {
+      [branchID: number]: {
+        activeChildStates: any[];
+        parentID: number;
+        parentBranchID: number;
+      };
+    };
+  } = {
+    1: {
+      0: {
+        activeChildStates: [],
+        parentID: 0,
+        parentBranchID: -1,
+      },
     },
   };
-  return VisitAvaliableBranches(graph, stateRunTreeBottom);
+  // const currentState = graph.getStateById(1);
+  // currentState.branchIDParentIDParentBranchID = {
+  //   0: {
+  //     activeChildStatesCount: 0,
+  //     parentBranch: { parentID: 0, parentBranchID: -1 },
+  //   },
+  // };
+  return VisitAvaliableBranches(graph, stateRunTreeBottom, runTree);
 
   // let levelId = getVariableVisitor(graph, ["tree"], "levelId");
   // console.log({ levelId });
