@@ -395,9 +395,9 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
     },
     getEdges: function (this: ControlFlowState, edgesName: string) {
       if (edgesName === "start") {
-        return this.start && [];
+        return this.start ? this.start : [];
       } else if (edgesName === "next") {
-        return this.next && [];
+        return this.next ? this.next : [];
       }
     },
   });
