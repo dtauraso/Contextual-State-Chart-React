@@ -4,6 +4,7 @@ import {
   Graph,
   NumberState,
   State,
+  ActiveChildState,
 } from "../App.types";
 import {
   getStateId,
@@ -537,16 +538,16 @@ const visitor = (startStateName: string[], graph: any) => {
   stateID: {branchID: {activeChildStateIDs, parentStateID, parentBranchID}}
   */
   let runTree: {
-    [stateID: number]: {
-      [branchID: number]: {
-        activeChildStates: any[];
+    [branchID: number]: {
+      [stateID: number]: {
+        activeChildStates: ActiveChildState[];
         parentID: number;
         parentBranchID: number;
       };
     };
   } = {
-    1: {
-      0: {
+    0: {
+      1: {
         activeChildStates: [],
         parentID: 0,
         parentBranchID: -1,

@@ -31,6 +31,11 @@ type ObjectState = Wrapper & {
 type Variable = {
   [key: string]: number;
 };
+type ActiveChildState = {
+  branchID: number;
+  stateID: number;
+};
+
 type ControlFlowState = State & {
   parents: string[][];
   name: string[];
@@ -93,5 +98,6 @@ export {
   StatesObject,
   NamesTrie,
   Graph,
+  ActiveChildState,
   ControlFlowState,
 };
