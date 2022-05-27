@@ -62,7 +62,7 @@ type ControlFlowState = State & {
   // using "any" to avoid having to use ".typeName()" when getting the value of a variable
   getVariable: (this: ControlFlowState, variableName: string) => any;
   getParent: (this: ControlFlowState) => any;
-  getEdges: (this: ControlFlowState, edgesName: string) => string[][];
+  getEdges: (this: ControlFlowState, edgesGroupIndex: number) => string[][];
   isStartEmpty: function (): boolean
 };
 type State = {

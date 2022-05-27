@@ -145,6 +145,7 @@ const VisitAvaliableBranches = (
         // }
         const { currentStateID, isStartActive, isParallel } =
           stateRunTreeBottom.branches[branchID];
+        const { edgesGroupIndex } = runTree[branchID][currentStateID];
         // let winningStateIDs: number[] = [];
         winningBranchIDStateIDs[branchID] = [];
         /*
@@ -183,7 +184,7 @@ const VisitAvaliableBranches = (
         */
         graph
           .getStateById(currentStateID)
-          .getEdges(isStartActive)
+          .getEdges(edgesGroupIndex)
           .forEach((nextStateName: string[]) => {
             if (!isParallel) {
               if (winningBranchIDStateIDs[branchID].length > 0) {

@@ -389,13 +389,16 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
     getChildren: function getChildren(this: any) {
       // only return children when state is done trialling children
     },
-    // getEdges: function (this: ControlFlowState, isStartActive: boolean) {
-    //   if (isStartActive) {
-    //     return this.start ? this.start : [];
-    //   } else {
-    //     return this.next ? this.next : [];
-    //   }
-    // },
+    getEdges: function (
+      this: ControlFlowState,
+      edgesGroupIndex: number
+    ): string[][] {
+      const length = this.edgeGroups.length;
+      if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {
+        return [];
+      }
+      return this.edgeGroups[edgesGroupIndex].edges;
+    },
     // isStartEmpty: function (this: ControlFlowState): boolean {
     //   return this.start ? this.start.length === 0 : false;
     // },
@@ -455,7 +458,7 @@ const errorState = function (): ControlFlowState {
       };
     },
     getParent: function (this: ControlFlowState) {},
-    getEdges: function (this: ControlFlowState, edgesName: string) {
+    getEdges: function (this: ControlFlowState, edgesGroupIndex: number) {
       return [];
     },
     isStartEmpty: function (): boolean {

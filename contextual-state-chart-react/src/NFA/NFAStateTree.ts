@@ -6,25 +6,21 @@ import {
 const state9 = {
   state: {
     functionCode: returnTrue,
-    areChildrenParallel: true,
-    start: [["x"], ["y"]],
+    edgeGroups: [{ edges: [["x"], ["y"]], isParallel: true }],
+    haveStartChldren: true,
     children: {
       x: {
         state: {
           functionCode: returnTrue,
-          areChildrenParallel: false,
-          areNextParallel: false,
+          edgeGroups: [],
           children: {},
-          // next: [],
         },
       },
       y: {
         state: {
           functionCode: returnTrue,
-          areChildrenParallel: false,
-          areNextParallel: false,
+          edgeGroups: [],
           children: {},
-          // next: [],
         },
       },
     },

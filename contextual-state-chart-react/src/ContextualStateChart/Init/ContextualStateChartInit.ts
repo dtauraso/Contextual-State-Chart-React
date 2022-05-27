@@ -278,27 +278,21 @@ const makeState = ({
         )
       : {};
     graph.statesObject.states[stateId] = ControlFlowStateWrapper();
+    const { parents, functionCode, edgeGroups, value, haveStartChildren } =
+      currentState || {};
     graph.statesObject.states[stateId].init({
       id: stateId,
-      parents: currentState?.parents ? [...currentState.parents] : [],
+      parents,
       name: currentStateName,
       typeName: "state",
-      ...(currentState?.functionCode
-        ? { functionCode: currentState.functionCode }
-        : {}),
-      ...(currentState?.edgeGroups
-        ? { edgeGroups: currentState.edgeGroups }
-        : {}),
-      ...(currentState?.value ? { value: currentState.value } : {}),
-      ...(currentState?.areChildrenParallel
-        ? { areChildrenParallel: currentState.areChildrenParallel }
-        : {}),
-      ...(currentState?.haveStartChildren
-        ? { haveStartChildren: currentState.haveStartChildren }
-        : {}),
+      functionName: functionCode.name.toString(),
+      functionCode,
+      edgeGroups,
+      value,
+      haveStartChildren,
       children,
       variables,
-      getVariable: getVariable,
+      getVariable,
       graph,
     });
 
