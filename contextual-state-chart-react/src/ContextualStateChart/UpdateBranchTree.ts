@@ -41,11 +41,7 @@ const pushBranch = (graph: Graph) => {
             parents: [[...currentBranchName]],
             children: {},
             variables: {
-              nextStates: winningState.start.map((startState: string[]) =>
-                startState.map((stateNamePart: string) => ({
-                  value: stateNamePart,
-                }))
-              ),
+              nextStates: winningState.edgeGroups,
               winningStateName: [],
               j: { value: 0 },
             },
@@ -97,19 +93,19 @@ const updateBranch = (graph: Graph) => {
   nextStates.setValue([]);
   const newNextStates: Array<Array<string>> = [];
 
-  currentState.next.forEach((stateName: string[], i: number) => {
-    const newVariableId = makeVariable({
-      trieTreeCollection: null,
-      stateTree: stateName.map((stateNamePart: string) => ({
-        value: stateNamePart,
-      })),
-      indexObject: graph.statesObject,
-      name: `${i}`,
-      graph,
-    });
-    newNextStates.push(newVariableId);
-  });
-  nextStates.setValue(newNextStates);
+  // currentState.edgeGroups.forEach((stateName: string[], i: number) => {
+  //   const newVariableId = makeVariable({
+  //     trieTreeCollection: null,
+  //     stateTree: stateName.map((stateNamePart: string) => ({
+  //       value: stateNamePart,
+  //     })),
+  //     indexObject: graph.statesObject,
+  //     name: `${i}`,
+  //     graph,
+  //   });
+  // newNextStates.push(newVariableId);
+  // });
+  // nextStates.setValue(newNextStates);
 };
 
 // #######################################################################

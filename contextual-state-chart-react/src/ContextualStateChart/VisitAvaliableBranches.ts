@@ -90,6 +90,7 @@ const VisitAvaliableBranches = (
         activeChildStates: ActiveChildState[];
         parentID: number;
         parentBranchID: number;
+        edgesGroupIndex: number;
       };
     };
   }
@@ -117,7 +118,7 @@ const VisitAvaliableBranches = (
   // return;
   while (Object.keys(stateRunTreeBottom.branches).length > 0) {
     console.log({ statesRun });
-    if (statesRun >= 8) {
+    if (statesRun >= 20) {
       if (testAtStateRunCount(statesRun, graph)) {
         console.log("passes");
       }
@@ -142,7 +143,7 @@ const VisitAvaliableBranches = (
         //   stateRunTreeBottom["branches"] = {};
         //   return;
         // }
-        const { currentStateID, nextStates, isParallel } =
+        const { currentStateID, isStartActive, isParallel } =
           stateRunTreeBottom.branches[branchID];
         // let winningStateIDs: number[] = [];
         winningBranchIDStateIDs[branchID] = [];
@@ -182,7 +183,7 @@ const VisitAvaliableBranches = (
         */
         graph
           .getStateById(currentStateID)
-          .getEdges(nextStates)
+          .getEdges(isStartActive)
           .forEach((nextStateName: string[]) => {
             if (!isParallel) {
               if (winningBranchIDStateIDs[branchID].length > 0) {
@@ -264,7 +265,11 @@ const VisitAvaliableBranches = (
     // make new branches
     // if the winning states are from start
     //    update new branches with new levels
-    console.log(JSON.parse(JSON.stringify({ stateRunTreeBottom })));
+    console.log(
+      JSON.parse(
+        JSON.stringify({ stateRunTreeBottom, winningBranchIDStateIDs })
+      )
+    );
     let deletableBranches: number[] = [];
     Object.keys(stateRunTreeBottom.branches)
       .map((branchID: string) => Number(branchID))
@@ -273,14 +278,17 @@ const VisitAvaliableBranches = (
           // const {winning}
           // add new branch(child) or update existing branch(next)
           const winningState = graph.getStateById(winningStateID);
-          const { areChildrenParallel, areNextParallel } = winningState;
+          const { haveStartChildren } = winningState;
           console.log(
             JSON.parse(
               JSON.stringify({ stateRunTreeBottom, branchID, i, statesRun })
             )
           );
-          const { currentStateID, nextStates } =
-            stateRunTreeBottom.branches[branchID];
+          const { currentStateID } = stateRunTreeBottom.branches[branchID];
+          // const currentState = graph.getStateById(currentStateID)
+          // const { haveStartChildren } = runTree[branchID][currentStateID];
+          const winningStateIDs = winningBranchIDStateIDs[branchID];
+          // console.log("david", { winningState, nextStates });
           // all new branches will also have the same parent state
           ///////////
           // if (i > 0) {
@@ -290,10 +298,10 @@ const VisitAvaliableBranches = (
           // }
           ////////
           // let parentStateID: number = -1;
+          // first case is always true
           if (
-            nextStates === "start" ||
-            (nextStates === "next" &&
-              winningBranchIDStateIDs[branchID].length > 1)
+            haveStartChildren ||
+            (!haveStartChildren && winningStateIDs.length > 1)
           ) {
             stateRunTreeBottom.maxBranchID += 1;
             const newBranchID = stateRunTreeBottom.maxBranchID;
@@ -306,39 +314,44 @@ const VisitAvaliableBranches = (
                 activeChildStates: [],
                 parentBranchID: branchID,
                 parentID: currentStateID,
+                edgesGroupIndex: 0,
               },
             };
-            // the same branches are being looped many times
             // collect current branch entry in bottom for deleting
             deletableBranches.push(branchID);
             // add new branch entry in bottom
             stateRunTreeBottom.branches[newBranchID] = {
               currentStateID: winningStateID,
-              nextStates,
-              isParallel:
-                nextStates === "next" ? areNextParallel : areChildrenParallel,
+              startHasRun: true,
             };
-          } else if (nextStates === "next")
-            if (winningBranchIDStateIDs[branchID].length === 1) {
+          } else {
+            // console.log("david here");
+            if (winningStateIDs.length === 1) {
               const {
                 [branchID]: {
                   [winningStateID]: {},
                 },
               } = runTree;
-              const { areNextParallel } = graph.getStateById(winningStateID);
-              stateRunTreeBottom.branches[branchID][winningStateID] = {
+              const winningState = graph.getStateById(winningStateID);
+              const { areChildrenParallel, areNextParallel } = winningState;
+
+              // [startArray, nextArray]
+              stateRunTreeBottom.branches[branchID] = {
                 currentStateID: winningStateID,
-                nextStates: "next",
-                isParallel: areNextParallel,
+                // isParallel: edgeGroup[0]? edgeGroup[0].areParallel: false
+                // isParallel:
+                // winningState.isStartEmpty() && areChildrenParallel,
+                edgesGroupIndex: 0,
+                // isStartActive: !winningState.isStartEmpty(),
               };
-            } else if (winningState.next === undefined) {
+            }
+            // if (winningState.next === undefined)
+            else {
               let branchIDTracker = branchID;
               let stateIDTracker = winningStateID;
 
               // erase (branchIDTracker, stateIDTracker) in stateRunTreeBottom
-              delete stateRunTreeBottom.branches[branchIDTracker][
-                stateIDTracker
-              ];
+              delete stateRunTreeBottom.branches[branchIDTracker];
 
               // move up (branchIDTracker, stateIDTracker) on runTree
               const { parentBranchID, parentID } =
@@ -365,8 +378,9 @@ const VisitAvaliableBranches = (
                   stateIDTracker
                 ].activeChildStates.pop();
 
-                const currentState = graph.getStateById(currentStateID);
-                if (currentState.next === undefined) {
+                const { id, edgeGroups, areNextParallel } =
+                  graph.getStateById(stateIDTracker);
+                if (edgeGroups === undefined) {
                   // move up (branchIDTracker, stateIDTracker)
                   const {
                     parentBranchID: parentBranchID2,
@@ -376,15 +390,16 @@ const VisitAvaliableBranches = (
                   stateIDTracker = parentID2;
                 } else {
                   stateRunTreeBottom.branches[branchIDTracker] = {
-                    currentStateID: currentState.id,
-                    nextStates:
-                      currentState.next !== undefined ? "next" : undefined,
-                    isParallel: currentState.areNextParallel,
+                    currentStateID: id,
+                    nextStates: edgeGroups !== undefined ? "next" : undefined,
+                    isParallel: areNextParallel,
+                    isStartActive: false,
                   };
                   count += 1;
                 }
               }
             }
+          }
         });
       });
     deletableBranches.forEach((deletableBranch: number) => {
@@ -542,7 +557,7 @@ const VisitAvaliableBranches = (
                         }`
                     )
                     .join("");
-                  return `branchID ${branchID}: {activeChildStates: [${activeChildStatesString}],\n                    parentBranch: { parent name ${name}:  parentBranchID ${parentBranchID}}}`;
+                  return `branchID ${branchID}: { stateID ${stateID}: {activeChildStates: [${activeChildStatesString}],\n                    parentBranch: { parent name ${name}:  parentBranchID ${parentBranchID}}}}`;
                 })}`;
             })
             .join(", \n       ")}`

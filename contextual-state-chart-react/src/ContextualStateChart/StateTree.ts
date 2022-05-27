@@ -357,13 +357,11 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
         name,
         functionCode,
         functionName,
-        start,
+        edgeGroups,
         children,
-        next,
         variables,
         graph,
-        areChildrenParallel,
-        areNextParallel,
+        haveStartChildren,
       }: any
     ) {
       this.id = id;
@@ -371,16 +369,14 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
       this.name = name;
       this.functionCode = functionCode;
       this.functionName = functionName;
-      this.start = start;
+      this.edgeGroups = edgeGroups;
       this.children = children;
-      this.next = next;
       this.variables = variables;
       this.stateRunCount = 0;
       this.getVariable = getVariable;
       this.graph = graph;
       this.branchIDParentIDParentBranchID = {};
-      this.areChildrenParallel = areChildrenParallel;
-      this.areNextParallel = areNextParallel;
+      this.haveStartChildren = haveStartChildren;
     },
     visitState: function visitState(this: any) {},
 
@@ -393,13 +389,16 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
     getChildren: function getChildren(this: any) {
       // only return children when state is done trialling children
     },
-    getEdges: function (this: ControlFlowState, edgesName: string) {
-      if (edgesName === "start") {
-        return this.start ? this.start : [];
-      } else if (edgesName === "next") {
-        return this.next ? this.next : [];
-      }
-    },
+    // getEdges: function (this: ControlFlowState, isStartActive: boolean) {
+    //   if (isStartActive) {
+    //     return this.start ? this.start : [];
+    //   } else {
+    //     return this.next ? this.next : [];
+    //   }
+    // },
+    // isStartEmpty: function (this: ControlFlowState): boolean {
+    //   return this.start ? this.start.length === 0 : false;
+    // },
   });
 };
 const variableTypes: any = {
@@ -441,9 +440,9 @@ const errorState = function (): ControlFlowState {
     name: [""],
     functionCode: (graph: any) => false,
     functionName: "",
-    start: [[""]],
     children: [[""]],
-    next: [[""]],
+    edgeGroups: [],
+    haveStartChildren: false,
     stateRunCount: 0,
     id: -1,
     branchIDParentIDParentBranchID: {},
@@ -458,6 +457,9 @@ const errorState = function (): ControlFlowState {
     getParent: function (this: ControlFlowState) {},
     getEdges: function (this: ControlFlowState, edgesName: string) {
       return [];
+    },
+    isStartEmpty: function (): boolean {
+      return false;
     },
   };
 };

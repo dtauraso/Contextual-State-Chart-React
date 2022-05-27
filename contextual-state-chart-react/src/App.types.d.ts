@@ -36,14 +36,19 @@ type ActiveChildState = {
   stateID: number;
 };
 
+type Edges = {
+  edges: string[][],
+  areParallel: boolean,
+}
+
 type ControlFlowState = State & {
   parents: string[][];
   name: string[];
   functionCode: (graph: Graph) => boolean;
   functionName: string;
-  start: string[][];
   children: string[][];
-  next: string[][];
+  edgeGroups: Edges[],
+  haveStartChildren: boolean,
   variables?: Variable;
   stateRunCount: number;
   branchIDParentIDParentBranchID: {
@@ -58,6 +63,7 @@ type ControlFlowState = State & {
   getVariable: (this: ControlFlowState, variableName: string) => any;
   getParent: (this: ControlFlowState) => any;
   getEdges: (this: ControlFlowState, edgesName: string) => string[][];
+  isStartEmpty: function (): boolean
 };
 type State = {
   id: number;

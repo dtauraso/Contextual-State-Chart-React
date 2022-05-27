@@ -286,14 +286,15 @@ const makeState = ({
       ...(currentState?.functionCode
         ? { functionCode: currentState.functionCode }
         : {}),
-      ...(currentState?.next ? { next: currentState.next } : {}),
-      ...(currentState?.start ? { start: currentState.start } : {}),
+      ...(currentState?.edgeGroups
+        ? { edgeGroups: currentState.edgeGroups }
+        : {}),
       ...(currentState?.value ? { value: currentState.value } : {}),
       ...(currentState?.areChildrenParallel
         ? { areChildrenParallel: currentState.areChildrenParallel }
         : {}),
-      ...(currentState?.areNextParallel
-        ? { areNextParallel: currentState.areNextParallel }
+      ...(currentState?.haveStartChildren
+        ? { haveStartChildren: currentState.haveStartChildren }
         : {}),
       children,
       variables,

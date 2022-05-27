@@ -4,66 +4,63 @@ import {
 } from "../Calculator/CalculatorStateFunctions";
 // convenient way to set the tree up
 const state9 = {
-  "9": {
-    state: {
-      functionCode: returnTrue,
-      areChildrenParallel: true,
-      start: [["x"], ["y"]],
-      children: {
-        x: {
-          state: {
-            functionCode: returnTrue,
-            areChildrenParallel: false,
-            areNextParallel: false,
-            children: {},
-            // next: [],
-          },
+  state: {
+    functionCode: returnTrue,
+    areChildrenParallel: true,
+    start: [["x"], ["y"]],
+    children: {
+      x: {
+        state: {
+          functionCode: returnTrue,
+          areChildrenParallel: false,
+          areNextParallel: false,
+          children: {},
+          // next: [],
         },
-        y: {
-          state: {
-            functionCode: returnTrue,
-            areChildrenParallel: false,
-            areNextParallel: false,
-            children: {},
-            // next: [],
-          },
+      },
+      y: {
+        state: {
+          functionCode: returnTrue,
+          areChildrenParallel: false,
+          areNextParallel: false,
+          children: {},
+          // next: [],
         },
       },
     },
   },
 };
 const state7 = {
-  "7": {
-    state: {
-      functionCode: returnTrue,
-      areChildrenParallel: true,
-      start: [["8"], ["a"], ["b"], ["c"], ["d"], ["e"], ["9"]],
-      children: {
-        "9": state9["9"],
-        "8": {
-          state: { functionCode: returnTrue },
+  state: {
+    functionCode: returnTrue,
+    edgeGroups: [
+      {
+        edges: [["8"], ["a"], ["b"], ["c"], ["d"], ["e"], ["9"]],
+        areParallel: true,
+      },
+    ],
+    haveStartChildren: true,
+    children: {
+      "9": state9,
+      "8": {
+        state: { functionCode: returnTrue },
+      },
+      a: {
+        state: { functionCode: returnTrue },
+      },
+      b: {
+        state: {
+          functionCode: returnTrue,
         },
-        a: {
-          state: { functionCode: returnTrue },
+      },
+      c: { state: { functionCode: returnTrue } },
+      d: {
+        state: {
+          functionCode: returnTrue,
         },
-        b: {
-          state: {
-            functionCode: returnTrue,
-            areNextParallel: true,
-            // next: [], //[["c"], ["d"]],
-          },
-        },
-        c: { state: { functionCode: returnTrue } },
-        d: {
-          state: {
-            functionCode: returnTrue,
-            areNextParallel: true,
-            // next: [], //[["e"]],
-          },
-        },
-        e: {
-          state: { functionCode: returnTrue },
-        },
+      },
+      e: {
+        state: { functionCode: returnTrue },
       },
     },
   },
@@ -72,21 +69,21 @@ const state7 = {
 let NFAStateTree = {
   NFA: {
     state: {
-      areChildrenParallel: true,
       functionCode: returnTrue,
-      start: [["0"]],
+      edgeGroups: [{ edges: [["0"]], areParallel: true }],
+      haveStartChildren: true,
       children: {
         "0": {
           state: {
             functionCode: returnTrue,
-            areChildrenParallel: true,
-            start: [["1"], ["2"]],
+            edgeGroups: [{ edges: [["1"], ["2"]], areParallel: true }],
+            haveStartChildren: true,
             children: {
               "1": {
                 state: {
-                  areChildrenParallel: true,
                   functionCode: returnTrue,
-                  start: [["3"], ["4"]],
+                  edgeGroups: [{ edges: [["3"], ["4"]], areParallel: true }],
+                  haveStartChildren: true,
                   children: {
                     "3": {
                       state: { functionCode: returnTrue },
@@ -94,9 +91,9 @@ let NFAStateTree = {
                     "4": {
                       state: {
                         functionCode: returnTrue,
-                        areChildrenParallel: true,
-                        start: [["7"]],
-                        children: { "7": state7["7"] },
+                        edgeGroups: [{ edges: [["7"]], areParallel: true }],
+                        haveStartChildren: true,
+                        children: { "7": state7 },
                       },
                     },
                   },
@@ -104,30 +101,32 @@ let NFAStateTree = {
               },
               "2": {
                 state: {
-                  areChildrenParallel: true,
                   functionCode: returnTrue,
-                  start: [["5"], ["6"]],
+                  edgeGroups: [{ edges: [["5"], ["6"]], areParallel: true }],
+                  haveStartChildren: true,
                   children: {
                     "5": {
                       state: {
                         functionCode: returnTrue,
-                        areChildrenParallel: true,
-                        start: [["7"]],
-                        children: { "7": state7["7"] },
+                        edgeGroups: [{ edges: [["7"]], areParallel: true }],
+                        haveStartChildren: true,
+                        children: { "7": state7 },
                       },
                     },
                     "6": {
                       state: {
-                        areChildrenParallel: true,
                         functionCode: returnTrue,
-                        start: [["10"]],
+                        edgeGroups: [{ edges: [["10"]], areParallel: true }],
+                        haveStartChildren: true,
                         children: {
                           "10": {
                             state: {
                               functionCode: returnTrue,
-                              areChildrenParallel: true,
-                              start: [["9"]],
-                              children: { "9": state9["9"] },
+                              edgeGroups: [
+                                { edges: [["9"]], areParallel: true },
+                              ],
+                              haveStartChildren: true,
+                              children: { "9": state9 },
                             },
                           },
                         },

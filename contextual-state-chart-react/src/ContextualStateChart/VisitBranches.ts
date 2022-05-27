@@ -25,13 +25,13 @@ const VisitBranches = (graph: Graph) => {
     if (winningState.children.length > 0) {
       // visit children
       pushBranch(graph);
-    } else if (winningState.next?.length > 0) {
+    } else if (winningState.edgeGroups?.length > 0) {
       // visit next states
       console.log("here");
       updateBranch(graph);
       console.log("finished updating branch");
       console.log({ states: graph.statesObject.states });
-    } else if (winningState.next === undefined) {
+    } else if (winningState.edgeGroups === undefined) {
       // travel up the branch path to find the next actionable state or a subroot(root but not the root of the tree)
       console.log("travel up tree");
       travelUpBranchPath(graph);

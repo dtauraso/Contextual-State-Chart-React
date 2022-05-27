@@ -528,7 +528,7 @@ const visitor = (startStateName: string[], graph: any) => {
       0: {
         // parallelEnumerationOfCurrentState: 0,
         currentStateID: 1,
-        nextStates: "start",
+        // nextStates: "start",
         isParallel: false,
       },
     },
@@ -543,6 +543,7 @@ const visitor = (startStateName: string[], graph: any) => {
         activeChildStates: ActiveChildState[];
         parentID: number;
         parentBranchID: number;
+        edgesGroupIndex: number;
       };
     };
   } = {
@@ -551,6 +552,7 @@ const visitor = (startStateName: string[], graph: any) => {
         activeChildStates: [],
         parentID: 0,
         parentBranchID: -1,
+        edgesGroupIndex: 0,
       },
     },
   };
