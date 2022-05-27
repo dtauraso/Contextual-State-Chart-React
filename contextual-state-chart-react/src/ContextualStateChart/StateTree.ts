@@ -6,6 +6,7 @@ import {
   NumberState,
   States,
   StringState,
+  Edges,
 } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
 import { NFAStateTree } from "../NFA/NFAStateTree";
@@ -392,12 +393,27 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
     getEdges: function (
       this: ControlFlowState,
       edgesGroupIndex: number
-    ): string[][] {
+    ): Edges {
+      if (!this.edgeGroups) {
+        return { edges: [], areParallel: false };
+      }
       const length = this.edgeGroups.length;
       if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {
-        return [];
+        return { edges: [], areParallel: false };
       }
-      return this.edgeGroups[edgesGroupIndex].edges;
+      return this.edgeGroups[edgesGroupIndex];
+    },
+    areEdgesStart: function (
+      this: ControlFlowState,
+      edgesGroupIndex: number
+    ): boolean {
+      const length = this.edgeGroups.length;
+
+      if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {
+        console.log("error", { edgesGroupIndex, length });
+        return false;
+      }
+      return edgesGroupIndex === 0;
     },
     // isStartEmpty: function (this: ControlFlowState): boolean {
     //   return this.start ? this.start.length === 0 : false;
@@ -458,10 +474,19 @@ const errorState = function (): ControlFlowState {
       };
     },
     getParent: function (this: ControlFlowState) {},
-    getEdges: function (this: ControlFlowState, edgesGroupIndex: number) {
-      return [];
+    getEdges: function (
+      this: ControlFlowState,
+      edgesGroupIndex: number
+    ): Edges {
+      return { edges: [], areParallel: false };
     },
     isStartEmpty: function (): boolean {
+      return false;
+    },
+    areEdgesStart: function (
+      this: ControlFlowState,
+      edgesGroupIndex: number
+    ): boolean {
       return false;
     },
   };

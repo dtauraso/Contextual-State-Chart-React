@@ -526,10 +526,7 @@ const visitor = (startStateName: string[], graph: any) => {
   let stateRunTreeBottom = {
     branches: {
       0: {
-        // parallelEnumerationOfCurrentState: 0,
         currentStateID: 1,
-        // nextStates: "start",
-        isParallel: false,
       },
     },
     maxBranchID: 0,

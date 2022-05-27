@@ -37,9 +37,9 @@ type ActiveChildState = {
 };
 
 type Edges = {
-  edges: string[][],
-  areParallel: boolean,
-}
+  edges: string[][];
+  areParallel: boolean;
+};
 
 type ControlFlowState = State & {
   parents: string[][];
@@ -47,8 +47,8 @@ type ControlFlowState = State & {
   functionCode: (graph: Graph) => boolean;
   functionName: string;
   children: string[][];
-  edgeGroups: Edges[],
-  haveStartChildren: boolean,
+  edgeGroups: Edges[];
+  haveStartChildren: boolean;
   variables?: Variable;
   stateRunCount: number;
   branchIDParentIDParentBranchID: {
@@ -62,8 +62,9 @@ type ControlFlowState = State & {
   // using "any" to avoid having to use ".typeName()" when getting the value of a variable
   getVariable: (this: ControlFlowState, variableName: string) => any;
   getParent: (this: ControlFlowState) => any;
-  getEdges: (this: ControlFlowState, edgesGroupIndex: number) => string[][];
-  isStartEmpty: function (): boolean
+  getEdges: (this: ControlFlowState, edgesGroupIndex: number) => Edges;
+  areEdgesStart: (this: ControlFlowState, edgesGroupIndex: number) => boolean;
+  isStartEmpty: () => boolean;
 };
 type State = {
   id: number;
@@ -105,5 +106,6 @@ export {
   NamesTrie,
   Graph,
   ActiveChildState,
+  Edges,
   ControlFlowState,
 };

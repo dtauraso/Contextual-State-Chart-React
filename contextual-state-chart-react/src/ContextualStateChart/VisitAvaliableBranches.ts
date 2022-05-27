@@ -143,8 +143,7 @@ const VisitAvaliableBranches = (
         //   stateRunTreeBottom["branches"] = {};
         //   return;
         // }
-        const { currentStateID, isStartActive, isParallel } =
-          stateRunTreeBottom.branches[branchID];
+        const { currentStateID } = stateRunTreeBottom.branches[branchID];
         const { edgesGroupIndex } = runTree[branchID][currentStateID];
         // let winningStateIDs: number[] = [];
         winningBranchIDStateIDs[branchID] = [];
@@ -182,18 +181,20 @@ const VisitAvaliableBranches = (
         IEEE_Software_Design_2PC.pdf
         IEEE Software Blog_ Your Local Coffee Shop Performs Resource Scaling.pdf
         */
-        graph
-          .getStateById(currentStateID)
-          .getEdges(edgesGroupIndex)
-          .forEach((nextStateName: string[]) => {
-            if (!isParallel) {
-              if (winningBranchIDStateIDs[branchID].length > 0) {
-                return;
-              }
+        const currentState = graph.getStateById(currentStateID);
+        console.log({ currentState });
+
+        const { edges, areParallel } =
+          currentState.getEdges(edgesGroupIndex) || {};
+        edges.forEach((nextStateName: string[]) => {
+          if (!areParallel) {
+            if (winningBranchIDStateIDs[branchID].length > 0) {
+              return;
             }
-            // console.log({ nextStateName });
-            const state = graph.getState(nextStateName);
-            /**
+          }
+          // console.log({ nextStateName });
+          const state = graph.getState(nextStateName);
+          /**
             don't use the state function for timeline communication
             assume all connected timelines will run at the same time.
             each branch maps to a different variable
@@ -233,11 +234,11 @@ const VisitAvaliableBranches = (
               state is the second to nth state successfully run
 
              */
-            // console.log({ state });
-            if (state.functionCode(graph)) {
-              winningBranchIDStateIDs[branchID].push(state.id);
-            }
-          });
+          // console.log({ state });
+          if (state.functionCode(graph)) {
+            winningBranchIDStateIDs[branchID].push(state.id);
+          }
+        });
       });
     //   // console.log("here");
     //   // stateRunTreeBottom = [];
@@ -279,13 +280,21 @@ const VisitAvaliableBranches = (
           // const {winning}
           // add new branch(child) or update existing branch(next)
           const winningState = graph.getStateById(winningStateID);
-          const { haveStartChildren } = winningState;
+          // const { haveStartChildren, edgeGroups } = winningState;
           console.log(
             JSON.parse(
               JSON.stringify({ stateRunTreeBottom, branchID, i, statesRun })
             )
           );
+          // const { currentStateID } = stateRunTreeBottom.branches[branchID];
+
+          // winning state is not yet in runTree[branchID]
           const { currentStateID } = stateRunTreeBottom.branches[branchID];
+          const currentState = graph.getStateById(currentStateID);
+          const { haveStartChildren, edgeGroups } = currentState;
+
+          const { edgesGroupIndex } = runTree[branchID][currentStateID];
+
           // const currentState = graph.getStateById(currentStateID)
           // const { haveStartChildren } = runTree[branchID][currentStateID];
           const winningStateIDs = winningBranchIDStateIDs[branchID];
@@ -300,10 +309,10 @@ const VisitAvaliableBranches = (
           ////////
           // let parentStateID: number = -1;
           // first case is always true
-          if (
-            haveStartChildren ||
-            (!haveStartChildren && winningStateIDs.length > 1)
-          ) {
+
+          const areEdgesStart = currentState.areEdgesStart(edgesGroupIndex);
+
+          if (areEdgesStart || (!areEdgesStart && winningStateIDs.length > 1)) {
             stateRunTreeBottom.maxBranchID += 1;
             const newBranchID = stateRunTreeBottom.maxBranchID;
             runTree[branchID][currentStateID].activeChildStates.push({
@@ -323,28 +332,22 @@ const VisitAvaliableBranches = (
             // add new branch entry in bottom
             stateRunTreeBottom.branches[newBranchID] = {
               currentStateID: winningStateID,
-              startHasRun: true,
             };
           } else {
             // console.log("david here");
+            console.log({ runTree, branchID, winningStateID });
             if (winningStateIDs.length === 1) {
-              const {
-                [branchID]: {
-                  [winningStateID]: {},
-                },
-              } = runTree;
               const winningState = graph.getStateById(winningStateID);
               const { areChildrenParallel, areNextParallel } = winningState;
 
               // [startArray, nextArray]
               stateRunTreeBottom.branches[branchID] = {
                 currentStateID: winningStateID,
-                // isParallel: edgeGroup[0]? edgeGroup[0].areParallel: false
-                // isParallel:
-                // winningState.isStartEmpty() && areChildrenParallel,
-                edgesGroupIndex: 0,
-                // isStartActive: !winningState.isStartEmpty(),
               };
+              // runTree[branchID][winningStateID] = {
+              //   ...runTree[branchID][currentStateID],
+              //   edgesGroupIndex: 0,
+              // };
             }
             // if (winningState.next === undefined)
             else {
@@ -510,19 +513,19 @@ const VisitAvaliableBranches = (
       .forEach((branchID: number) => {
         const { currentStateID, nextStates, isParallel } =
           stateRunTreeBottom["branches"][branchID] || {};
+        const { edgesGroupIndex } = runTree[branchID][currentStateID];
 
         console.log(`branch id ${branchID}`);
         console.log(`  isParallel: ${isParallel}`);
         if (nextStates !== undefined) {
           console.log(`  nextStates:`);
+          const currentState = graph.getStateById(currentStateID);
+          const { edges, areParallel } = currentState.getEdges(edgesGroupIndex);
 
-          graph
-            .getStateById(currentStateID)
-            .getEdges(nextStates)
-            .forEach((nextStateName: string[]) => {
-              const { name } = graph.getState(nextStateName);
-              console.log(`   ${name.join("/ ")}`);
-            });
+          edges.forEach((nextStateName: string[]) => {
+            const { name } = graph.getState(nextStateName);
+            console.log(`   ${name.join("/ ")}`);
+          });
         } else {
           console.log(`  nextStates: undefined`);
         }
