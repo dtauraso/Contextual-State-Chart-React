@@ -407,13 +407,15 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
       this: ControlFlowState,
       edgesGroupIndex: number
     ): boolean {
-      const length = this.edgeGroups.length;
+      const { haveStartChildren, edgeGroups } = this;
+
+      const length = edgeGroups.length;
 
       if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {
         console.log("error", { edgesGroupIndex, length });
         return false;
       }
-      return edgesGroupIndex === 0;
+      return haveStartChildren && edgesGroupIndex === 0;
     },
     // isStartEmpty: function (this: ControlFlowState): boolean {
     //   return this.start ? this.start.length === 0 : false;
