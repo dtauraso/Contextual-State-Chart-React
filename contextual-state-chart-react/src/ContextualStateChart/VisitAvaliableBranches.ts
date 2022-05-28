@@ -340,14 +340,14 @@ const VisitAvaliableBranches = (
               const winningState = graph.getStateById(winningStateID);
               const { areChildrenParallel, areNextParallel } = winningState;
 
-              // [startArray, nextArray]
               stateRunTreeBottom.branches[branchID] = {
                 currentStateID: winningStateID,
               };
-              // runTree[branchID][winningStateID] = {
-              //   ...runTree[branchID][currentStateID],
-              //   edgesGroupIndex: 0,
-              // };
+
+              runTree[branchID][winningStateID] = {
+                ...runTree[branchID][currentStateID],
+              };
+              delete runTree[branchID][currentStateID];
             }
             // if (winningState.next === undefined)
             else {
