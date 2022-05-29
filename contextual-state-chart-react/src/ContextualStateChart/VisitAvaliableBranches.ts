@@ -426,16 +426,7 @@ const VisitAvaliableBranches = (
               const { id, edgeGroups, haveStartChildren, name } =
                 graph.getStateById(stateIDTracker);
               console.log({ edgeGroups, haveStartChildren, name: name.join() });
-              if (edgeGroups === undefined) {
-                console.log("here");
-                // move up (branchIDTracker, stateIDTracker)
-                // branchIDTracker = parentBranchID;
-                // stateIDTracker = parentID;
-              } else {
-                console.log("else");
-                // printRunTree(runTree, graph);
-
-                // we can continue or branch is gone
+              if (edgeGroups) {
                 stateRunTreeBottom.branches[branchIDTracker] = {
                   currentStateID: stateIDTracker,
                 };
