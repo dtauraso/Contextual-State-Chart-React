@@ -409,6 +409,9 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
     ): boolean {
       const { haveStartChildren, edgeGroups } = this;
 
+      if (!edgeGroups) {
+        return false;
+      }
       const length = edgeGroups.length;
 
       if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {

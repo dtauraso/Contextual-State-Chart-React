@@ -31,9 +31,8 @@ type ObjectState = Wrapper & {
 type Variable = {
   [key: string]: number;
 };
-type ActiveChildState = {
-  branchID: number;
-  stateID: number;
+type ActiveChildStates = {
+  [branchID: number]: number;
 };
 
 type Edges = {
@@ -105,7 +104,7 @@ export {
   StatesObject,
   NamesTrie,
   Graph,
-  ActiveChildState,
+  ActiveChildStates,
   Edges,
   ControlFlowState,
 };
