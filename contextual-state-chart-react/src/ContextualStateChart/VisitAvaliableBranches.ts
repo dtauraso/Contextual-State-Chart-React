@@ -118,12 +118,12 @@ const VisitAvaliableBranches = (
   // return;
   while (Object.keys(stateRunTreeBottom.branches).length > 0) {
     console.log({ levelsRun });
-    if (levelsRun >= 4) {
+    if (levelsRun >= 12) {
       // if (testAtStateRunCount(levelsRun, graph)) {
       //   console.log("passes");
       // }
       console.log("too many levels were run");
-      break;
+      // break;
     }
     // console.log({
     //   stateRunTreeBottom: JSON.parse(JSON.stringify(stateRunTreeBottom)),
@@ -369,9 +369,13 @@ const VisitAvaliableBranches = (
         if (winningBranchIDStateIDs[branchID].length === 0) {
           // const { currentStateID } = stateRunTreeBottom.branches[branchID];
           const { edgesGroupIndex } = runTree[branchID][currentStateID];
+          // TODO: define the conditions for an end state
           const areEdgesStart = currentState.areEdgesStart(edgesGroupIndex);
 
+          // error states can happen if there are start states or next states
+
           if (!areEdgesStart) {
+            // there were no states to run so current state is an end state
             let branchIDTracker = branchID;
             let stateIDTracker = currentStateID;
 
@@ -382,16 +386,24 @@ const VisitAvaliableBranches = (
             const { parentBranchID, parentID } =
               runTree[branchIDTracker][stateIDTracker];
             let count = 0;
-            while (branchIDTracker !== -1) {
+            while (parentBranchID !== -1) {
               if (count > 1) {
                 console.log("too many states were run");
                 break;
               }
+              const { name: x } = graph.getStateById(stateIDTracker);
               console.log(
                 JSON.parse(
-                  JSON.stringify({ branchIDTracker, stateIDTracker, count })
+                  JSON.stringify({
+                    branchIDTracker,
+                    stateIDTracker,
+                    x: x.join(),
+                    count,
+                  })
                 )
               );
+              // printRunTree(runTree, graph);
+
               // delete leaf node
               delete runTree[branchIDTracker][stateIDTracker];
 
@@ -399,20 +411,21 @@ const VisitAvaliableBranches = (
               delete runTree[parentBranchID][parentID].activeChildStates[
                 branchIDTracker
               ];
-              printRunTree(runTree, graph);
-              // only move up when there are no sibling states
+              // leaf node and parent link to leaf node is gone
+
               if (
                 Object.keys(runTree[parentBranchID][parentID].activeChildStates)
                   .length > 0
               ) {
                 break;
               }
+
+              // only move up when there are no sibling states
               branchIDTracker = parentBranchID;
               stateIDTracker = parentID;
               const { id, edgeGroups, haveStartChildren, name } =
                 graph.getStateById(stateIDTracker);
               console.log({ edgeGroups, haveStartChildren, name: name.join() });
-              // leaf node and parent link to leaf node is gone
               if (edgeGroups === undefined) {
                 console.log("here");
                 // move up (branchIDTracker, stateIDTracker)
@@ -420,14 +433,14 @@ const VisitAvaliableBranches = (
                 // stateIDTracker = parentID;
               } else {
                 console.log("else");
-                printRunTree(runTree, graph);
+                // printRunTree(runTree, graph);
 
                 // we can continue or branch is gone
                 stateRunTreeBottom.branches[branchIDTracker] = {
-                  currentStateID: id,
-                  nextStates: edgeGroups !== undefined ? "next" : undefined,
-                  isStartActive: haveStartChildren,
+                  currentStateID: stateIDTracker,
                 };
+                runTree[branchIDTracker][stateIDTracker].edgesGroupIndex = 1;
+                break;
               }
               count += 1;
             }
