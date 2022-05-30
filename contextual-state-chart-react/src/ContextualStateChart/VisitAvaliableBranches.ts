@@ -134,55 +134,20 @@ const VisitAvaliableBranches = (
     // always put variable init on a new timeline
     // first timelines also need a timeline for the variable init
     // if the current timeline only has init variables, make new timeline for them
+    /*
+      IEEE_Software_Design_2PC.pdf
+      IEEE Software Blog_ Your Local Coffee Shop Performs Resource Scaling.pdf
+      */
     let winningBranchIDStateIDs: { [branchID: number]: number[] } = {};
     Object.keys(stateRunTreeBottom.branches)
       .map((branchID: string) => Number(branchID))
       .forEach((branchID: number) => {
-        // if (statesRun >= 10) {
-        //   console.log("too many states were run");
-        //   stateRunTreeBottom["branches"] = {};
-        //   return;
-        // }
         const { currentStateID } = stateRunTreeBottom.branches[branchID];
         const { edgesGroupIndex } = runTree[branchID][currentStateID];
-        // let winningStateIDs: number[] = [];
-        winningBranchIDStateIDs[branchID] = [];
-        /*
-        sequential mode
-          no change
 
-        parallel mode
-          0th state
-            has active branches
-              store branchID into state.currentBranchID
-              function runs successfully
-                is new branch
-          1...(n - 1)th state
-            store branchID into state.currentBranchID
-            function runs successfully
-              is new branch
-        any 2nd to nth state is automatically a new branch(not true solely based on enumerated
-          state)
-        state 9 was already visited 3 times. how is the mecahnism different than what it's already
-        doing and does it matter
-        is the function running successfully always a condition for a new branch
-        what happens when 2 parallel states don't pass function run at the same time
-        both states will be true but not in the same loop
-        1) not retrying the same parallel state that already passed
-        2) setting up all next states to run again when the initial state runs successfully
-        3) making new timelines even when only 1 timeline even if there are no active branches?
-        3.5) delayed timing vs how to know when to make a new branch
-        4) enumerate new branches based on if the parallel state returned true
-        for rerunning the initial state
-        4.5) after the parallel state has been run(pass or fail) lock it for it's branch so it can't be
-        rerun because the parallel states will be tried for many rounds untill they all pass
-        when and how are the edge locks removed after process is done
-        delete the locked edges when the timeine is finished and we are traversing up
-        IEEE_Software_Design_2PC.pdf
-        IEEE Software Blog_ Your Local Coffee Shop Performs Resource Scaling.pdf
-        */
+        winningBranchIDStateIDs[branchID] = [];
+
         const currentState = graph.getStateById(currentStateID);
-        // console.log({ currentState });
 
         const { edges, areParallel } =
           currentState.getEdges(edgesGroupIndex) || {};
@@ -193,49 +158,8 @@ const VisitAvaliableBranches = (
               return;
             }
           }
-          // console.log({ nextStateName });
           const state = graph.getState(nextStateName);
-          /**
-            don't use the state function for timeline communication
-            assume all connected timelines will run at the same time.
-            each branch maps to a different variable
-            currently setup to always use the selected timeline
-            how to make new 1:1 mappings when there are new cashiers and new customers
-              
-            selectedTimeline(timelineA): 0, // from stateRunTreeBottom["branches"]
-              currentTimelineIDs: {
-                selectedTimelineNumber: {
-                  timelineIDOfOtherTimeline: -1,  when is this value used; how is this value used to enforce 1:1 mapping
-                },
-              },
-            many cashiers many customers
-            make sure 1 cashier maps to 1 customer
-            each cashier and each customer is time independent
-            1 branchID link table inside cashier and customer states
-              each state refers to the link table of their parent
-            n branchID link tables
-              name is id of the states
-              the same state is run for each cashier
-            definitions for making a new branch
-            when is the variable set setup for each branch
-            recording states
-            before running
-              if state is parallel
-                if state has >= 1 branchs attached to it
-                  branchID++
-                  parallelEnumerationOfCurrentState
-              if nextStateName.linkToDifferentTimeline is true
-                parallelEnumerationOfCurrentState = stateRunTreeBottom["branches"][branchID]["parallelEnumerationOfCurrentState"]
-                if state.stateRunCounts[branchID].differentTimelineCountBeforeRunningState > 0
-                  state.stateRunCounts[branchID].differentTimelineCountBeforeRunningState -= 1
-                else if(state.stateRunCounts[branchID].differentTimelineCountBeforeRunningState === 0)
-                  state.currentTimeline = branchID
-                  run state
-            after running
-              state is the second to nth state successfully run
 
-             */
-          // console.log({ state });
           if (state.functionCode(graph)) {
             winningBranchIDStateIDs[branchID].push(state.id);
           }
@@ -255,10 +179,7 @@ const VisitAvaliableBranches = (
 
           const { edgesGroupIndex } = runTree[branchID][currentStateID];
 
-          // const currentState = graph.getStateById(currentStateID)
-          // const { haveStartChildren } = runTree[branchID][currentStateID];
           const winningStateIDs = winningBranchIDStateIDs[branchID];
-          // console.log("david", { winningState, nextStates });
           // all new branches will also have the same parent state
           const areEdgesStart = currentState.areEdgesStart(edgesGroupIndex);
 
