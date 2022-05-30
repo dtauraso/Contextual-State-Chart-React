@@ -186,6 +186,7 @@ const VisitAvaliableBranches = (
 
         const { edges, areParallel } =
           currentState.getEdges(edgesGroupIndex) || {};
+
         edges.forEach((nextStateName: string[]) => {
           if (!areParallel) {
             if (winningBranchIDStateIDs[branchID].length > 0) {
@@ -241,10 +242,10 @@ const VisitAvaliableBranches = (
         });
       });
 
-    let deletableBranches: number[] = [];
     Object.keys(stateRunTreeBottom.branches)
       .map((branchID: string) => Number(branchID))
       .forEach((branchID: number, i) => {
+        let deletableBranch = false;
         winningBranchIDStateIDs[branchID].forEach((winningStateID: number) => {
           // add new branch(child) or update existing branch(next)
 
@@ -277,8 +278,7 @@ const VisitAvaliableBranches = (
                 edgesGroupIndex: 0,
               },
             };
-            // collect current branch entry in bottom for deleting
-            deletableBranches.push(branchID);
+            deletableBranch = true;
             // add new branch entry in bottom
             stateRunTreeBottom.branches[newBranchID] = {
               currentStateID: winningStateID,
@@ -354,10 +354,10 @@ const VisitAvaliableBranches = (
             }
           }
         }
+        if (deletableBranch) {
+          delete stateRunTreeBottom.branches[branchID];
+        }
       });
-    deletableBranches.forEach((deletableBranch: number) => {
-      delete stateRunTreeBottom.branches[deletableBranch];
-    });
     // edges adjustment
     // each branch is a winning state
     // if a winning state have start states
