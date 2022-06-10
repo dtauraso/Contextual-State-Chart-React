@@ -12,44 +12,66 @@ let StartbucksStateTree = {
     StarbucksMachine: {
       state: {
         functionCode: returnTrue,
-        areChildrenParallel: true,
-        start: [
-          { nextStateName: ["Coffee Shop"] },
-          { nextStateName: ["Customer"] },
+        edgeGroups: [
+          {
+            edges: [
+              { nextStateName: ["Coffee Shop"] },
+              { nextStateName: ["Customer"] },
+            ],
+            areParallel: true,
+          },
         ],
+        haveStartChildren: true,
         children: {
           "Coffee Shop": {
             state: {
               currentTimelineID: -1,
 
               functionCode: returnTrue,
-              areChildrenParallel: true,
-              start: [
-                { nextStateName: ["Cashier"] },
-                { nextStateName: ["Barista"] },
+              edgeGroups: [
+                {
+                  edges: [
+                    { nextStateName: ["Cashier"] },
+                    { nextStateName: ["Barista"] },
+                  ],
+                  areParallel: true,
+                },
               ],
+              haveStartChildren: true,
               children: {
                 Barista: {
                   state: {
                     functionCode: returnTrue,
-                    areChildrenParallel: true,
-                    start: [{ nextStateName: ["Make drink"] }],
+                    edgeGroups: [
+                      {
+                        edges: [{ nextStateName: ["Make drink"] }],
+                        areParallel: true,
+                      },
+                    ],
+                    haveStartChildren: true,
                     children: {
                       "Make drink": {
                         state: {
                           functionCode: returnTrue,
-                          next: [{ nextStateName: ["Output buffer"] }],
+                          edgeGroups: [
+                            {
+                              edges: [{ nextStateName: ["Output buffer"] }],
+                              areParallel: false,
+                            },
+                          ],
+                          haveStartChildren: false,
                         },
                       },
                       "Output buffer": {
                         state: {
                           functionCode: returnTrue,
-                          next: [
+                          edgeGroups: [
                             {
-                              linkToDifferentTimeline: true,
-                              nextStateName: ["Sip coffee"],
+                              edges: [{ nextStateName: ["Sip coffee"] }],
+                              areParallel: false,
                             },
                           ],
+                          haveStartChildren: false,
                         },
                       },
                     },
@@ -57,78 +79,73 @@ let StartbucksStateTree = {
                 },
                 Cashier: {
                   state: {
-                    areChildrenParallel: true,
-                    start: [{ nextStateName: ["Take order", "from customer"] }],
+                    edgeGroups: [
+                      {
+                        edges: [
+                          { nextStateName: ["Take order", "from customer"] },
+                        ],
+                        areParellel: true,
+                      },
+                    ],
+                    haveStartChildren: true,
                     children: {
                       "Take order": {
                         "from customer": {
                           state: {
-                            // branch bottom inside graph
-                            /* variable access, (   branchID,
-                                                    parallelBranchEnumerationID,
-                                                    parentStateName,
-                                                    variableName)
-                            */
                             functionCode: returnTrue,
-                            // access same timeline counter reguardless of how many times the state
-                            // runs
-                            stateRunCounts: {
-                              timelineIDNumber: {
-                                differentTimelineCountBeforeRunningState: 1,
+                            edgeGroups: [
+                              {
+                                edges: [{ nextStateName: ["Compute Price"] }],
+                                areParallel: false,
                               },
-                            },
-
-                            // if variable can't be fetched set variable to undefined and print error message
-                            // let machine crash
-                            // variableAccessDataFromDifferentTimelines: {
-                            //   // parentStateName
-                            //   Customer: {
-                            //     timelineID: -1,
-                            //     variableName: "customerOrder",
-                            //   },
-                            // },
-                            next: [{ nextStateName: ["Compute Price"] }],
+                            ],
+                            haveStartChildren: false,
                           },
                         },
                       },
                       "Compute price": {
                         state: {
                           functionCode: returnTrue,
-                          areNextParallel: true,
-                          // branchID
-                          // accessing variables
-                          // accessing curently active branchID
-                          currentBranchID: -1,
-                          next: [
-                            // transfer variables from parent state 1 to parent state 2
-                            // decrement the wait counter for next state
+                          edgeGroups: [
                             {
-                              variablesToTransferToDifferentTimeline: ["price"],
-                              nextStateName: ["Dig up money"],
-                            },
-                            {
-                              nextStateName: ["Compute change"],
-                            },
-                            {
-                              variablesToTransferToDifferentTimeline: ["price"],
-                              nextStateName: ["auditorStateName"],
+                              edges: [
+                                {
+                                  variablesToTransferToDifferentTimeline: [
+                                    "price",
+                                  ],
+                                  nextStateName: ["Dig up money"],
+                                },
+                                { nextStateName: ["Compute change"] },
+                                {
+                                  variablesToTransferToDifferentTimeline: [
+                                    "price",
+                                  ],
+                                  nextStateName: ["auditorStateName"],
+                                },
+                              ],
+                              areParallel: true,
                             },
                           ],
+                          haveStartChildren: false,
                         },
                       },
                       "Compute change": {
                         state: {
                           functionCode: returnTrue,
-                          differentTimelineCount: 1,
-                          next: [
-                            { nextStateName: ["No change"] },
+                          edgeGroups: [
                             {
-                              variablesToTransferToDifferentTimeline: [
-                                "change",
+                              edges: [
+                                { nextStateName: ["No change"] },
+                                {
+                                  variablesToTransferToDifferentTimeline: [
+                                    "change",
+                                  ],
+                                  nextStateName: ["Put away change"],
+                                },
                               ],
-                              nextStateName: ["Put away change"],
                             },
                           ],
+                          haveStartChildren: false,
                         },
                       },
                       "No change": {
@@ -136,25 +153,9 @@ let StartbucksStateTree = {
                       },
                     },
                     variables: {
-                      init: {},
-                      // otherTimelines: { Customer: 1 },
-                      // timelineLinkTables: {
-                      //   "cashier customer nth id pair": {
-                      //     branchIDOfCashier: "branchIDOfCustomer",
-                      //   },
-                      // },
+                      init: { currentOrder: 0 },
                     },
-                    // only 1 -> 1 mapping allowed
-                    // know what timelineID of different timeline to access ith version of variable inside parent
-                    // state to copy variable into
-                    // use 2sum solution with the keys being the destinationTimeline ID's
-                    // branches[ithTimelineID].currentStateID
-                    // test solution separately
-                    timelineIDs: {
-                      2: 1,
-                    },
-                    // if a state has an edge for a state with no timeline branch
-                    // state cannot be run
+                    timelineIDs: {},
                     destinationTimelines: ["Customer", "Auditor", "VIP"],
                   },
                 },

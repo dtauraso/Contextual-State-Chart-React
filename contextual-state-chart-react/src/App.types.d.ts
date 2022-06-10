@@ -10,15 +10,24 @@ type Wrapper = State & {
 };
 type BooleanState = Wrapper & {
   value: boolean;
+  edgeGroups2: number[];
+  edgeGroups: Edges[];
 };
 type NumberState = Wrapper & {
   value: number;
+  edgeGroups2: number[];
+  edgeGroups: Edges[];
 };
 type StringState = Wrapper & {
   value: string;
+  edgeGroups2: number[];
+  edgeGroups: Edges[];
 };
 type ArrayState = Wrapper & {
   value: number[];
+  edgeGroups2: number[];
+  edgeGroups: Edges[];
+
   mapWrapper: (this: ArrayState, callback: any) => ArrayState;
   collect: (this: ArrayState) => [];
   updateAt: (this: ArrayState, i: number, newValue: number) => ArrayState;
@@ -27,6 +36,8 @@ type ArrayState = Wrapper & {
 
 type ObjectState = Wrapper & {
   value: Variable;
+  edgeGroups2: number[];
+  edgeGroups: Edges[];
 };
 type Variable = {
   [key: string]: number;
@@ -40,12 +51,17 @@ type Edges = {
   areParallel: boolean;
 };
 
+type PendingState = {
+  stateID: number;
+  triedCountRemaining: number;
+};
 type ControlFlowState = State & {
   parents: string[][];
   name: string[];
   functionCode: (graph: Graph) => boolean;
   functionName: string;
   children: string[][];
+  edgeGroups2: number[];
   edgeGroups: Edges[];
   haveStartChildren: boolean;
   variables?: Variable;
@@ -106,5 +122,6 @@ export {
   Graph,
   ActiveChildStates,
   Edges,
+  PendingState,
   ControlFlowState,
 };

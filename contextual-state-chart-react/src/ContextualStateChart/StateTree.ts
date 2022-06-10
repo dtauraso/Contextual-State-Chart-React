@@ -465,6 +465,7 @@ const errorState = function (): ControlFlowState {
     functionCode: (graph: any) => false,
     functionName: "",
     children: [[""]],
+    edgeGroups2: [],
     edgeGroups: [],
     haveStartChildren: false,
     stateRunCount: 0,

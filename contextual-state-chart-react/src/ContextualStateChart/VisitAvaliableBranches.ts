@@ -1,5 +1,10 @@
 import { isConstructorDeclaration } from "typescript";
-import { ControlFlowState, Graph, ActiveChildStates } from "../App.types";
+import {
+  ControlFlowState,
+  Graph,
+  ActiveChildStates,
+  PendingState,
+} from "../App.types";
 import { VisitBranches } from "./Visitor";
 /*
     1)variable usage easy language api(similar to default language syntax)
@@ -91,6 +96,7 @@ const VisitAvaliableBranches = (
         parentID: number;
         parentBranchID: number;
         edgesGroupIndex: number;
+        pendingStateIDs: PendingState[];
       };
     };
   }
@@ -116,6 +122,7 @@ const VisitAvaliableBranches = (
 
   console.log({ stateRunTreeBottom });
   // return;
+  const maxTryCount = 20;
   while (Object.keys(stateRunTreeBottom.branches).length > 0) {
     console.log({ levelsRun });
     if (levelsRun >= 12) {
@@ -143,28 +150,51 @@ const VisitAvaliableBranches = (
       .map((branchID: string) => Number(branchID))
       .forEach((branchID: number) => {
         const { currentStateID } = stateRunTreeBottom.branches[branchID];
-        const { edgesGroupIndex } = runTree[branchID][currentStateID];
-
-        winningBranchIDStateIDs[branchID] = [];
-
+        const { edgesGroupIndex, pendingStateIDs } =
+          runTree[branchID][currentStateID];
         const currentState = graph.getStateById(currentStateID);
-
         const { edges, areParallel } =
           currentState.getEdges(edgesGroupIndex) || {};
 
-        edges.forEach((nextStateName: string[]) => {
+        winningBranchIDStateIDs[branchID] = [];
+        [
+          ...edges.reduce(
+            (acc: PendingState[], nextStateName: string[]) => [
+              ...acc,
+              {
+                stateID: graph.getState(nextStateName).id,
+                triedCountRemaining: maxTryCount,
+              },
+            ],
+            []
+          ),
+          ...pendingStateIDs,
+        ].forEach(({ stateID }: PendingState) => {
           if (!areParallel) {
             if (winningBranchIDStateIDs[branchID].length > 0) {
               return;
             }
           }
-          const state = graph.getState(nextStateName);
+          const state = graph.getStateById(stateID);
 
           if (state.functionCode(graph)) {
             winningBranchIDStateIDs[branchID].push(state.id);
           }
         });
       });
+    //   edges.forEach((nextStateName: string[]) => {
+    //     if (!areParallel) {
+    //       if (winningBranchIDStateIDs[branchID].length > 0) {
+    //         return;
+    //       }
+    //     }
+    //     const state = graph.getState(nextStateName);
+
+    //     if (state.functionCode(graph)) {
+    //       winningBranchIDStateIDs[branchID].push(state.id);
+    //     }
+    //   });
+    // });
 
     Object.keys(stateRunTreeBottom.branches)
       .map((branchID: string) => Number(branchID))
@@ -197,6 +227,7 @@ const VisitAvaliableBranches = (
                 parentBranchID: branchID,
                 parentID: currentStateID,
                 edgesGroupIndex: 0,
+                pendingStateIDs: [],
               },
             };
             deletableBranch = true;

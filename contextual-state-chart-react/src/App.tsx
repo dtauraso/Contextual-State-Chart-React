@@ -5,7 +5,7 @@ import {
   // getStateNames,
   makeArrays,
 } from "./ContextualStateChart/Init/ContextualStateChartInit";
-import { Graph, NamesTrie } from "./App.types";
+import { Graph, NamesTrie, State } from "./App.types";
 import { calculatorStateTree } from "./Calculator/CalculatorStateTree";
 import {
   getState,
@@ -385,8 +385,24 @@ const App = (props: any) => {
   };
   makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;
+  Object.keys(statesObject.states).forEach((key: string) => {
+    if ("edgeGroups" in statesObject.states[Number(key)]) {
+      statesObject.states[Number(key)]?.edgeGroups?.forEach(
+        ({ edges, areParallel }) => {
+          statesObject.states[Number(key)].edgeGroups2 = [];
+          edges.forEach((edge: string[]) => {
+            statesObject.states[Number(key)].edgeGroups2.push(
+              graph.getState(edge).id
+            );
+          });
+        }
+      );
+    }
+    // statesObject.states[Number(key)]?.edgeGroups
+  });
   console.log({ namesTrie, statesObject });
-  twoSumMappingTest();
+
+  // twoSumMappingTest();
   visitor(["NFA"], graph);
   // console.log(
   //   "namesTrie",
