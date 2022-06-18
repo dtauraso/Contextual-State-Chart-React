@@ -234,20 +234,19 @@ const makeState = ({
       graph,
       destinationTimelines,
     });
-
     return stateId;
-  } else {
-    Object.keys(stateTree).forEach((childNamePart: any) => {
-      childrenStateIDs.push(
-        makeState({
-          trieTreeCollection,
-          stateTree: stateTree[childNamePart],
-          indexObject,
-          currentStateName: [...currentStateName, childNamePart],
-          graph,
-          childrenStateIDs,
-        })
-      );
+  }
+
+  const childName = Object.keys(stateTree);
+  for (let i = 0; i < childName.length; i += 1) {
+    const childNamePart = childName[i];
+    return makeState({
+      trieTreeCollection,
+      stateTree: stateTree[childNamePart],
+      indexObject,
+      currentStateName: [...currentStateName, childNamePart],
+      graph,
+      childrenStateIDs,
     });
   }
 };

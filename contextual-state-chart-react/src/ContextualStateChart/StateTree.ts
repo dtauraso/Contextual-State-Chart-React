@@ -31,8 +31,7 @@ let stateTree = {
       // },
       start: [["NFA"]],
       children: {
-        ...NFAStateTree,
-        // replace with StartbucksStateTree
+        ...StartbucksStateTree,
       },
       variables: {
         levelId: { value: 0 },

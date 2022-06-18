@@ -219,21 +219,21 @@ let StartbucksStateTree = {
             },
           },
         },
+        variables: {
+          drinks: {
+            names: { value: ["Pistachio"] },
+            options: {
+              size: { value: 1 },
+              flavors: { value: 1 },
+              toppings: { value: 1 },
+            },
+          },
+          size: {},
+          flavors: {},
+          toppings: {},
+        },
       },
     },
-  },
-  database: {
-    drinks: {
-      names: ["Pistachio"],
-      options: {
-        size: { value: 1 },
-        flavors: { value: 1 },
-        toppings: { value: 1 },
-      },
-    },
-    size: {},
-    flavors: {},
-    toppings: {},
   },
 };
 

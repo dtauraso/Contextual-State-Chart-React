@@ -139,7 +139,7 @@ const VisitAvaliableBranches = (
       //   console.log("passes");
       // }
       console.log("too many levels were run");
-      // break;
+      break;
     }
     // console.log({
     //   stateRunTreeBottom: JSON.parse(JSON.stringify(stateRunTreeBottom)),
