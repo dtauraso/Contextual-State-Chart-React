@@ -44,67 +44,6 @@ import {
   getVariable,
 } from "../StateTree";
 
-interface GetSubStatePaths2Parameters {
-  node: any;
-  paths: string[][];
-  currentPath: string[];
-}
-const getSubStatePaths2 = ({
-  node,
-  paths,
-  currentPath,
-}: GetSubStatePaths2Parameters) => {
-  if (node === undefined) {
-    return paths;
-  }
-  if (typeof node === "string") {
-    return;
-  } else if ("value" in node) {
-    paths.push(currentPath);
-  }
-  if ("state" in node) {
-    paths.push(currentPath);
-  }
-  Object.keys(node)
-    .filter((key) => key !== "state")
-    .forEach((stateNamePart: string) => {
-      getSubStatePaths2({
-        node: node[stateNamePart],
-        paths,
-        currentPath: [...currentPath, stateNamePart],
-      });
-    });
-};
-const traverseContexts = ({
-  trieTreeCollection,
-  stateTree,
-  indexObject,
-  graph,
-  childrenStateNames,
-}: any) => {
-  let paths: string[][] = [];
-  // console.log({ stateTree });
-  getSubStatePaths2({
-    node: stateTree,
-    paths,
-    currentPath: [],
-  });
-  paths.forEach((path: string[]) => {
-    let tracker = stateTree;
-    path.forEach((contextName: string) => {
-      tracker = tracker[contextName];
-    });
-    makeState({
-      trieTreeCollection,
-      stateTree: tracker,
-      indexObject,
-      currentStateName: path,
-      graph,
-      childrenStateNames,
-    });
-  });
-  return { paths };
-};
 const returnTrueShort = (value: any) => true;
 const variableTypes: any = {
   "[object Boolean]": {
@@ -218,7 +157,7 @@ const makeState = ({
   indexObject,
   currentStateName,
   graph,
-  childrenStateNames,
+  childrenStateIDs,
 }: any): any => {
   if ("state" in stateTree) {
     const currentState = stateTree["state"];
@@ -238,84 +177,76 @@ const makeState = ({
       stateId: stateId,
     });
 
-    // childrenStateNames.push(stateId);
-
-    // let childrenStateNames2: String[] = [];
-    // Object.keys(stateTree["state"].children).forEach((childNamePart: any) => {
-    //   makeState({
-    //     trieTreeCollection,
-    //     stateTree: stateTree["state"].children[childNamePart],
-    //     indexObject,
-    //     currentStateName: [childNamePart],
-    //     graph,
-    //     childrenStateNames: childrenStateNames2,
-    //   });
-    // });
-    const { paths } = traverseContexts({
-      trieTreeCollection,
-      stateTree: currentState.children,
-      indexObject,
-      graph,
-      childrenStateNames,
+    const { children, variables } = currentState || {};
+    let newChildrenStateIDs: number[] = [];
+    Object.keys(children ?? []).forEach((childNamePart: any) => {
+      newChildrenStateIDs.push(
+        makeState({
+          trieTreeCollection,
+          stateTree: children[childNamePart],
+          indexObject,
+          currentStateName: [childNamePart],
+          graph,
+          childrenStateIDs: newChildrenStateIDs,
+        })
+      );
     });
 
-    let children = currentState?.children ? paths : {};
-    let variables = currentState?.variables
-      ? Object.keys(currentState.variables).reduce(
-          (acc: any, variableName: string) => {
-            acc[variableName] = makeVariable({
-              trieTreeCollection,
-              stateTree: currentState.variables?.[variableName],
-              indexObject,
-              name: variableName,
-              graph,
-              stateId,
-            });
+    let stateVariables = Object.keys(variables ?? []).reduce(
+      (acc: any, variableName: string) => ({
+        ...acc,
+        [variableName]: makeVariable({
+          trieTreeCollection,
+          stateTree: variables[variableName],
+          indexObject,
+          name: variableName,
+          graph,
+          stateId,
+        }),
+      }),
+      {}
+    );
 
-            return acc;
-          },
-          {}
-        )
-      : {};
+    const {
+      parents,
+      functionCode,
+      edgeGroups,
+      value,
+      haveStartChildren,
+      destinationTimelines,
+    } = currentState || {};
+
     graph.statesObject.states[stateId] = ControlFlowStateWrapper();
-    const { parents, functionCode, edgeGroups, value, haveStartChildren } =
-      currentState || {};
     graph.statesObject.states[stateId].init({
       id: stateId,
       parents,
       name: currentStateName,
       typeName: "state",
-      functionName: functionCode.name.toString(),
+      functionName: functionCode?.name.toString(),
       functionCode,
       edgeGroups,
       value,
       haveStartChildren,
       children,
-      variables,
+      variables: stateVariables,
       getVariable,
       graph,
+      destinationTimelines,
     });
 
-    // return stateId;
+    return stateId;
   } else {
     Object.keys(stateTree).forEach((childNamePart: any) => {
-      // childrenStateNames2
-      // makeState({
-      //   trieTreeCollection,
-      //   stateTree: stateTree["state"].children[childNamePart],
-      //   indexObject,
-      //   currentStateName: [...currentStateName, childNamePart],
-      //   graph,
-      //   childrenStateNames: childrenStateNames2
-      // });
-    });
-
-    traverseContexts({
-      trieTreeCollection,
-      stateTree,
-      indexObject,
-      graph,
-      childrenStateNames,
+      childrenStateIDs.push(
+        makeState({
+          trieTreeCollection,
+          stateTree: stateTree[childNamePart],
+          indexObject,
+          currentStateName: [...currentStateName, childNamePart],
+          graph,
+          childrenStateIDs,
+        })
+      );
     });
   }
 };
@@ -336,7 +267,7 @@ const makeArrays = (stateTree: any, graph: Graph) => {
     indexObject: graph.statesObject,
     currentStateName: [],
     graph, //: graph.statesObject.states,
-    childrenStateNames: [],
+    childrenStateIDs: [],
   });
   // trieTreeCollection.forEach((name: any) => {
   //   graph.namesTrie = insertName({

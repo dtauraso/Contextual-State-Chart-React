@@ -3,10 +3,6 @@ import {
   returnFalse,
 } from "../Calculator/CalculatorStateFunctions";
 
-let coffeeFrappuccino = {
-  Coffee: {},
-  Frappuccino: {},
-};
 let StartbucksStateTree = {
   machine: {
     StarbucksMachine: {
@@ -25,8 +21,6 @@ let StartbucksStateTree = {
         children: {
           "Coffee Shop": {
             state: {
-              currentTimelineID: -1,
-
               functionCode: returnTrue,
               edgeGroups: [
                 {
@@ -153,10 +147,10 @@ let StartbucksStateTree = {
                       },
                     },
                     variables: {
-                      init: { currentOrder: 0 },
+                      init: { currentOrder: { value: 0 }, price: { value: 0 } },
                     },
                     timelineIDs: {},
-                    destinationTimelines: ["Customer", "Auditor", "VIP"],
+                    destinationTimelines: ["Customer"],
                   },
                 },
               },
@@ -172,73 +166,56 @@ let StartbucksStateTree = {
                 "Place order": {
                   state: {
                     functionCode: returnTrue,
-                    areNextParallel: true,
-                    next: [
+                    edgeGroups: [
                       {
-                        linkToDifferentTimeline: true,
-                        nextStateName: ["Take order", "from customer"],
+                        edges: [
+                          {
+                            nextStateName: ["Take order", "from customer"],
+                          },
+                          { nextStateName: ["Dig up money"] },
+                          { nextStateName: ["Sip coffee"] },
+                        ],
+                        areParallel: true,
                       },
-                      { nextStateName: ["Dig up money"] },
-                      { nextStateName: ["Sip coffee"] },
                     ],
+                    haveStartChildren: false,
                   },
                 },
                 "Dig up money": {
                   state: {
                     functionCode: returnTrue,
-                    differentTimelineCount: 1,
-                    areNextParallel: true,
-                    next: [
+                    edgeGroups: [
                       {
-                        linkToDifferentTimeline: true,
-                        nextStateName: ["Compute change"],
+                        edges: [
+                          {
+                            nextStateName: ["Compute change"],
+                          },
+                          { nextStateName: ["Put away change"] },
+                        ],
+                        areParallel: true,
                       },
-                      { nextStateName: ["Put away change"] },
                     ],
+                    haveStartChildren: false,
                   },
                 },
                 "Put away change": {
                   state: {
                     functionCode: returnTrue,
-                    differentTimelineCount: 1,
                   },
                 },
                 "Sip coffee": {
                   state: {
                     functionCode: returnTrue,
-                    differentTimelineCount: 1,
                   },
                 },
               },
               variables: {
                 init: {},
-                // otherTimelines: {
-                //   Cashier: 1,
-
-                //   // , startNameForLinkTable: true
-                // },
-                // timelineLinkTables: {
-                //   "cashier customer nth id pair": {
-                //     // selectable timelines
-                //     branchIDOfCustomer: {
-                //       branchIDOfCashier: -1,
-                //       selectable: true,
-                //     },
-                //   },
-                // },
-                currentTimelineID: 0, // from stateRunTreeBottom["branches"]
-                currentTimelineIDs: {
-                  timelineIDNumber: {
-                    timelineIDOfOtherTimeline: -1,
-                  },
-                },
               },
               timelineIDs: {
                 1: 2,
               },
-              timelinePairs: {
-                Cashier: 1,
-              },
+              destinationTimelines: ["Cashier"],
             },
           },
         },
@@ -246,27 +223,17 @@ let StartbucksStateTree = {
     },
   },
   database: {
-    names: {
-      children: {
-        Pistachio: {},
-        ...coffeeFrappuccino,
+    drinks: {
+      names: ["Pistachio"],
+      options: {
+        size: { value: 1 },
+        flavors: { value: 1 },
+        toppings: { value: 1 },
       },
     },
-    drinkNames: {
-      start: [["Pistachio"]],
-    },
-    milkOptions: {
-      start: [[]],
-      "whole milk": {
-        state: {
-          variables: {
-            left: 5, // units
-          },
-        },
-        // have the trie tree be word based
-      },
-    },
-    // barista resources context name for how much of the item there is
+    size: {},
+    flavors: {},
+    toppings: {},
   },
 };
 

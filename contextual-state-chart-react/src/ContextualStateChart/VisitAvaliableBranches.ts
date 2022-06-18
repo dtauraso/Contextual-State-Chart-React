@@ -81,6 +81,16 @@ stateRunTreeBottom
   bottom set of nodes on the separate timelines
 
 */
+const deleteEntry = (
+  stateIDBranchID: { [key: number]: any },
+  stateID: number,
+  branchID: number
+) => {
+  delete stateIDBranchID[stateID][branchID];
+  if (Object.keys(stateIDBranchID[stateID]).length === 0) {
+    delete stateIDBranchID[stateID];
+  }
+};
 const VisitAvaliableBranches = (
   graph: Graph,
   stateRunTreeBottom: {
@@ -121,8 +131,7 @@ const VisitAvaliableBranches = (
   // pretend the parent was run (for setup only)
 
   console.log({ stateRunTreeBottom });
-  // return;
-  const maxTryCount = 20;
+
   while (Object.keys(stateRunTreeBottom.branches).length > 0) {
     console.log({ levelsRun });
     if (levelsRun >= 12) {
@@ -145,60 +154,62 @@ const VisitAvaliableBranches = (
       IEEE_Software_Design_2PC.pdf
       IEEE Software Blog_ Your Local Coffee Shop Performs Resource Scaling.pdf
       */
+    let stateIDBranchID: { [key: number]: any } = {};
+    let pairs: any = [];
+    Object.keys(stateRunTreeBottom.branches)
+      .map(Number)
+      .forEach((branchID: number) => {
+        const { branches } = stateRunTreeBottom;
+        const { stateID } = branches[branchID];
+        if (!(stateID in stateIDBranchID)) {
+          stateIDBranchID[stateID] = { [branchID]: true };
+        } else if (!(branchID in stateIDBranchID[stateID])) {
+          stateIDBranchID[stateID][branchID] = true;
+        }
+        // find 1 pair
+        // const { destinationTimelineStateID: destinationStateID } =
+        //   graph.statesObject.states[stateID];
+        // if (destinationStateID in stateIDBranchID) {
+        //   const stateID0 = stateID;
+        //   const branchID0 = Number(Object.keys(stateIDBranchID[stateID])[0]);
+        //   const stateID1 = destinationStateID;
+        //   const branchID1 = Number(
+        //     Object.keys(stateIDBranchID[destinationStateID])[0]
+        //   );
+        //   deleteEntry(stateIDBranchID, stateID, branchID0);
+        //   deleteEntry(stateIDBranchID, destinationStateID, branchID1);
+
+        //   pairs.push({ stateID0, branchID0, stateID1, branchID1 });
+        // }
+      });
     let winningBranchIDStateIDs: { [branchID: number]: number[] } = {};
     Object.keys(stateRunTreeBottom.branches)
-      .map((branchID: string) => Number(branchID))
+      .map(Number)
       .forEach((branchID: number) => {
         const { currentStateID } = stateRunTreeBottom.branches[branchID];
-        const { edgesGroupIndex, pendingStateIDs } =
-          runTree[branchID][currentStateID];
+        const { edgesGroupIndex } = runTree[branchID][currentStateID];
         const currentState = graph.getStateById(currentStateID);
         const { edges, areParallel } =
           currentState.getEdges(edgesGroupIndex) || {};
 
         winningBranchIDStateIDs[branchID] = [];
-        [
-          ...edges.reduce(
-            (acc: PendingState[], nextStateName: string[]) => [
-              ...acc,
-              {
-                stateID: graph.getState(nextStateName).id,
-                triedCountRemaining: maxTryCount,
-              },
-            ],
-            []
-          ),
-          ...pendingStateIDs,
-        ].forEach(({ stateID }: PendingState) => {
+        edges.forEach((nextStateName: string[]) => {
           if (!areParallel) {
             if (winningBranchIDStateIDs[branchID].length > 0) {
               return;
             }
           }
-          const state = graph.getStateById(stateID);
+          const state = graph.getStateById(graph.getState(nextStateName).id);
 
           if (state.functionCode(graph)) {
             winningBranchIDStateIDs[branchID].push(state.id);
           }
         });
       });
-    //   edges.forEach((nextStateName: string[]) => {
-    //     if (!areParallel) {
-    //       if (winningBranchIDStateIDs[branchID].length > 0) {
-    //         return;
-    //       }
-    //     }
-    //     const state = graph.getState(nextStateName);
-
-    //     if (state.functionCode(graph)) {
-    //       winningBranchIDStateIDs[branchID].push(state.id);
-    //     }
-    //   });
-    // });
 
     Object.keys(stateRunTreeBottom.branches)
       .map((branchID: string) => Number(branchID))
-      .forEach((branchID: number, i) => {
+      .forEach((branchID: number) => {
         let deletableBranch = false;
         winningBranchIDStateIDs[branchID].forEach((winningStateID: number) => {
           // add new branch(child) or update existing branch(next)

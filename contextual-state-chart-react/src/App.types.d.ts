@@ -72,6 +72,7 @@ type ControlFlowState = State & {
       parentBranch: { parentID: number; parentBranchID: number };
     };
   };
+  destinationTimelines: string[];
   areChildrenParallel: boolean;
   areNextParallel: boolean;
   // using "any" to avoid having to use ".typeName()" when getting the value of a variable
