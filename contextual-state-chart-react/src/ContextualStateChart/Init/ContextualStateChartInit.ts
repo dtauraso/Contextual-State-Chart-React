@@ -191,7 +191,9 @@ const makeState = ({
         })
       );
     });
-
+    newChildrenStateIDs.forEach((childID: number) => {
+      graph.statesObject.states[childID].parents.push(currentStateName);
+    });
     let stateVariables = Object.keys(variables ?? []).reduce(
       (acc: any, variableName: string) => ({
         ...acc,
@@ -208,7 +210,6 @@ const makeState = ({
     );
 
     const {
-      parents,
       functionCode,
       edgeGroups,
       value,
@@ -219,7 +220,7 @@ const makeState = ({
     graph.statesObject.states[stateId] = ControlFlowStateWrapper();
     graph.statesObject.states[stateId].init({
       id: stateId,
-      parents,
+      parents: [],
       name: currentStateName,
       typeName: "state",
       functionName: functionCode?.name.toString(),
