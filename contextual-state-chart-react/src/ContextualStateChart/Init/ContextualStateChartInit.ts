@@ -160,6 +160,21 @@ const makeState = ({
   childrenStateIDs,
 }: any): any => {
   if ("state" in stateTree) {
+    const substateNames = Object.keys(stateTree).filter(
+      (key) => key !== "state"
+    );
+    if (substateNames.length > 0) {
+      substateNames.forEach((childNamePart: string) => {
+        makeState({
+          trieTreeCollection,
+          stateTree: stateTree[childNamePart],
+          indexObject,
+          currentStateName: [...currentStateName, childNamePart],
+          graph,
+          childrenStateIDs,
+        });
+      });
+    }
     const currentState = stateTree["state"];
     const stateId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
@@ -180,16 +195,14 @@ const makeState = ({
     const { children, variables } = currentState || {};
     let newChildrenStateIDs: number[] = [];
     Object.keys(children ?? []).forEach((childNamePart: any) => {
-      newChildrenStateIDs.push(
-        makeState({
-          trieTreeCollection,
-          stateTree: children[childNamePart],
-          indexObject,
-          currentStateName: [childNamePart],
-          graph,
-          childrenStateIDs: newChildrenStateIDs,
-        })
-      );
+      makeState({
+        trieTreeCollection,
+        stateTree: children[childNamePart],
+        indexObject,
+        currentStateName: [childNamePart],
+        graph,
+        childrenStateIDs: newChildrenStateIDs,
+      });
     });
     newChildrenStateIDs.forEach((childID: number) => {
       graph.statesObject.states[childID].parents.push(currentStateName);
@@ -234,13 +247,11 @@ const makeState = ({
       graph,
       destinationTimelines,
     });
-    return stateId;
+    newChildrenStateIDs.push(stateId);
+    return;
   }
-
-  const childName = Object.keys(stateTree);
-  for (let i = 0; i < childName.length; i += 1) {
-    const childNamePart = childName[i];
-    return makeState({
+  Object.keys(stateTree).forEach((childNamePart: string) => {
+    makeState({
       trieTreeCollection,
       stateTree: stateTree[childNamePart],
       indexObject,
@@ -248,7 +259,7 @@ const makeState = ({
       graph,
       childrenStateIDs,
     });
-  }
+  });
 };
 
 const arrayState = (states: States, i: number) => states[i] as ArrayState;

@@ -155,7 +155,10 @@ let StartbucksStateTree = {
                 },
               },
               variables: {
-                init: { orderQueue: [], outputBuffer: [] },
+                init: {
+                  orderQueue: { value: [] },
+                  outputBuffer: { value: [] },
+                },
               },
             },
           },
