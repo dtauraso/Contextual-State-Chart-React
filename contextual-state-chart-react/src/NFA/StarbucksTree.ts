@@ -98,7 +98,7 @@ let StartbucksStateTree = {
                           },
                         },
                       },
-                      "Compute price": {
+                      "Compute Price": {
                         state: {
                           functionCode: returnTrue,
                           edgeGroups: [
@@ -111,12 +111,6 @@ let StartbucksStateTree = {
                                   nextStateName: ["Dig up money"],
                                 },
                                 { nextStateName: ["Compute change"] },
-                                {
-                                  variablesToTransferToDifferentTimeline: [
-                                    "price",
-                                  ],
-                                  nextStateName: ["auditorStateName"],
-                                },
                               ],
                               areParallel: true,
                             },

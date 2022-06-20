@@ -5,7 +5,7 @@ import {
   NumberState,
   State,
   ActiveChildStates,
-  PendingState,
+  PendingStates,
 } from "../App.types";
 import {
   getStateId,
@@ -542,7 +542,7 @@ const visitor = (startStateName: string[], graph: any) => {
         parentID: number;
         parentBranchID: number;
         edgesGroupIndex: number;
-        pendingStateIDs: PendingState[];
+        pendingStateIDs: PendingStates;
       };
     };
   } = {
@@ -552,7 +552,7 @@ const visitor = (startStateName: string[], graph: any) => {
         parentID: 0,
         parentBranchID: -1,
         edgesGroupIndex: 0,
-        pendingStateIDs: [],
+        pendingStateIDs: {},
       },
     },
   };

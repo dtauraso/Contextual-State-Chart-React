@@ -385,21 +385,18 @@ const App = (props: any) => {
   };
   makeArrays(stateTree, graph);
   let { statesObject, namesTrie } = graph;
-  Object.keys(statesObject.states).forEach((key: string) => {
-    if ("edgeGroups" in statesObject.states[Number(key)]) {
-      statesObject.states[Number(key)]?.edgeGroups?.forEach(
-        ({ edges, areParallel }) => {
-          statesObject.states[Number(key)].edgeGroups2 = [];
-          edges.forEach(({ nextStateName }) => {
-            statesObject.states[Number(key)].edgeGroups2.push(
-              graph.getState(nextStateName).id
-            );
+  Object.keys(statesObject.states)
+    .map(Number)
+    .forEach((key: number) => {
+      if ("edgeGroups" in statesObject.states[key]) {
+        statesObject.states[key]?.edgeGroups?.forEach(({ edges }, i) => {
+          edges.forEach(({ nextStateName }, j) => {
+            statesObject.states[key].edgeGroups[i].edges[j].nextStateID =
+              graph.getState(nextStateName).id;
           });
-        }
-      );
-    }
-    // statesObject.states[Number(key)]?.edgeGroups
-  });
+        });
+      }
+    });
   console.log({ namesTrie, statesObject });
 
   // twoSumMappingTest();

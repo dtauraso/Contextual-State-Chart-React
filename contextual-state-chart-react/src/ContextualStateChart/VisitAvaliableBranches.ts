@@ -3,9 +3,14 @@ import {
   ControlFlowState,
   Graph,
   ActiveChildStates,
-  PendingState,
+  PendingStates,
 } from "../App.types";
 import { VisitBranches } from "./Visitor";
+enum EdgeKinds {
+  START_CHILDREN = 0,
+  NEXT = 1,
+}
+const { START_CHILDREN, NEXT } = EdgeKinds;
 /*
     1)variable usage easy language api(similar to default language syntax)
     2)recording variable(all kinds of variables) changes so each state can show what changed
@@ -106,7 +111,7 @@ const VisitAvaliableBranches = (
         parentID: number;
         parentBranchID: number;
         edgesGroupIndex: number;
-        pendingStateIDs: PendingState[];
+        pendingStateIDs: PendingStates;
       };
     };
   }
@@ -194,19 +199,28 @@ const VisitAvaliableBranches = (
       .map(Number)
       .forEach((branchID: number) => {
         const { currentStateID } = stateRunTreeBottom.branches[branchID];
-        const { edgesGroupIndex } = runTree[branchID][currentStateID];
+        const { edgesGroupIndex, pendingStateIDs } =
+          runTree[branchID][currentStateID];
         const currentState = graph.getStateById(currentStateID);
         const { edges, areParallel } =
           currentState.getEdges(edgesGroupIndex) || {};
-
+        const visitableEdges = edges.filter(({ nextStateID }) => {
+          if (Object.keys(pendingStateIDs).length === 0) {
+            return true;
+          }
+          if (!(nextStateID in pendingStateIDs)) {
+            // states returning true or false have already been run
+            return false;
+          }
+        });
         winningBranchIDStateIDs[branchID] = [];
-        edges.forEach(({ nextStateName }) => {
+        visitableEdges.forEach(({ nextStateID }) => {
           if (!areParallel) {
             if (winningBranchIDStateIDs[branchID].length > 0) {
               return;
             }
           }
-          const state = graph.getStateById(graph.getState(nextStateName).id);
+          const state = graph.getStateById(nextStateID);
 
           if (state.functionCode(graph)) {
             winningBranchIDStateIDs[branchID].push(state.id);
@@ -234,7 +248,8 @@ const VisitAvaliableBranches = (
           if (areEdgesStart || (!areEdgesStart && winningStateIDs.length > 1)) {
             stateRunTreeBottom.maxBranchID += 1;
             const newBranchID = stateRunTreeBottom.maxBranchID;
-            const { activeChildStates } = runTree[branchID][currentStateID];
+            const { activeChildStates, pendingStateIDs } =
+              runTree[branchID][currentStateID];
             runTree[branchID][currentStateID].activeChildStates = {
               ...activeChildStates,
               [newBranchID]: winningStateID,
@@ -244,26 +259,26 @@ const VisitAvaliableBranches = (
                 activeChildStates: {},
                 parentBranchID: branchID,
                 parentID: currentStateID,
-                edgesGroupIndex: 0,
+                edgesGroupIndex: START_CHILDREN,
                 pendingStateIDs: [],
               },
             };
-            deletableBranch = true;
+            if (Object.keys(pendingStateIDs).length === 0) {
+              deletableBranch = true;
+            }
             // add new branch entry in bottom
             stateRunTreeBottom.branches[newBranchID] = {
               currentStateID: winningStateID,
             };
-          } else {
-            if (winningStateIDs.length === 1) {
-              stateRunTreeBottom.branches[branchID] = {
-                currentStateID: winningStateID,
-              };
+          } else if (winningStateIDs.length === 1) {
+            stateRunTreeBottom.branches[branchID] = {
+              currentStateID: winningStateID,
+            };
 
-              runTree[branchID][winningStateID] = {
-                ...runTree[branchID][currentStateID],
-              };
-              delete runTree[branchID][currentStateID];
-            }
+            runTree[branchID][winningStateID] = {
+              ...runTree[branchID][currentStateID],
+            };
+            delete runTree[branchID][currentStateID];
           }
         });
 
@@ -317,7 +332,7 @@ const VisitAvaliableBranches = (
                 stateRunTreeBottom.branches[branchIDTracker] = {
                   currentStateID: stateIDTracker,
                 };
-                runTree[branchIDTracker][stateIDTracker].edgesGroupIndex = 1;
+                runTree[branchIDTracker][stateIDTracker].edgesGroupIndex = NEXT;
                 break;
               }
               count += 1;

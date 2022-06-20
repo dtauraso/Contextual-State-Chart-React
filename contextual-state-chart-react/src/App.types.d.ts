@@ -48,15 +48,15 @@ type ActiveChildStates = {
 type Edge = {
   variablesToTransferToDifferentTimeline: string[];
   nextStateName: string[];
+  nextStateID: number;
 };
 type Edges = {
   edges: Edge[];
   areParallel: boolean;
 };
 
-type PendingState = {
-  stateID: number;
-  triedCountRemaining: number;
+type PendingStates = {
+  [stateID: number]: { triedCountRemaining: number };
 };
 type ControlFlowState = State & {
   parents: string[][];
@@ -64,7 +64,6 @@ type ControlFlowState = State & {
   functionCode: (graph: Graph) => boolean;
   functionName: string;
   children: string[][];
-  edgeGroups2: number[];
   edgeGroups: Edges[];
   haveStartChildren: boolean;
   variables?: Variable;
@@ -127,6 +126,6 @@ export {
   ActiveChildStates,
   Edge,
   Edges,
-  PendingState,
+  PendingStates,
   ControlFlowState,
 };
