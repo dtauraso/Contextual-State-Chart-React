@@ -73,6 +73,7 @@ let StartbucksStateTree = {
                 },
                 Cashier: {
                   state: {
+                    functionCode: returnTrue,
                     edgeGroups: [
                       {
                         edges: [
@@ -150,7 +151,7 @@ let StartbucksStateTree = {
                       init: { currentOrder: { value: 0 }, price: { value: 0 } },
                     },
                     timelineIDs: {},
-                    destinationTimelines: ["Customer"],
+                    destinationTimeline: "Customer",
                   },
                 },
               },
@@ -218,7 +219,7 @@ let StartbucksStateTree = {
               timelineIDs: {
                 1: 2,
               },
-              destinationTimelines: ["Cashier"],
+              destinationTimeline: "Cashier",
             },
           },
         },

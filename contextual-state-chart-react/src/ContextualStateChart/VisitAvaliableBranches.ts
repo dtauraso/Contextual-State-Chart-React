@@ -160,27 +160,34 @@ const VisitAvaliableBranches = (
       .map(Number)
       .forEach((branchID: number) => {
         const { branches } = stateRunTreeBottom;
-        const { stateID } = branches[branchID];
-        if (!(stateID in stateIDBranchID)) {
-          stateIDBranchID[stateID] = { [branchID]: true };
-        } else if (!(branchID in stateIDBranchID[stateID])) {
-          stateIDBranchID[stateID][branchID] = true;
+        const { currentStateID } = branches[branchID];
+        if (!(currentStateID in stateIDBranchID)) {
+          stateIDBranchID[currentStateID] = { [branchID]: true };
+        } else if (!(branchID in stateIDBranchID[currentStateID])) {
+          stateIDBranchID[currentStateID][branchID] = true;
         }
-        // find 1 pair
-        // const { destinationTimelineStateID: destinationStateID } =
-        //   graph.statesObject.states[stateID];
-        // if (destinationStateID in stateIDBranchID) {
-        //   const stateID0 = stateID;
-        //   const branchID0 = Number(Object.keys(stateIDBranchID[stateID])[0]);
-        //   const stateID1 = destinationStateID;
-        //   const branchID1 = Number(
-        //     Object.keys(stateIDBranchID[destinationStateID])[0]
-        //   );
-        //   deleteEntry(stateIDBranchID, stateID, branchID0);
-        //   deleteEntry(stateIDBranchID, destinationStateID, branchID1);
 
-        //   pairs.push({ stateID0, branchID0, stateID1, branchID1 });
-        // }
+        // find 1 pair
+        const { destinationTimeline } =
+          (graph.statesObject.states[currentStateID] as ControlFlowState) || {};
+        if (destinationTimeline === undefined) {
+          return;
+        }
+        const destinationStateID = graph.getState([destinationTimeline]).id;
+        if (destinationStateID in stateIDBranchID) {
+          const stateID0 = currentStateID;
+          const branchID0 = Number(
+            Object.keys(stateIDBranchID[currentStateID])[0]
+          );
+          const stateID1 = destinationStateID;
+          const branchID1 = Number(
+            Object.keys(stateIDBranchID[destinationStateID])[0]
+          );
+          deleteEntry(stateIDBranchID, currentStateID, branchID0);
+          deleteEntry(stateIDBranchID, destinationStateID, branchID1);
+
+          pairs.push({ stateID0, branchID0, stateID1, branchID1 });
+        }
       });
     let winningBranchIDStateIDs: { [branchID: number]: number[] } = {};
     Object.keys(stateRunTreeBottom.branches)
@@ -193,7 +200,7 @@ const VisitAvaliableBranches = (
           currentState.getEdges(edgesGroupIndex) || {};
 
         winningBranchIDStateIDs[branchID] = [];
-        edges.forEach((nextStateName: string[]) => {
+        edges.forEach(({ nextStateName }) => {
           if (!areParallel) {
             if (winningBranchIDStateIDs[branchID].length > 0) {
               return;
@@ -435,7 +442,7 @@ const VisitAvaliableBranches = (
           const currentState = graph.getStateById(currentStateID);
           const { edges, areParallel } = currentState.getEdges(edgesGroupIndex);
 
-          edges.forEach((nextStateName: string[]) => {
+          edges.forEach(({ nextStateName }) => {
             const { name } = graph.getState(nextStateName);
             console.log(`   ${name.join("/ ")}`);
           });

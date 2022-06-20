@@ -6,6 +6,7 @@ import {
   NumberState,
   States,
   StringState,
+  Edge,
   Edges,
 } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
@@ -364,7 +365,7 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
         variables,
         graph,
         haveStartChildren,
-        destinationTimelines,
+        destinationTimeline,
       }: any
     ) {
       this.id = id;
@@ -380,7 +381,7 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
       this.graph = graph;
       this.branchIDParentIDParentBranchID = {};
       this.haveStartChildren = haveStartChildren;
-      this.destinationTimelines = destinationTimelines;
+      this.destinationTimeline = destinationTimeline;
     },
     visitState: function visitState(this: any) {},
 
@@ -398,11 +399,17 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
       edgesGroupIndex: number
     ): Edges {
       if (!this.edgeGroups) {
-        return { edges: [], areParallel: false };
+        return {
+          edges: [],
+          areParallel: false,
+        };
       }
       const length = this.edgeGroups.length;
       if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {
-        return { edges: [], areParallel: false };
+        return {
+          edges: [],
+          areParallel: false,
+        };
       }
       return this.edgeGroups[edgesGroupIndex];
     },
@@ -476,7 +483,7 @@ const errorState = function (): ControlFlowState {
     branchIDParentIDParentBranchID: {},
     areChildrenParallel: false,
     areNextParallel: false,
-    destinationTimelines: [],
+    destinationTimeline: "",
     getVariable: function (this: ControlFlowState, variableName: string) {
       return {
         value: false,
@@ -488,7 +495,10 @@ const errorState = function (): ControlFlowState {
       this: ControlFlowState,
       edgesGroupIndex: number
     ): Edges {
-      return { edges: [], areParallel: false };
+      return {
+        edges: [],
+        areParallel: false,
+      };
     },
     isStartEmpty: function (): boolean {
       return false;

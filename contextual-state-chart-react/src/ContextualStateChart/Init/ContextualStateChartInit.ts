@@ -227,7 +227,7 @@ const makeState = ({
       edgeGroups,
       value,
       haveStartChildren,
-      destinationTimelines,
+      destinationTimeline,
     } = currentState || {};
 
     graph.statesObject.states[stateId] = ControlFlowStateWrapper();
@@ -245,7 +245,7 @@ const makeState = ({
       variables: stateVariables,
       getVariable,
       graph,
-      destinationTimelines,
+      destinationTimeline,
     });
     newChildrenStateIDs.push(stateId);
     return;

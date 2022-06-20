@@ -45,9 +45,12 @@ type Variable = {
 type ActiveChildStates = {
   [branchID: number]: number;
 };
-
+type Edge = {
+  variablesToTransferToDifferentTimeline: string[];
+  nextStateName: string[];
+};
 type Edges = {
-  edges: string[][];
+  edges: Edge[];
   areParallel: boolean;
 };
 
@@ -72,7 +75,7 @@ type ControlFlowState = State & {
       parentBranch: { parentID: number; parentBranchID: number };
     };
   };
-  destinationTimelines: string[];
+  destinationTimeline: string;
   areChildrenParallel: boolean;
   areNextParallel: boolean;
   // using "any" to avoid having to use ".typeName()" when getting the value of a variable
@@ -122,6 +125,7 @@ export {
   NamesTrie,
   Graph,
   ActiveChildStates,
+  Edge,
   Edges,
   PendingState,
   ControlFlowState,

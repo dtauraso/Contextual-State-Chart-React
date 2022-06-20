@@ -390,9 +390,9 @@ const App = (props: any) => {
       statesObject.states[Number(key)]?.edgeGroups?.forEach(
         ({ edges, areParallel }) => {
           statesObject.states[Number(key)].edgeGroups2 = [];
-          edges.forEach((edge: string[]) => {
+          edges.forEach(({ nextStateName }) => {
             statesObject.states[Number(key)].edgeGroups2.push(
-              graph.getState(edge).id
+              graph.getState(nextStateName).id
             );
           });
         }
