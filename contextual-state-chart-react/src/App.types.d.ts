@@ -55,9 +55,6 @@ type Edges = {
   areParallel: boolean;
 };
 
-type PendingStates = {
-  [stateID: number]: { triedCountRemaining: number };
-};
 type ControlFlowState = State & {
   parents: string[][];
   name: string[];

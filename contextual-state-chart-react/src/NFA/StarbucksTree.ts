@@ -157,63 +157,72 @@ let StartbucksStateTree = {
               },
             },
           },
-          Customer: {
+          dummyState: {
             state: {
-              functionCode: returnTrue,
               children: {
-                "Place order": {
+                Customer: {
                   state: {
                     functionCode: returnTrue,
-                    edgeGroups: [
-                      {
-                        edges: [
-                          {
-                            nextStateName: ["Take order", "from customer"],
-                          },
-                          { nextStateName: ["Dig up money"] },
-                          { nextStateName: ["Sip coffee"] },
-                        ],
-                        areParallel: true,
+                    children: {
+                      "Place order": {
+                        state: {
+                          functionCode: returnTrue,
+                          edgeGroups: [
+                            {
+                              edges: [
+                                {
+                                  nextStateName: [
+                                    "Take order",
+                                    "from customer",
+                                  ],
+                                },
+                                { nextStateName: ["Dig up money"] },
+                                { nextStateName: ["Sip coffee"] },
+                              ],
+                              areParallel: true,
+                            },
+                          ],
+                          haveStartChildren: false,
+                        },
                       },
-                    ],
-                    haveStartChildren: false,
-                  },
-                },
-                "Dig up money": {
-                  state: {
-                    functionCode: returnTrue,
-                    edgeGroups: [
-                      {
-                        edges: [
-                          {
-                            nextStateName: ["Compute change"],
-                          },
-                          { nextStateName: ["Put away change"] },
-                        ],
-                        areParallel: true,
+                      "Dig up money": {
+                        state: {
+                          functionCode: returnTrue,
+                          edgeGroups: [
+                            {
+                              edges: [
+                                {
+                                  nextStateName: ["Compute change"],
+                                },
+                                { nextStateName: ["Put away change"] },
+                              ],
+                              areParallel: true,
+                            },
+                          ],
+                          haveStartChildren: false,
+                        },
                       },
-                    ],
-                    haveStartChildren: false,
-                  },
-                },
-                "Put away change": {
-                  state: {
-                    functionCode: returnTrue,
-                  },
-                },
-                "Sip coffee": {
-                  state: {
-                    functionCode: returnTrue,
+                      "Put away change": {
+                        state: {
+                          functionCode: returnTrue,
+                        },
+                      },
+                      "Sip coffee": {
+                        state: {
+                          functionCode: returnTrue,
+                        },
+                      },
+                    },
+                    variables: {
+                      init: {},
+                    },
+                    timelineIDs: {
+                      1: 2,
+                    },
+                    destinationTimeline: "Cashier",
                   },
                 },
               },
-              variables: {
-                init: {},
-              },
-              timelineIDs: {
-                1: 2,
-              },
-              destinationTimeline: "Cashier",
             },
           },
         },

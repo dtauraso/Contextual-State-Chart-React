@@ -111,7 +111,6 @@ const VisitAvaliableBranches = (
         parentID: number;
         parentBranchID: number;
         edgesGroupIndex: number;
-        pendingStateIDs: PendingStates;
       };
     };
   }
@@ -199,29 +198,29 @@ const VisitAvaliableBranches = (
       .map(Number)
       .forEach((branchID: number) => {
         const { currentStateID } = stateRunTreeBottom.branches[branchID];
-        const { edgesGroupIndex, pendingStateIDs } =
-          runTree[branchID][currentStateID];
+        const { edgesGroupIndex } = runTree[branchID][currentStateID];
         const currentState = graph.getStateById(currentStateID);
         const { edges, areParallel } =
           currentState.getEdges(edgesGroupIndex) || {};
-        const visitableEdges = edges.filter(({ nextStateID }) => {
-          if (Object.keys(pendingStateIDs).length === 0) {
-            return true;
-          }
-          if (!(nextStateID in pendingStateIDs)) {
-            // states returning true or false have already been run
-            return false;
-          }
-        });
+
         winningBranchIDStateIDs[branchID] = [];
-        visitableEdges.forEach(({ nextStateID }) => {
+        edges.forEach(({ nextStateID }) => {
           if (!areParallel) {
             if (winningBranchIDStateIDs[branchID].length > 0) {
               return;
             }
           }
           const state = graph.getStateById(nextStateID);
-
+          // make sure all paired timelines are run at the sametime
+          // no having 1 timeline wait for the other timeline
+          // assume state can be run unless proved otherwise
+          // is the state supposed to be paired with another state
+          //   is the state paired with it's partner
+          //     state can be run
+          //   else
+          //     state cannot be run
+          // if state has to transfer a value
+          //   assume state is child of paired parent
           if (state.functionCode(graph)) {
             winningBranchIDStateIDs[branchID].push(state.id);
           }
@@ -245,11 +244,10 @@ const VisitAvaliableBranches = (
           // all new branches will also have the same parent state
           const areEdgesStart = currentState.areEdgesStart(edgesGroupIndex);
 
-          if (areEdgesStart || (!areEdgesStart && winningStateIDs.length > 1)) {
+          if (areEdgesStart) {
             stateRunTreeBottom.maxBranchID += 1;
             const newBranchID = stateRunTreeBottom.maxBranchID;
-            const { activeChildStates, pendingStateIDs } =
-              runTree[branchID][currentStateID];
+            const { activeChildStates } = runTree[branchID][currentStateID];
             runTree[branchID][currentStateID].activeChildStates = {
               ...activeChildStates,
               [newBranchID]: winningStateID,
@@ -260,16 +258,16 @@ const VisitAvaliableBranches = (
                 parentBranchID: branchID,
                 parentID: currentStateID,
                 edgesGroupIndex: START_CHILDREN,
-                pendingStateIDs: [],
               },
             };
-            if (Object.keys(pendingStateIDs).length === 0) {
-              deletableBranch = true;
-            }
+            deletableBranch = true;
+
             // add new branch entry in bottom
             stateRunTreeBottom.branches[newBranchID] = {
               currentStateID: winningStateID,
             };
+          } else if (!areEdgesStart && winningStateIDs.length > 1) {
+            // next states
           } else if (winningStateIDs.length === 1) {
             stateRunTreeBottom.branches[branchID] = {
               currentStateID: winningStateID,

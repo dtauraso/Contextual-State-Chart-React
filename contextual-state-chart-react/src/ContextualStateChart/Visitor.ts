@@ -542,7 +542,6 @@ const visitor = (startStateName: string[], graph: any) => {
         parentID: number;
         parentBranchID: number;
         edgesGroupIndex: number;
-        pendingStateIDs: PendingStates;
       };
     };
   } = {
@@ -552,7 +551,6 @@ const visitor = (startStateName: string[], graph: any) => {
         parentID: 0,
         parentBranchID: -1,
         edgesGroupIndex: 0,
-        pendingStateIDs: {},
       },
     },
   };
