@@ -366,6 +366,7 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
         graph,
         haveStartChildren,
         destinationTimeline,
+        timelineIDs,
       }: any
     ) {
       this.id = id;
@@ -382,6 +383,7 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
       this.branchIDParentIDParentBranchID = {};
       this.haveStartChildren = haveStartChildren;
       this.destinationTimeline = destinationTimeline;
+      this.timelineIDs = timelineIDs;
     },
     visitState: function visitState(this: any) {},
 
@@ -483,6 +485,7 @@ const errorState = function (): ControlFlowState {
     areChildrenParallel: false,
     areNextParallel: false,
     destinationTimeline: "",
+    timelineIDs: {},
     getVariable: function (this: ControlFlowState, variableName: string) {
       return {
         value: false,

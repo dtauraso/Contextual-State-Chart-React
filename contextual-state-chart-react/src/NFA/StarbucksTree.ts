@@ -12,7 +12,7 @@ let StartbucksStateTree = {
           {
             edges: [
               { nextStateName: ["Coffee Shop"] },
-              { nextStateName: ["Customer"] },
+              { nextStateName: ["dummyState"] },
             ],
             areParallel: true,
           },
@@ -159,6 +159,14 @@ let StartbucksStateTree = {
           },
           dummyState: {
             state: {
+              functionCode: returnTrue,
+              edgeGroups: [
+                {
+                  edges: [{ nextStateName: ["Customer"] }],
+                  areParallel: false,
+                },
+              ],
+              haveStartChildren: true,
               children: {
                 Customer: {
                   state: {
@@ -216,9 +224,7 @@ let StartbucksStateTree = {
                     variables: {
                       init: {},
                     },
-                    timelineIDs: {
-                      1: 2,
-                    },
+                    timelineIDs: {},
                     destinationTimeline: "Cashier",
                   },
                 },
