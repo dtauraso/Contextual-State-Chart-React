@@ -261,8 +261,23 @@ const VisitAvaliableBranches = (
         const areEdgesStart = currentState.areEdgesStart(edgesGroupIndex);
 
         // filter out all winning states not child of parent state(this could be current state, but might also be current state's parent)
-        winningBranchIDStateIDs[branchID].forEach(
-          (winningStateID: number, i: number) => {
+        // a winning state might not be a child of parent state
+        winningBranchIDStateIDs[branchID]
+          .filter((winningStateID: number) => {
+            const winningStateName = graph
+              .getStateById(winningStateID)
+              .name.join(", ");
+            const { parentID } = runTree[branchID][currentStateID];
+            const { children } =
+              edgesGroupIndex === START_CHILDREN
+                ? currentState
+                : graph.getStateById(parentID);
+            console.log({ children, winningStateName });
+            return children
+              .map((child: string[]) => child.join(", "))
+              .includes(winningStateName);
+          })
+          .forEach((winningStateID: number) => {
             // add new branch(child) or update existing branch(next)
 
             // all new branches will also have the same parent state
@@ -288,27 +303,24 @@ const VisitAvaliableBranches = (
               deletableBranch = true;
             } else if (!areEdgesStart && winningStateIDs.length > 1) {
               // parallel next states
-              // const {parentID} = runTree[branchID][currentStateID]
-              // const {timelineIDs} = graph.getStateById(parentID)
-              //   stateRunTreeBottom.maxBranchID += 1;
-              //   const newBranchID = stateRunTreeBottom.maxBranchID;
-              //   const { activeChildStates } = runTree[branchID][currentStateID];
-              //   const { parentID, parentBranchID } =
-              //     runTree[branchID][currentStateID];
-              //   runTree[parentBranchID][parentID].activeChildStates[newBranchID] =
-              //     winningStateID;
-              //   runTree[newBranchID] = {
-              //     [winningStateID]: {
-              //       activeChildStates: {},
-              //       parentBranchID: branchID,
-              //       parentID: currentStateID,
-              //       edgesGroupIndex: START_CHILDREN,
-              //     },
-              //   };
-              //   // // add new branch entry in bottom
-              //   stateRunTreeBottom.branches[newBranchID] = {
-              //     currentStateID: winningStateID,
-              //   };
+              const { parentID } = runTree[branchID][currentStateID];
+              stateRunTreeBottom.maxBranchID += 1;
+              const newBranchID = stateRunTreeBottom.maxBranchID;
+              const { parentBranchID } = runTree[branchID][currentStateID];
+              runTree[parentBranchID][parentID].activeChildStates[newBranchID] =
+                winningStateID;
+              runTree[newBranchID] = {
+                [winningStateID]: {
+                  activeChildStates: {},
+                  parentBranchID: branchID,
+                  parentID: currentStateID,
+                  edgesGroupIndex: START_CHILDREN,
+                },
+              };
+              // // add new branch entry in bottom
+              stateRunTreeBottom.branches[newBranchID] = {
+                currentStateID: winningStateID,
+              };
             } else if (winningStateIDs.length === 1) {
               stateRunTreeBottom.branches[branchID] = {
                 currentStateID: winningStateID,
@@ -319,11 +331,8 @@ const VisitAvaliableBranches = (
               };
               delete runTree[branchID][currentStateID];
             }
-          }
-        );
+          });
 
-        // const { currentStateID } = stateRunTreeBottom.branches[branchID];
-        // const currentState = graph.getStateById(currentStateID);
         if (winningBranchIDStateIDs[branchID].length === 0) {
           const { edgesGroupIndex } = runTree[branchID][currentStateID];
           // TODO: define the conditions for an end state

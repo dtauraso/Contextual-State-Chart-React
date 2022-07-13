@@ -1,4 +1,4 @@
-import { Children } from "react";
+import { Children, cloneElement } from "react";
 import {
   Wrapper,
   BooleanState,
@@ -151,6 +151,26 @@ const makeVariable = ({
     return -1;
   }
 };
+const serializeChildren = (
+  children: any,
+  childString: string[],
+  collection: string[][]
+) => {
+  if (children === undefined) {
+    return;
+  }
+  if ("state" in children) {
+    collection.push(childString);
+    return;
+  }
+  Object.keys(children).forEach((childNamePart: string) => {
+    serializeChildren(
+      children[childNamePart],
+      [...childString, childNamePart],
+      collection
+    );
+  });
+};
 const makeState = ({
   trieTreeCollection,
   stateTree,
@@ -230,7 +250,8 @@ const makeState = ({
       destinationTimeline,
       timelineIDs,
     } = currentState || {};
-
+    let serializedChildren: string[][] = [];
+    serializeChildren(children, [], serializedChildren);
     graph.statesObject.states[stateId] = ControlFlowStateWrapper();
     graph.statesObject.states[stateId].init({
       id: stateId,
@@ -242,14 +263,14 @@ const makeState = ({
       edgeGroups,
       value,
       haveStartChildren,
-      children,
+      children: serializedChildren,
       variables: stateVariables,
       getVariable,
       graph,
       destinationTimeline,
       timelineIDs,
     });
-    newChildrenStateIDs.push(stateId);
+    childrenStateIDs.push(stateId);
     return;
   }
   Object.keys(stateTree).forEach((childNamePart: string) => {
