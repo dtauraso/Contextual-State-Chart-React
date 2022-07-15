@@ -59,12 +59,7 @@ let StartbucksStateTree = {
                       "Output buffer": {
                         state: {
                           functionCode: returnTrue,
-                          edgeGroups: [
-                            {
-                              edges: [{ nextStateName: ["Sip coffee"] }],
-                              areParallel: false,
-                            },
-                          ],
+                          edgeGroups: [],
                           haveStartChildren: false,
                         },
                       },
@@ -103,15 +98,7 @@ let StartbucksStateTree = {
                           functionCode: returnTrue,
                           edgeGroups: [
                             {
-                              edges: [
-                                {
-                                  variablesToTransferToDifferentTimeline: [
-                                    "price",
-                                  ],
-                                  nextStateName: ["Dig up money"],
-                                },
-                                { nextStateName: ["Compute change"] },
-                              ],
+                              edges: [{ nextStateName: ["Compute change"] }],
                               areParallel: true,
                             },
                           ],
@@ -123,15 +110,7 @@ let StartbucksStateTree = {
                           functionCode: returnTrue,
                           edgeGroups: [
                             {
-                              edges: [
-                                { nextStateName: ["No change"] },
-                                {
-                                  variablesToTransferToDifferentTimeline: [
-                                    "change",
-                                  ],
-                                  nextStateName: ["Put away change"],
-                                },
-                              ],
+                              edges: [{ nextStateName: ["No change"] }],
                             },
                           ],
                           haveStartChildren: false,
@@ -171,6 +150,12 @@ let StartbucksStateTree = {
                 Customer: {
                   state: {
                     functionCode: returnTrue,
+                    edgeGroups: [
+                      {
+                        edges: [{ nextStateName: ["Place order"] }],
+                        areParallel: false,
+                      },
+                    ],
                     children: {
                       "Place order": {
                         state: {
@@ -178,12 +163,6 @@ let StartbucksStateTree = {
                           edgeGroups: [
                             {
                               edges: [
-                                {
-                                  nextStateName: [
-                                    "Take order",
-                                    "from customer",
-                                  ],
-                                },
                                 { nextStateName: ["Dig up money"] },
                                 { nextStateName: ["Sip coffee"] },
                               ],
@@ -198,12 +177,7 @@ let StartbucksStateTree = {
                           functionCode: returnTrue,
                           edgeGroups: [
                             {
-                              edges: [
-                                {
-                                  nextStateName: ["Compute change"],
-                                },
-                                { nextStateName: ["Put away change"] },
-                              ],
+                              edges: [{ nextStateName: ["Put away change"] }],
                               areParallel: true,
                             },
                           ],
