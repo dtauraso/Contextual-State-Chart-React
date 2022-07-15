@@ -156,6 +156,7 @@ let StartbucksStateTree = {
                         areParallel: false,
                       },
                     ],
+                    haveStartChildren: true,
                     children: {
                       "Place order": {
                         state: {
