@@ -224,5 +224,26 @@ let StartbucksStateTree = {
     },
   },
 };
+/*
+size: {
+  large: 1, grande: 1, vente: 1
+}
+
+
+database
+trie:
+  size: 0
+  large: 1
+  grande: 2
+  vente: 3
+
+0) name: "size", value: {1:1, 2:1, 3:1}
+1) name: "1", value: "large"
+2) name: "2", value: "grande"
+3) name: "3", value: "vente"
+
+graph.get("size") = {name: "size", value: {1:1, 2:1, 3:1}}
+graph.get("size").get(customerSize) = "large"
+*/
 
 export { StartbucksStateTree };

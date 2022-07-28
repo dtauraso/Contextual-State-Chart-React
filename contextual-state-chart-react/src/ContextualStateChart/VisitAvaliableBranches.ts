@@ -135,7 +135,8 @@ const VisitAvaliableBranches = (
   // pretend the parent was run (for setup only)
 
   console.log({ stateRunTreeBottom });
-
+  const x = new Set([1, 6]);
+  console.log({ type: typeof x, x });
   while (Object.keys(stateRunTreeBottom.branches).length > 0) {
     console.log({ levelsRun });
     if (levelsRun >= 9) {
@@ -215,6 +216,7 @@ const VisitAvaliableBranches = (
     // console.log({ pairs });
     console.log({ graph });
     let winningBranchIDStateIDs: { [branchID: number]: number[] } = {};
+    // statesWithChanges
     Object.keys(stateRunTreeBottom.branches)
       .map(Number)
       .forEach((branchID: number) => {
@@ -299,6 +301,7 @@ const VisitAvaliableBranches = (
                   edgesGroupIndex: START_CHILDREN,
                 },
               };
+              // make record state holding the changes
 
               // add new branch entry in bottom
               stateRunTreeBottom.branches[newBranchID] = {

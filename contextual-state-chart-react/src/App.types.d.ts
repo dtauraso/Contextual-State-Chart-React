@@ -8,23 +8,37 @@ type Wrapper = State & {
   setReferenceToStatesObject: (this: any, statesObject: any) => this;
   setGraphs: (this: any, states: States) => this;
 };
+enum ChangeStatus {
+  NONE,
+  ADDED,
+  MODIFIED,
+  DELETED,
+}
 type BooleanState = Wrapper & {
   value: boolean;
+  prevValue: boolean;
+  changeStatus: ChangeStatus;
   edgeGroups2: number[];
   edgeGroups: Edges[];
 };
 type NumberState = Wrapper & {
   value: number;
+  prevValue: number;
+  changeStatus: ChangeStatus;
   edgeGroups2: number[];
   edgeGroups: Edges[];
 };
 type StringState = Wrapper & {
   value: string;
+  prevValue: string;
+  changeStatus: ChangeStatus;
   edgeGroups2: number[];
   edgeGroups: Edges[];
 };
 type ArrayState = Wrapper & {
   value: number[];
+  changeStatus: ChangeStatus;
+  valueIDsChanged: { [id: number]: ChangeStatus };
   edgeGroups2: number[];
   edgeGroups: Edges[];
 
@@ -35,7 +49,9 @@ type ArrayState = Wrapper & {
 };
 
 type ObjectState = Wrapper & {
-  value: Variable;
+  value: { [id: string]: number };
+  changeStatus: ChangeStatus;
+  valueIDsChanged: { [id: string]: ChangeStatus };
   edgeGroups2: number[];
   edgeGroups: Edges[];
 };
