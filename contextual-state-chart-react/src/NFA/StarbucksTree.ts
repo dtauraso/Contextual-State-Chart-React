@@ -208,17 +208,30 @@ let StartbucksStateTree = {
           },
         },
         variables: {
-          drinks: {
-            names: { value: ["Pistachio"] },
-            options: {
-              size: { value: 1 },
-              flavors: { value: 1 },
-              toppings: { value: 1 },
+          drinks: [
+            {
+              name: { value: "Pistachio" },
+              desciption: { value: "desciption 1" },
             },
+          ],
+          options: [
+            { value: "size" },
+            { value: "flavors" },
+            { value: "toppings" },
+          ],
+          sizes: {
+            large: { value: 1 },
+            grande: { value: 1 },
+            vente: { value: 1 },
           },
-          size: {},
-          flavors: {},
-          toppings: {},
+          flavors: {
+            Sauces: [{ value: "Dark Caramel Sauce" }, { value: "Mocha Sauce" }],
+            syrups: [
+              { value: "Brown Sugar Syrup" },
+              { value: "Caramel Syrup" },
+            ],
+          },
+          toppings: { "cold foam": { value: "Chocolate Cream Cold Foam" } },
         },
       },
     },

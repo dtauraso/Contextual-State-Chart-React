@@ -22,6 +22,13 @@ import {
   isObject,
 } from "./Init/StatesObject";
 import { makeArrays, makeVariable } from "./Init/ContextualStateChartInit";
+enum ChangeStatus {
+  NONE,
+  ADDED,
+  MODIFIED,
+  DELETED,
+}
+const { NONE, ADDED, MODIFIED, DELETED } = ChangeStatus;
 let stateTree = {
   tree: {
     state: {
@@ -85,20 +92,21 @@ const wrapper = {
     };
     this.value = value;
   },
-  init: function init(
-    this: any,
-    id: number,
-    name: any,
-    value: any,
-    typeName: string,
-    stateId: number
-  ) {
+  init: function init(this: any, { id, name, value, typeName }: any) {
     this.id = id;
     this.name = name;
     this.value = value;
     this.typeName = typeName;
-    this.records = {};
-    this.stateID = stateId;
+    this.changeStatus = ADDED;
+    if (
+      typeName === "boolean" ||
+      typeName === "number" ||
+      typeName === "string"
+    ) {
+      this.prevValue = null;
+    } else if (typeName === "array" || typeName === "object") {
+      this.valueIDsChanged = {};
+    }
   },
   setGraph: function setGraph(this: any, graph: Graph) {
     this.graph = graph;

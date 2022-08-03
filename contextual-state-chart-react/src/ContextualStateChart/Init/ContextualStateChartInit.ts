@@ -81,7 +81,6 @@ const makeVariable = ({
   indexObject,
   name,
   graph,
-  stateId,
 }: any): any => {
   if ("value" in stateTree) {
     const value = stateTree["value"];
@@ -90,13 +89,12 @@ const makeVariable = ({
     indexObject.nextStateId += 1;
     graph.statesObject.states[variableId] =
       variableTypes?.[typeNameString]?.wrapper();
-    graph.statesObject.states[variableId].init(
-      variableId,
+    graph.statesObject.states[variableId].init({
+      id: variableId,
       name,
       value,
-      variableTypes?.[typeNameString]?.typeName,
-      stateId
-    );
+      typeName: variableTypes?.[typeNameString]?.typeName,
+    });
     graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
   } else if (isArray(stateTree)) {
@@ -112,39 +110,37 @@ const makeVariable = ({
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
     graph.statesObject.states[variableId] = arrayWrapper();
-    graph.statesObject.states[variableId].init(
-      variableId,
+    graph.statesObject.states[variableId].init({
+      id: variableId,
       name,
       value,
-      variableTypes?.["[object Array]"]?.typeName,
-      stateId
-    );
+      typeName: variableTypes?.["[object Array]"]?.typeName,
+    });
     graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
   } else if (isObject(stateTree)) {
     const value = Object.keys(stateTree).reduce(
-      (acc: any, variableName: string) => {
-        acc[variableName] = makeVariable({
+      (acc: any, variableName: string) => ({
+        ...acc,
+        [variableName]: makeVariable({
           trieTreeCollection,
           stateTree: stateTree[variableName],
           indexObject,
           name: variableName,
           graph,
-        });
-        return acc;
-      },
+        }),
+      }),
       {}
     );
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
     graph.statesObject.states[variableId] = objectWrapper();
-    graph.statesObject.states[variableId].init(
-      variableId,
+    graph.statesObject.states[variableId].init({
+      id: variableId,
       name,
       value,
-      variableTypes?.["[object Object]"]?.typeName,
-      stateId
-    );
+      typeName: variableTypes?.["[object Object]"]?.typeName,
+    });
     graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
   } else {
@@ -236,7 +232,6 @@ const makeState = ({
           indexObject,
           name: variableName,
           graph,
-          stateId,
         }),
       }),
       {}
