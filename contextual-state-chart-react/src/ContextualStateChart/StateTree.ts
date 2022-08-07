@@ -8,6 +8,7 @@ import {
   StringState,
   Edge,
   Edges,
+  Variable,
 } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
 import { NFAStateTree } from "../NFA/NFAStateTree";
@@ -107,6 +108,7 @@ const wrapper = {
     } else if (typeName === "array" || typeName === "object") {
       this.valueIDsChanged = {};
     }
+    console.log({ this: this });
   },
   setGraph: function setGraph(this: any, graph: Graph) {
     this.graph = graph;
@@ -122,12 +124,13 @@ const wrapper = {
 const booleanWrapper = function () {
   return Object.create({
     __proto__: wrapper,
+    wrapper,
   });
 };
 const numberWrapper = function (): NumberState {
   return Object.create({
     __proto__: wrapper,
-
+    wrapper,
     add: function add(this: any, secondValue: number) {
       // console.log(this, secondValue);
       this.value = this.value + secondValue;
@@ -166,6 +169,7 @@ const numberWrapper = function (): NumberState {
 const stringWrapper = function () {
   return Object.create({
     __proto__: wrapper,
+    wrapper,
     at: function at(this: any, i: NumberState) {
       return this.value[i.value];
     },
@@ -177,6 +181,7 @@ const stringWrapper = function () {
 const arrayWrapper = function () {
   return Object.create({
     __proto__: wrapper,
+    wrapper,
     get: function get(this: any, i: number) {
       const length = this.value.length;
       // console.log(this, i);
@@ -346,6 +351,7 @@ const arrayWrapper = function () {
 const objectWrapper = function () {
   return Object.create({
     __proto__: wrapper,
+    wrapper,
     get: function get(this: any, i: any) {
       // console.log(this, i);
       if (!this.value[i]) {
@@ -358,7 +364,7 @@ const objectWrapper = function () {
 const ControlFlowStateWrapper = function (): ControlFlowState {
   return Object.create({
     __proto__: wrapper,
-
+    wrapper,
     getVariable,
     init: function init(
       this: any,
@@ -386,6 +392,7 @@ const ControlFlowStateWrapper = function (): ControlFlowState {
       this.children = children;
       this.variables = variables;
       this.stateRunCount = 0;
+      this.getVariables = getVariables;
       this.getVariable = getVariable;
       this.graph = graph;
       this.branchIDParentIDParentBranchID = {};
@@ -494,6 +501,9 @@ const errorState = function (): ControlFlowState {
     areNextParallel: false,
     destinationTimeline: "",
     timelineIDs: {},
+    getVariables: function (this: ControlFlowState) {
+      return {};
+    },
     getVariable: function (this: ControlFlowState, variableName: string) {
       return {
         value: false,
@@ -552,7 +562,7 @@ const getStateById = function (this: Graph, stateId: number) {
 };
 const getVariableById = function (this: Graph, stateId: number) {
   // console.log({ stateId, states: this.statesObject.states });
-
+  if (stateId === undefined) return undefined;
   if (stateId >= this.statesObject.nextStateId || stateId < 0) {
     return -1;
   }
@@ -562,6 +572,9 @@ const getVariableById = function (this: Graph, stateId: number) {
     return -1;
   }
   return this.statesObject.states[stateId];
+};
+const getVariables = function (this: any) {
+  return this?.variables as Variable;
 };
 const getVariable = function (
   this: any,
@@ -747,6 +760,7 @@ const printRecordTree = (graph: any, recordTreeRootName: string[]) => {
 // };
 
 export {
+  wrapper,
   booleanWrapper,
   numberWrapper,
   stringWrapper,
@@ -758,6 +772,7 @@ export {
   getState,
   getStateById,
   getVariableById,
+  getVariables,
   getVariable,
   setVariable,
   // insertVariableState,

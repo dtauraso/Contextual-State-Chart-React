@@ -107,6 +107,8 @@ const makeVariable = ({
         graph,
       })
     );
+
+    const typeNameString = getTypeName(value);
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
     graph.statesObject.states[variableId] = arrayWrapper();
@@ -114,7 +116,7 @@ const makeVariable = ({
       id: variableId,
       name,
       value,
-      typeName: variableTypes?.["[object Array]"]?.typeName,
+      typeName: variableTypes?.[typeNameString]?.typeName,
     });
     graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
@@ -132,6 +134,7 @@ const makeVariable = ({
       }),
       {}
     );
+    const typeNameString = getTypeName(value);
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
     graph.statesObject.states[variableId] = objectWrapper();
@@ -139,7 +142,7 @@ const makeVariable = ({
       id: variableId,
       name,
       value,
-      typeName: variableTypes?.["[object Object]"]?.typeName,
+      typeName: variableTypes?.[typeNameString]?.typeName,
     });
     graph.statesObject.states[variableId].setGraph(graph);
     return variableId;

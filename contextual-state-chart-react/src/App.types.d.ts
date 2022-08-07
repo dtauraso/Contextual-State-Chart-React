@@ -15,6 +15,7 @@ enum ChangeStatus {
   DELETED,
 }
 type BooleanState = Wrapper & {
+  wrapper: any;
   value: boolean;
   prevValue: boolean;
   changeStatus: ChangeStatus;
@@ -22,6 +23,7 @@ type BooleanState = Wrapper & {
   edgeGroups: Edges[];
 };
 type NumberState = Wrapper & {
+  wrapper: any;
   value: number;
   prevValue: number;
   changeStatus: ChangeStatus;
@@ -29,6 +31,7 @@ type NumberState = Wrapper & {
   edgeGroups: Edges[];
 };
 type StringState = Wrapper & {
+  wrapper: any;
   value: string;
   prevValue: string;
   changeStatus: ChangeStatus;
@@ -36,6 +39,7 @@ type StringState = Wrapper & {
   edgeGroups: Edges[];
 };
 type ArrayState = Wrapper & {
+  wrapper: any;
   value: number[];
   changeStatus: ChangeStatus;
   valueIDsChanged: { [id: number]: ChangeStatus };
@@ -49,6 +53,7 @@ type ArrayState = Wrapper & {
 };
 
 type ObjectState = Wrapper & {
+  wrapper: any;
   value: { [id: string]: number };
   changeStatus: ChangeStatus;
   valueIDsChanged: { [id: string]: ChangeStatus };
@@ -92,6 +97,7 @@ type ControlFlowState = State & {
   areChildrenParallel: boolean;
   areNextParallel: boolean;
   // using "any" to avoid having to use ".typeName()" when getting the value of a variable
+  getVariables: (this: ControlFlowState) => Variable;
   getVariable: (this: ControlFlowState, variableName: string) => any;
   getParent: (this: ControlFlowState) => any;
   getEdges: (this: ControlFlowState, edgesGroupIndex: number) => Edges;
@@ -102,7 +108,13 @@ type State = {
   id: number;
 };
 type States = {
-  [key: number]: ControlFlowState | BooleanState | NumberState | ArrayState;
+  [key: number]:
+    | ControlFlowState
+    | BooleanState
+    | NumberState
+    | StringState
+    | ArrayState
+    | ObjectState;
 };
 type StatesObject = {
   nextStateId: number;
@@ -131,6 +143,7 @@ export {
   NumberState,
   StringState,
   ArrayState,
+  ObjectState,
   Variable,
   State,
   States,

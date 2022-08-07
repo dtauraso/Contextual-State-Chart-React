@@ -2,6 +2,11 @@ import {
   returnTrue,
   returnFalse,
 } from "../Calculator/CalculatorStateFunctions";
+import {
+  barista,
+  cashier,
+  customer,
+} from "../Starbucks/StarbucksStateFunctions";
 
 let StartbucksStateTree = {
   machine: {
@@ -35,7 +40,7 @@ let StartbucksStateTree = {
               children: {
                 Barista: {
                   state: {
-                    functionCode: returnTrue,
+                    functionCode: barista,
                     edgeGroups: [
                       {
                         edges: [{ nextStateName: ["Make drink"] }],
@@ -68,7 +73,7 @@ let StartbucksStateTree = {
                 },
                 Cashier: {
                   state: {
-                    functionCode: returnTrue,
+                    functionCode: cashier,
                     edgeGroups: [
                       {
                         edges: [
@@ -149,7 +154,7 @@ let StartbucksStateTree = {
               children: {
                 Customer: {
                   state: {
-                    functionCode: returnTrue,
+                    functionCode: customer,
                     edgeGroups: [
                       {
                         edges: [{ nextStateName: ["Place order"] }],
@@ -197,7 +202,7 @@ let StartbucksStateTree = {
                       },
                     },
                     variables: {
-                      init: {},
+                      init: { drink: { value: "" } },
                     },
                     timelineIDs: {},
                     destinationTimeline: "Cashier",
@@ -207,6 +212,7 @@ let StartbucksStateTree = {
             },
           },
         },
+        // database
         variables: {
           drinks: [
             {
