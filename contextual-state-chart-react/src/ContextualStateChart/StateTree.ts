@@ -1,11 +1,9 @@
 import { insertName } from "./Init/TrieTree";
 import {
-  ControlFlowState,
   Graph,
   NamesTrie,
-  NumberState,
+  State,
   States,
-  StringState,
   Edge,
   Edges,
   Variable,
@@ -56,81 +54,109 @@ let stateTree = {
 };
 const printTree = function (this: Graph) {};
 const convertToJson = function (this: Graph) {};
-const wrapper = {
-  setId: function setId(this: any, id: number) {
-    this.id = id;
-  },
-  setName: function setName(this: any, name: any) {
-    this.name = name;
-  },
-  setValue: function setValue(this: any, value: any) {
-    this.value = value;
-    this.records = {};
-    this.records = {
-      ...this.records,
-      [Object.keys(this.records).length]: value,
-    };
-  },
 
-  updateValue: function updateValue(this: any, value: any) {
-    this.value = value;
-    // this.records = {
-    //   ...this.records,
-    //   [Object.keys(this.records).length]: { id, value },
-    // };
-    // console.log("here", this.records);
-  },
-  updateRecord: function updateRecord(this: any, { id, value }: any) {
-    this.records = {
-      ...this.records,
-      [Object.keys(this.records).length]: { id, value },
-    };
-  },
-  updateVRAtom: function updateVRAtom(this: any, value: any) {
-    this.records = {
-      ...this.records,
-      [Object.keys(this.records).length]: { id: this.id, value: this.value },
-    };
-    this.value = value;
-  },
-  init: function init(this: any, { id, name, value, typeName }: any) {
-    this.id = id;
-    this.name = name;
-    this.value = value;
-    this.typeName = typeName;
-    this.changeStatus = ADDED;
-    if (
-      typeName === "boolean" ||
-      typeName === "number" ||
-      typeName === "string"
+const StateWrapper = function (): State {
+  return Object.create({
+    getVariable,
+    init: function init(
+      this: any,
+      {
+        id,
+        parents,
+        name,
+        functionCode,
+        functionName,
+        edgeGroups,
+        children,
+        variables,
+        graph,
+        haveStartChildren,
+        destinationTimeline,
+        timelineIDs,
+      }: any
     ) {
-      this.prevValue = null;
-    } else if (typeName === "array" || typeName === "object") {
-      this.valueIDsChanged = {};
-    }
-    console.log({ this: this });
-  },
-  setGraph: function setGraph(this: any, graph: Graph) {
-    this.graph = graph;
-  },
-  setReferenceToStatesObject: function setReferenceToStatesObject(
-    this: any,
-    statesObject: any
-  ) {
-    this.statesObject = statesObject;
-  },
-};
+      this.id = id;
+      this.parents = parents;
+      this.name = name;
+      this.functionCode = functionCode;
+      this.functionName = functionName;
+      this.edgeGroups = edgeGroups;
+      this.children = children;
+      this.variables = variables;
+      this.stateRunCount = 0;
+      this.getVariables = getVariables;
+      this.getVariable = getVariable;
+      this.graph = graph;
+      this.branchIDParentIDParentBranchID = {};
+      this.haveStartChildren = haveStartChildren;
+      this.destinationTimeline = destinationTimeline;
+      this.timelineIDs = timelineIDs;
+    },
+    visitState: function visitState(this: any) {},
 
-const booleanWrapper = function () {
-  return Object.create({
-    __proto__: wrapper,
-    wrapper,
-  });
-};
-const numberWrapper = function (): NumberState {
-  return Object.create({
-    __proto__: wrapper,
-    wrapper,
+    getParent: function getParent(this: any) {
+      // only return parent when state is done running children and nexts
+      console.log({ this: this });
+      // assumes there is only 1 parent
+      return this.graph.getState(this.parents[0]);
+    },
+    getChildren: function getChildren(this: any) {
+      // only return children when state is done trialling children
+    },
+    getEdges: function (this: State, edgesGroupIndex: number): Edges {
+      if (!this.edgeGroups) {
+        return {
+          edges: [],
+          areParallel: false,
+        };
+      }
+      const length = this.edgeGroups.length;
+      if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {
+        return {
+          edges: [],
+          areParallel: false,
+        };
+      }
+      return this.edgeGroups[edgesGroupIndex];
+    },
+    areEdgesStart: function (this: State, edgesGroupIndex: number): boolean {
+      const { haveStartChildren, edgeGroups } = this;
+
+      if (!edgeGroups) {
+        return false;
+      }
+      const length = edgeGroups.length;
+
+      if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {
+        console.log("error", { edgesGroupIndex, length });
+        return false;
+      }
+      return haveStartChildren && edgesGroupIndex === 0;
+    },
+    // isStartEmpty: function (this: ControlFlowState): boolean {
+    //   return this.start ? this.start.length === 0 : false;
+    // },
+    setId: function setId(this: any, id: number) {
+      this.id = id;
+    },
+    setName: function setName(this: any, name: any) {
+      this.name = name;
+    },
+    setValue: function setValue(this: any, value: any) {
+      this.value = value;
+      this.records = {};
+      this.records = {
+        ...this.records,
+        [Object.keys(this.records).length]: value,
+      };
+    },
+
+    // at: function at(this: any, i: NumberState) {
+    //   return this.value[i.value];
+    // },
+    concat: function concat(this: any, b: string) {
+      return this.value + b;
+    },
     add: function add(this: any, secondValue: number) {
       // console.log(this, secondValue);
       this.value = this.value + secondValue;
@@ -164,33 +190,71 @@ const numberWrapper = function (): NumberState {
       }
       return callback(this.value, b.value);
     },
-  });
-};
-const stringWrapper = function () {
-  return Object.create({
-    __proto__: wrapper,
-    wrapper,
-    at: function at(this: any, i: NumberState) {
-      return this.value[i.value];
+
+    updateValue: function updateValue(this: any, value: any) {
+      this.value = value;
+      // this.records = {
+      //   ...this.records,
+      //   [Object.keys(this.records).length]: { id, value },
+      // };
+      // console.log("here", this.records);
     },
-    concat: function concat(this: any, b: string) {
-      return this.value + b;
+    updateRecord: function updateRecord(this: any, { id, value }: any) {
+      this.records = {
+        ...this.records,
+        [Object.keys(this.records).length]: { id, value },
+      };
     },
-  });
-};
-const arrayWrapper = function () {
-  return Object.create({
-    __proto__: wrapper,
-    wrapper,
-    get: function get(this: any, i: number) {
-      const length = this.value.length;
+    updateVRAtom: function updateVRAtom(this: any, value: any) {
+      this.records = {
+        ...this.records,
+        [Object.keys(this.records).length]: { id: this.id, value: this.value },
+      };
+      this.value = value;
+    },
+    // init: function init(this: any, { id, name, value, typeName }: any) {
+    //   this.id = id;
+    //   this.name = name;
+    //   this.value = value;
+    //   this.typeName = typeName;
+    //   this.changeStatus = ADDED;
+    //   if (
+    //     typeName === "boolean" ||
+    //     typeName === "number" ||
+    //     typeName === "string"
+    //   ) {
+    //     this.prevValue = null;
+    //   } else if (typeName === "array" || typeName === "object") {
+    //     this.valueIDsChanged = {};
+    //   }
+    //   console.log({ this: this });
+    // },
+    setGraph: function setGraph(this: any, graph: Graph) {
+      this.graph = graph;
+    },
+    setReferenceToStatesObject: function setReferenceToStatesObject(
+      this: any,
+      statesObject: any
+    ) {
+      this.statesObject = statesObject;
+    },
+
+    get: function get(this: any, i: any) {
       // console.log(this, i);
-      if (i < 0 || i >= length) {
+      if (!this.value[i]) {
         return -1;
       }
-      return this.graph.statesObject.states[this.value[i]];
-      // return this.value[i];
+      return this.value[i];
     },
+    // get: function get(this: any, i: number) {
+    //   const length = this.value.length;
+    //   // console.log(this, i);
+    //   if (i < 0 || i >= length) {
+    //     return -1;
+    //   }
+    //   return this.graph.statesObject.states[this.value[i]];
+    //   // return this.value[i];
+    // },
     collect: function collect(this: any) {
       // put json back together
       // console.log({
@@ -204,68 +268,68 @@ const arrayWrapper = function () {
         (variableId: number) => this.graph.getVariableById(variableId).value
       );
     },
-    at: function at(this: any, i: NumberState) {
-      return this.value[i.value];
-    },
-    mapWrapper: function mapWrapper(this: any, callback: any) {
-      /*
-      make new array
-      make dummy items of the same data(set values to null) as current array
-      loop through old array and apply f(old[i]) => new[j] to new array
-      */
-      let states = this.states;
+    // at: function at(this: any, i: NumberState) {
+    //   return this.value[i.value];
+    // },
+    // mapWrapper: function mapWrapper(this: any, callback: any) {
+    //   /*
+    //   make new array
+    //   make dummy items of the same data(set values to null) as current array
+    //   loop through old array and apply f(old[i]) => new[j] to new array
+    //   */
+    //   let states = this.states;
 
-      this.value.forEach((a: any, i: number, m: any) => {
-        states[a].records[i] = {
-          value: callback(states[a], i, m),
-          changedStatus: "modified",
-        };
-      });
+    //   this.value.forEach((a: any, i: number, m: any) => {
+    //     states[a].records[i] = {
+    //       value: callback(states[a], i, m),
+    //       changedStatus: "modified",
+    //     };
+    //   });
 
-      let container = [];
-      for (let i = 0; i < states[this.id].value.length; i++) {
-        let elementState = states[states[this.id].value[i]];
-        let result = callback(elementState.value, i, states);
-        const { id, name, value, typeName } = elementState;
-        let newIndex = Object.keys(states).length;
+    //   let container = [];
+    //   for (let i = 0; i < states[this.id].value.length; i++) {
+    //     let elementState = states[states[this.id].value[i]];
+    //     let result = callback(elementState.value, i, states);
+    //     const { id, name, value, typeName } = elementState;
+    //     let newIndex = Object.keys(states).length;
 
-        let newItem = variableTypes[elementState.typeName]();
-        newItem.init(newIndex, name, result, typeName);
-        newItem.setGraphs(states);
-        states[newIndex] = newItem;
+    //     let newItem = variableTypes[elementState.typeName]();
+    //     newItem.init(newIndex, name, result, typeName);
+    //     newItem.setGraphs(states);
+    //     states[newIndex] = newItem;
 
-        container.push(newIndex);
-      }
-      let newContainerIndex = Object.keys(states).length;
+    //     container.push(newIndex);
+    //   }
+    //   let newContainerIndex = Object.keys(states).length;
 
-      let newContainer = variableTypes["array"]();
-      let numberString = "";
-      for (
-        let i = this.name.length - 1;
-        i >= 0 && this.name[i] >= "0" && this.name[i] <= "9";
-        i++
-      ) {
-        numberString = this.name[i] + numberString;
-      }
-      const number = numberString.length > 0 ? Number(numberString) : 0;
+    //   let newContainer = variableTypes["array"]();
+    //   let numberString = "";
+    //   for (
+    //     let i = this.name.length - 1;
+    //     i >= 0 && this.name[i] >= "0" && this.name[i] <= "9";
+    //     i++
+    //   ) {
+    //     numberString = this.name[i] + numberString;
+    //   }
+    //   const number = numberString.length > 0 ? Number(numberString) : 0;
 
-      const originalName = this.name.slice(
-        0,
-        this.name.length - numberString.length
-      );
-      newContainer.init(
-        newContainerIndex,
-        `${originalName}${number + 1}`,
-        null,
-        "array"
-      );
-      newContainer.setGraphs(states);
-      newContainer.updateValue(container);
-      newContainer.updateRecord({ id: this.id, value: this.value });
-      states[newContainerIndex] = newContainer;
+    //   const originalName = this.name.slice(
+    //     0,
+    //     this.name.length - numberString.length
+    //   );
+    //   newContainer.init(
+    //     newContainerIndex,
+    //     `${originalName}${number + 1}`,
+    //     null,
+    //     "array"
+    //   );
+    //   newContainer.setGraphs(states);
+    //   newContainer.updateValue(container);
+    //   newContainer.updateRecord({ id: this.id, value: this.value });
+    //   states[newContainerIndex] = newContainer;
 
-      return newContainer;
-    },
+    //   return newContainer;
+    // },
     clean: function clean() {
       // use record property to find each id of the previous arrays
       // erase the arrays found
@@ -348,116 +412,52 @@ const arrayWrapper = function () {
     },
   });
 };
-const objectWrapper = function () {
+const VariableWrapper = function (): Variable {
   return Object.create({
-    __proto__: wrapper,
-    wrapper,
-    get: function get(this: any, i: any) {
-      // console.log(this, i);
-      if (!this.value[i]) {
-        return -1;
+    init: function (this: any, value: any) {
+      const typeName = Object.prototype.toString.call(value);
+      if (typeName === "[object Boolean]") {
+        this.booleanValue = value;
+      } else if (typeName === "[object Number]") {
+        this.numberValue = value;
+      } else if (typeName === "[object String]") {
+        this.stringValue = value;
+      } else if (typeName === "[object Array]") {
+        this.numberArrayValue = value;
+      } else if (typeName === "[object Object]") {
+        this.stringMapNumberValue = value;
       }
-      return this.value[i];
+      this.variableTypeName = typeName;
+    },
+    getValue: function (this: State): any {
+      const typeName = this?.currentValue?.variableTypeName;
+      if (typeName === "[object Boolean]") {
+        return this?.currentValue?.booleanValue;
+      } else if (typeName === "[object Number]") {
+        return this?.currentValue?.numberValue;
+      }
+    },
+    setValue: function (this: Variable, cb: Function, args: any[]) {
+      const typeName = this.variableTypeName;
+      if (typeName === "[object Boolean]") {
+        this.prevValue = this.booleanValue;
+      } else if (typeName === "[object Number]") {
+        this.prevValue = this.numberValue;
+      } else if (typeName === "[object String]") {
+        this.prevValue = this.stringValue;
+      } else if (typeName === "[object Array]") {
+        this.prevValue = this.numberArrayValue;
+        const functionName = cb.name;
+        if (functionName === "unshift") {
+          this.valueIDsChangedStatus["0"] = ADDED;
+          // this.graph?.statesObject.states[position];
+          this.numberArrayValue?.unshift(...args);
+        }
+      } else if (typeName === "[object Object]") {
+        this.prevValue = this.stringMapNumberValue;
+      }
     },
   });
-};
-const ControlFlowStateWrapper = function (): ControlFlowState {
-  return Object.create({
-    __proto__: wrapper,
-    wrapper,
-    getVariable,
-    init: function init(
-      this: any,
-      {
-        id,
-        parents,
-        name,
-        functionCode,
-        functionName,
-        edgeGroups,
-        children,
-        variables,
-        graph,
-        haveStartChildren,
-        destinationTimeline,
-        timelineIDs,
-      }: any
-    ) {
-      this.id = id;
-      this.parents = parents;
-      this.name = name;
-      this.functionCode = functionCode;
-      this.functionName = functionName;
-      this.edgeGroups = edgeGroups;
-      this.children = children;
-      this.variables = variables;
-      this.stateRunCount = 0;
-      this.getVariables = getVariables;
-      this.getVariable = getVariable;
-      this.graph = graph;
-      this.branchIDParentIDParentBranchID = {};
-      this.haveStartChildren = haveStartChildren;
-      this.destinationTimeline = destinationTimeline;
-      this.timelineIDs = timelineIDs;
-    },
-    visitState: function visitState(this: any) {},
-
-    getParent: function getParent(this: any) {
-      // only return parent when state is done running children and nexts
-      console.log({ this: this });
-      // assumes there is only 1 parent
-      return this.graph.getState(this.parents[0]);
-    },
-    getChildren: function getChildren(this: any) {
-      // only return children when state is done trialling children
-    },
-    getEdges: function (
-      this: ControlFlowState,
-      edgesGroupIndex: number
-    ): Edges {
-      if (!this.edgeGroups) {
-        return {
-          edges: [],
-          areParallel: false,
-        };
-      }
-      const length = this.edgeGroups.length;
-      if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {
-        return {
-          edges: [],
-          areParallel: false,
-        };
-      }
-      return this.edgeGroups[edgesGroupIndex];
-    },
-    areEdgesStart: function (
-      this: ControlFlowState,
-      edgesGroupIndex: number
-    ): boolean {
-      const { haveStartChildren, edgeGroups } = this;
-
-      if (!edgeGroups) {
-        return false;
-      }
-      const length = edgeGroups.length;
-
-      if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {
-        console.log("error", { edgesGroupIndex, length });
-        return false;
-      }
-      return haveStartChildren && edgesGroupIndex === 0;
-    },
-    // isStartEmpty: function (this: ControlFlowState): boolean {
-    //   return this.start ? this.start.length === 0 : false;
-    // },
-  });
-};
-const variableTypes: any = {
-  boolean: booleanWrapper,
-  number: numberWrapper,
-  string: stringWrapper,
-  array: arrayWrapper,
-  object: objectWrapper,
 };
 
 const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
@@ -485,57 +485,57 @@ const getStateId = (namesTrie: NamesTrie, stateName: string[]) => {
   }
   return -1;
 };
-const errorState = function (): ControlFlowState {
-  return {
-    parents: [[""]],
-    name: [""],
-    functionCode: (graph: any) => false,
-    functionName: "",
-    children: [[""]],
-    edgeGroups: [],
-    haveStartChildren: false,
-    stateRunCount: 0,
-    id: -1,
-    branchIDParentIDParentBranchID: {},
-    areChildrenParallel: false,
-    areNextParallel: false,
-    destinationTimeline: "",
-    timelineIDs: {},
-    getVariables: function (this: ControlFlowState) {
-      return {};
-    },
-    getVariable: function (this: ControlFlowState, variableName: string) {
-      return {
-        value: false,
-        id: -1,
-      };
-    },
-    getParent: function (this: ControlFlowState) {},
-    getEdges: function (
-      this: ControlFlowState,
-      edgesGroupIndex: number
-    ): Edges {
-      return {
-        edges: [],
-        areParallel: false,
-      };
-    },
-    isStartEmpty: function (): boolean {
-      return false;
-    },
-    areEdgesStart: function (
-      this: ControlFlowState,
-      edgesGroupIndex: number
-    ): boolean {
-      return false;
-    },
-  };
-};
+// const errorState = function (): ControlFlowState {
+//   return {
+//     parents: [[""]],
+//     name: [""],
+//     functionCode: (graph: any) => false,
+//     functionName: "",
+//     children: [[""]],
+//     edgeGroups: [],
+//     haveStartChildren: false,
+//     stateRunCount: 0,
+//     id: -1,
+//     branchIDParentIDParentBranchID: {},
+//     areChildrenParallel: false,
+//     areNextParallel: false,
+//     destinationTimeline: "",
+//     timelineIDs: {},
+//     getVariables: function (this: ControlFlowState) {
+//       return {};
+//     },
+//     getVariable: function (this: ControlFlowState, variableName: string) {
+//       return {
+//         value: false,
+//         id: -1,
+//       };
+//     },
+//     getParent: function (this: ControlFlowState) {},
+//     getEdges: function (
+//       this: ControlFlowState,
+//       edgesGroupIndex: number
+//     ): Edges {
+//       return {
+//         edges: [],
+//         areParallel: false,
+//       };
+//     },
+//     isStartEmpty: function (): boolean {
+//       return false;
+//     },
+//     areEdgesStart: function (
+//       this: ControlFlowState,
+//       edgesGroupIndex: number
+//     ): boolean {
+//       return false;
+//     },
+//   };
+// };
 
 const getState = function (this: Graph, stateName: string[]) {
   // console.log({ stateName });
   if (stateName === null) {
-    return errorState();
+    console.log({ stateName });
   }
   const stateId = getStateId(this.namesTrie, stateName);
 
@@ -543,22 +543,19 @@ const getState = function (this: Graph, stateName: string[]) {
     console.log(
       `stateId = ${stateId}, stateName = ${stateName} is not in graph.statesObject.states`
     );
-
-    return errorState();
   }
-  return this.statesObject.states[stateId] as ControlFlowState;
+  return this.statesObject.states[stateId] as State;
 };
 const getStateById = function (this: Graph, stateId: number) {
   // console.log({ stateId });
   if (stateId >= this.statesObject.nextStateId || stateId < 0) {
-    return errorState();
+    console.log({ stateId, nextStateId: this.statesObject.nextStateId });
   }
 
   if (!(stateId in this.statesObject.states)) {
     console.log(`stateId = ${stateId} is not in graph.statesObject.states`);
-    return errorState();
   }
-  return this.statesObject.states[stateId] as ControlFlowState;
+  return this.statesObject.states[stateId] as State;
 };
 const getVariableById = function (this: Graph, stateId: number) {
   // console.log({ stateId, states: this.statesObject.states });
@@ -760,13 +757,7 @@ const printRecordTree = (graph: any, recordTreeRootName: string[]) => {
 // };
 
 export {
-  wrapper,
-  booleanWrapper,
-  numberWrapper,
-  stringWrapper,
-  arrayWrapper,
-  objectWrapper,
-  ControlFlowStateWrapper,
+  ChangeStatus,
   stateTree,
   getStateId,
   getState,

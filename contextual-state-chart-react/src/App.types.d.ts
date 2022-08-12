@@ -1,68 +1,5 @@
-type Wrapper = State & {
-  name: string;
-  graph: Graph;
-  typeName: string;
-  setId: (this: any, id: number) => this;
-  setName: (this: any, name: string) => this;
-  setValue: (this: any, value: any) => this;
-  setReferenceToStatesObject: (this: any, statesObject: any) => this;
-  setGraphs: (this: any, states: States) => this;
-};
-enum ChangeStatus {
-  NONE,
-  ADDED,
-  MODIFIED,
-  DELETED,
-}
-type BooleanState = Wrapper & {
-  wrapper: any;
-  value: boolean;
-  prevValue: boolean;
-  changeStatus: ChangeStatus;
-  edgeGroups2: number[];
-  edgeGroups: Edges[];
-};
-type NumberState = Wrapper & {
-  wrapper: any;
-  value: number;
-  prevValue: number;
-  changeStatus: ChangeStatus;
-  edgeGroups2: number[];
-  edgeGroups: Edges[];
-};
-type StringState = Wrapper & {
-  wrapper: any;
-  value: string;
-  prevValue: string;
-  changeStatus: ChangeStatus;
-  edgeGroups2: number[];
-  edgeGroups: Edges[];
-};
-type ArrayState = Wrapper & {
-  wrapper: any;
-  value: number[];
-  changeStatus: ChangeStatus;
-  valueIDsChanged: { [id: number]: ChangeStatus };
-  edgeGroups2: number[];
-  edgeGroups: Edges[];
+import { ChangedStatus } from "../src/ContextualStateChart/StateTree";
 
-  mapWrapper: (this: ArrayState, callback: any) => ArrayState;
-  collect: (this: ArrayState) => [];
-  updateAt: (this: ArrayState, i: number, newValue: number) => ArrayState;
-  at: (this: any, i: NumberState) => any;
-};
-
-type ObjectState = Wrapper & {
-  wrapper: any;
-  value: { [id: string]: number };
-  changeStatus: ChangeStatus;
-  valueIDsChanged: { [id: string]: ChangeStatus };
-  edgeGroups2: number[];
-  edgeGroups: Edges[];
-};
-type Variable = {
-  [key: string]: number;
-};
 type ActiveChildStates = {
   [branchID: number]: number;
 };
@@ -76,7 +13,34 @@ type Edges = {
   areParallel: boolean;
 };
 
-type ControlFlowState = State & {
+type Variable = {
+  booleanValue?: boolean;
+  numberValue?: number;
+  stringValue?: string;
+
+  // number is stateID
+  numberArrayValue?: number[];
+  stringMapNumberValue?: { [id: string]: number };
+
+  variableTypeName?: string;
+  prevValue?: any;
+  valueIDsChangedStatus: { [id: string]: ChangeStatus };
+  changeStatus: ChangeStatus;
+
+  graph?: Graph;
+  setId?: (this: any, id: number) => this;
+  setName?: (this: any, name: string) => this;
+  setValue?: (this: any, value: any) => this;
+  setReferenceToStatesObject?: (this: any, statesObject: any) => this;
+  setGraphs?: (this: any, states: States) => this;
+  mapWrapper?: (this: ArrayState, callback: any) => ArrayState;
+  collect?: (this: ArrayState) => [];
+  updateAt?: (this: ArrayState, i: number, newValue: number) => ArrayState;
+  at?: (this: any, i: NumberState) => any;
+};
+
+type State = {
+  id: number;
   parents: string[][];
   name: string[];
   functionCode: (graph: Graph) => boolean;
@@ -84,7 +48,8 @@ type ControlFlowState = State & {
   children: string[][];
   edgeGroups: Edges[];
   haveStartChildren: boolean;
-  variables?: Variable;
+  currentValue?: Variable;
+  isVariable: boolean;
   stateRunCount: number;
   branchIDParentIDParentBranchID: {
     [branchID: number]: {
@@ -104,17 +69,11 @@ type ControlFlowState = State & {
   areEdgesStart: (this: ControlFlowState, edgesGroupIndex: number) => boolean;
   isStartEmpty: () => boolean;
 };
-type State = {
-  id: number;
-};
+
+// 1 state with all variables and functions needed
+// 1 variable holding 1 type storing all types as separate variables
 type States = {
-  [key: number]:
-    | ControlFlowState
-    | BooleanState
-    | NumberState
-    | StringState
-    | ArrayState
-    | ObjectState;
+  [key: number]: State;
 };
 type StatesObject = {
   nextStateId: number;
@@ -132,18 +91,12 @@ type Graph = {
   namesTrie: NamesTrie;
   statesObject: StatesObject;
 
-  getState: (this: Graph, stateName: string[]) => ControlFlowState;
-  getStateById: (this: Graph, stateId: number) => ControlFlowState;
+  getState: (this: Graph, stateName: string[]) => State;
+  getStateById: (this: Graph, stateId: number) => State;
   getVariableById: (this: Graph, variableId: number) => any;
 };
 
 export {
-  Wrapper,
-  BooleanState,
-  NumberState,
-  StringState,
-  ArrayState,
-  ObjectState,
   Variable,
   State,
   States,
@@ -153,6 +106,4 @@ export {
   ActiveChildStates,
   Edge,
   Edges,
-  PendingStates,
-  ControlFlowState,
 };

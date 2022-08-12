@@ -1,4 +1,4 @@
-import { NumberState } from "../App.types";
+// import { NumberState } from "../App.types";
 import { getVariable, setVariable } from "../ContextualStateChart/StateTree";
 import { getRunningState } from "../ContextualStateChart/Visitor";
 // state names

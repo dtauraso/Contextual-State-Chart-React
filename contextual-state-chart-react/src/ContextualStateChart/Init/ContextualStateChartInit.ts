@@ -1,10 +1,10 @@
 import { Children, cloneElement } from "react";
 import {
-  Wrapper,
-  BooleanState,
-  NumberState,
-  StringState,
-  ArrayState,
+  // Wrapper,
+  // BooleanState,
+  // NumberState,
+  // StringState,
+  // ArrayState,
   Variable,
   State,
   States,
@@ -34,44 +34,44 @@ import {
 } from "./StatesObject";
 
 import {
-  booleanWrapper,
-  numberWrapper,
-  stringWrapper,
-  arrayWrapper,
-  objectWrapper,
-  ControlFlowStateWrapper,
+  // booleanWrapper,
+  // numberWrapper,
+  // stringWrapper,
+  // arrayWrapper,
+  // objectWrapper,
+  // ControlFlowStateWrapper,
   stateTree,
   getVariable,
 } from "../StateTree";
 
 const returnTrueShort = (value: any) => true;
-const variableTypes: any = {
-  "[object Boolean]": {
-    cb: returnTrueShort,
-    typeName: "boolean",
-    wrapper: booleanWrapper,
-  },
-  "[object Number]": {
-    cb: returnTrueShort,
-    typeName: "number",
-    wrapper: numberWrapper,
-  },
-  "[object String]": {
-    cb: returnTrueShort,
-    typeName: "string",
-    wrapper: stringWrapper,
-  },
-  "[object Array]": {
-    cb: (value: any) => value.length === 0,
-    typeName: "array",
-    wrapper: arrayWrapper,
-  },
-  "[object Object]": {
-    cb: (value: any) => Object.keys(value).length === 0,
-    typeName: "object",
-    wrapper: objectWrapper,
-  },
-};
+// const variableTypes: any = {
+//   "[object Boolean]": {
+//     cb: returnTrueShort,
+//     typeName: "boolean",
+//     wrapper: booleanWrapper,
+//   },
+//   "[object Number]": {
+//     cb: returnTrueShort,
+//     typeName: "number",
+//     wrapper: numberWrapper,
+//   },
+//   "[object String]": {
+//     cb: returnTrueShort,
+//     typeName: "string",
+//     wrapper: stringWrapper,
+//   },
+//   "[object Array]": {
+//     cb: (value: any) => value.length === 0,
+//     typeName: "array",
+//     wrapper: arrayWrapper,
+//   },
+//   "[object Object]": {
+//     cb: (value: any) => Object.keys(value).length === 0,
+//     typeName: "object",
+//     wrapper: objectWrapper,
+//   },
+// };
 // needs distintive type construction
 const getTypeName = (item: any) => Object.prototype.toString.call(item);
 
@@ -87,13 +87,13 @@ const makeVariable = ({
     const typeNameString = getTypeName(value);
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
-    graph.statesObject.states[variableId] =
-      variableTypes?.[typeNameString]?.wrapper();
+    // graph.statesObject.states[variableId] =
+    //   variableTypes?.[typeNameString]?.wrapper();
     graph.statesObject.states[variableId].init({
       id: variableId,
       name,
       value,
-      typeName: variableTypes?.[typeNameString]?.typeName,
+      // typeName: variableTypes?.[typeNameString]?.typeName,
     });
     graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
@@ -111,12 +111,12 @@ const makeVariable = ({
     const typeNameString = getTypeName(value);
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
-    graph.statesObject.states[variableId] = arrayWrapper();
+    // graph.statesObject.states[variableId] = arrayWrapper();
     graph.statesObject.states[variableId].init({
       id: variableId,
       name,
       value,
-      typeName: variableTypes?.[typeNameString]?.typeName,
+      // typeName: variableTypes?.[typeNameString]?.typeName,
     });
     graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
@@ -137,12 +137,12 @@ const makeVariable = ({
     const typeNameString = getTypeName(value);
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
-    graph.statesObject.states[variableId] = objectWrapper();
+    // graph.statesObject.states[variableId] = objectWrapper();
     graph.statesObject.states[variableId].init({
       id: variableId,
       name,
       value,
-      typeName: variableTypes?.[typeNameString]?.typeName,
+      // typeName: variableTypes?.[typeNameString]?.typeName,
     });
     graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
@@ -250,7 +250,7 @@ const makeState = ({
     } = currentState || {};
     let serializedChildren: string[][] = [];
     serializeChildren(children, [], serializedChildren);
-    graph.statesObject.states[stateId] = ControlFlowStateWrapper();
+    // graph.statesObject.states[stateId] = ControlFlowStateWrapper();
     graph.statesObject.states[stateId].init({
       id: stateId,
       parents: [],
@@ -283,7 +283,7 @@ const makeState = ({
   });
 };
 
-const arrayState = (states: States, i: number) => states[i] as ArrayState;
+const arrayState = (states: States, i: number) => states[i] as State;
 
 const makeChildParentLinks = (states: State) => {};
 const makeArrays = (stateTree: any, graph: Graph) => {

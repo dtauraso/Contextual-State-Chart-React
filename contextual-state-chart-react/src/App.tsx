@@ -15,7 +15,7 @@ import {
   stateTree,
 } from "./ContextualStateChart/StateTree";
 import { visitor } from "./ContextualStateChart/Visitor";
-import { numberWrapper } from "./ContextualStateChart/StateTree";
+// import { numberWrapper } from "./ContextualStateChart/StateTree";
 import {
   isBoolean,
   isNumber,

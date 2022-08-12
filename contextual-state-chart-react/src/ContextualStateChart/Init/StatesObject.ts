@@ -1,12 +1,11 @@
 import { State, StatesObject } from "../../App.types";
-import {
-  booleanWrapper,
-  numberWrapper,
-  stringWrapper,
-  arrayWrapper,
-  objectWrapper,
-  ControlFlowStateWrapper,
-} from "../StateTree";
+import // booleanWrapper,
+// numberWrapper,
+// stringWrapper,
+// arrayWrapper,
+// objectWrapper,
+// ControlFlowStateWrapper,
+"../StateTree";
 const isNull = (json: any) => {
   return Object.prototype.toString.call(json) === "[object Null]";
 };
@@ -376,68 +375,68 @@ const getVariables = ({
   // console.log({ maxId: variables.nextStateId });
   // variables.nextStateId += lastStateId;
   if (isBoolean(json)) {
-    let newVariable = booleanWrapper();
-    newVariable.setValue(json);
-    newVariable.setName(jsonName);
+    // let newVariable = booleanWrapper();
+    // newVariable.setValue(json);
+    // newVariable.setName(jsonName);
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);
     // return variables.length - 1;
     variables.nextStateId += 1;
-    variables.states[variables.nextStateId] = newVariable;
+    // variables.states[variables.nextStateId] = newVariable;
     return variables.nextStateId;
   } else if (isNumber(json)) {
-    let newVariable = numberWrapper();
-    newVariable.setValue(json);
-    newVariable.setName(jsonName);
+    // let newVariable = numberWrapper();
+    // newVariable.setValue(json);
+    // newVariable.setName(jsonName);
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);
     // return variables.length - 1;
     variables.nextStateId += 1;
-    variables.states[variables.nextStateId] = newVariable;
+    // variables.states[variables.nextStateId] = newVariable;
     return variables.nextStateId;
   } else if (isString(json)) {
-    let newVariable = stringWrapper();
-    newVariable.setValue(json);
-    newVariable.setName(jsonName);
+    // let newVariable = stringWrapper();
+    // newVariable.setValue(json);
+    // newVariable.setName(jsonName);
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);
     // return variables.length - 1;
     variables.nextStateId += 1;
-    variables.states[variables.nextStateId] = newVariable;
+    // variables.states[variables.nextStateId] = newVariable;
     return variables.nextStateId;
   } else if (isArray(json)) {
-    let newVariable = arrayWrapper();
-    newVariable.setValue([]);
-    newVariable.setName(jsonName);
-    newVariable.value = json.map((element: any, i: number) => {
-      getVariables({
-        json: element,
-        jsonName: `${i}`,
-        variables,
-      });
-    });
+    // let newVariable = arrayWrapper();
+    // newVariable.setValue([]);
+    // newVariable.setName(jsonName);
+    // newVariable.value = json.map((element: any, i: number) => {
+    //   getVariables({
+    //     json: element,
+    //     jsonName: `${i}`,
+    //     variables,
+    //   });
+    // });
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);
     // return variables.length - 1;
     variables.nextStateId += 1;
-    variables.states[variables.nextStateId] = newVariable;
+    // variables.states[variables.nextStateId] = newVariable;
     return variables.nextStateId;
   } else if (isObject(json)) {
-    let newVariable = objectWrapper();
-    newVariable.setValue({});
-    newVariable.setName(jsonName);
-    Object.keys(json).forEach((key) => {
-      newVariable.value[key] = getVariables({
-        json: json[key],
-        jsonName: key,
-        variables,
-      });
-    });
+    // let newVariable = objectWrapper();
+    // newVariable.setValue({});
+    // newVariable.setName(jsonName);
+    // Object.keys(json).forEach((key) => {
+    //   newVariable.value[key] = getVariables({
+    //     json: json[key],
+    //     jsonName: key,
+    //     variables,
+    //   });
+    // });
     // variables.push(newVariable);
     // newVariable.setId(variables.length - 1);
     // return variables.length - 1;
     variables.nextStateId += 1;
-    variables.states[variables.nextStateId] = newVariable;
+    // variables.states[variables.nextStateId] = newVariable;
     return variables.nextStateId;
   }
 };

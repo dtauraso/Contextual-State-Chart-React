@@ -1,4 +1,4 @@
-import { ArrayState, Graph, NumberState, StringState } from "../App.types";
+import { Graph } from "../App.types";
 
 import { makeArrays, makeVariable } from "./Init/ContextualStateChartInit";
 let tree = ["tree"];
@@ -81,15 +81,15 @@ const updateBranch = (graph: Graph) => {
     .getVariable("winningStateName");
   const currentState = graph.getState(winningStateName.value);
   //   console.log({ graph, nextStates, winningStateName, currentState });
-  nextStates.value.forEach((id1: number) => {
-    (graph.statesObject.states[id1] as ArrayState).value.forEach(
-      (id2: number) => {
-        // console.log({ id2 });
-        delete graph.statesObject.states[id2];
-      }
-    );
-    delete graph.statesObject.states[id1];
-  });
+  // nextStates.value.forEach((id1: number) => {
+  //   (graph.statesObject.states[id1] as ArrayState).value.forEach(
+  //     (id2: number) => {
+  //       // console.log({ id2 });
+  //       delete graph.statesObject.states[id2];
+  //     }
+  //   );
+  //   delete graph.statesObject.states[id1];
+  // });
   nextStates.setValue([]);
   const newNextStates: Array<Array<string>> = [];
 
@@ -109,35 +109,35 @@ const updateBranch = (graph: Graph) => {
 };
 
 // #######################################################################
-const moveUpToParentNode = (
-  graph: Graph,
-  bottom: ArrayState,
-  i: NumberState
-) => {
-  // todo: make sure if there is nothing to delete don't delete anything
-  // move bottom's ith child up by 1 unit
-  const currentBranchName = graph.getVariableById(bottom.at(i)).collect();
-  console.log({ currentBranchName: graph.getVariableById(bottom.at(i)) });
-  const parentTracker = graph.getState(currentBranchName).getParent();
-  parentTracker.children.pop();
-  const currentBranch = graph.getState(currentBranchName);
-  console.log({ currentBranch });
-  // will mess things up if parentTracker connects
-  // to more than 1 branch
-  console.log("parent tracker name", { name: parentTracker });
-  parentTracker.children = [];
-  // the branch name arrays connected to bottom are only connected as past values of bottom.at(i)
-  // branch name as array bottom.at(i) links to
-  // branch state branch name links to
-  // control flow states don't have ids
-  // wrong. use existing name from table
-  // bottom.updateAt(
-  //   i.value,
-  //   parentTracker.name.map((namePart: string) => ({
-  //     value: namePart,
-  //   }))
-  // );
-};
+// const moveUpToParentNode = (
+//   graph: Graph,
+//   bottom: ArrayState,
+//   i: NumberState
+// ) => {
+//   // todo: make sure if there is nothing to delete don't delete anything
+//   // move bottom's ith child up by 1 unit
+//   const currentBranchName = graph.getVariableById(bottom.at(i)).collect();
+//   console.log({ currentBranchName: graph.getVariableById(bottom.at(i)) });
+//   const parentTracker = graph.getState(currentBranchName).getParent();
+//   parentTracker.children.pop();
+//   const currentBranch = graph.getState(currentBranchName);
+//   console.log({ currentBranch });
+//   // will mess things up if parentTracker connects
+//   // to more than 1 branch
+//   console.log("parent tracker name", { name: parentTracker });
+//   parentTracker.children = [];
+//   // the branch name arrays connected to bottom are only connected as past values of bottom.at(i)
+//   // branch name as array bottom.at(i) links to
+//   // branch state branch name links to
+//   // control flow states don't have ids
+//   // wrong. use existing name from table
+//   // bottom.updateAt(
+//   //   i.value,
+//   //   parentTracker.name.map((namePart: string) => ({
+//   //     value: namePart,
+//   //   }))
+//   // );
+// };
 
 const deleteCurrentNode = (graph: any, currentTracker: any) => {
   Object.keys(currentTracker.variables).forEach((variableName) => {
@@ -226,7 +226,7 @@ const travelUpBranchPath = (graph: Graph) => {
   const currentBranchName = graph.getVariableById(bottom.at(i)).collect();
   const idOfCurrentBranchName = bottom.at(i);
   const currentTracker = graph.getState(currentBranchName);
-  moveUpToParentNode(graph, bottom, i);
+  // moveUpToParentNode(graph, bottom, i);
 
   console.log({ currentTracker, graph, bottom, idOfCurrentBranchName });
   // delete current branch name(current node)

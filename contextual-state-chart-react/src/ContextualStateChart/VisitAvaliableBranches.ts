@@ -1,24 +1,23 @@
 import { isConstructorDeclaration } from "typescript";
 import {
-  ControlFlowState,
+  State,
   Graph,
   ActiveChildStates,
-  PendingStates,
+  // PendingStates,
   Variable,
-  ArrayState,
-  BooleanState,
-  NumberState,
-  StringState,
-  ObjectState,
+  // ArrayState,
+  // BooleanState,
+  // NumberState,
+  // StringState,
+  // ObjectState,
 } from "../App.types";
-import {
-  arrayWrapper,
-  booleanWrapper,
-  numberWrapper,
-  objectWrapper,
-  stringWrapper,
-  wrapper,
-} from "./StateTree";
+import // arrayWrapper,
+// booleanWrapper,
+// numberWrapper,
+// objectWrapper,
+// stringWrapper,
+// wrapper,
+"./StateTree";
 import { VisitBranches } from "./Visitor";
 enum EdgeKinds {
   START_CHILDREN = 0,
@@ -27,13 +26,13 @@ enum EdgeKinds {
 const { START_CHILDREN, NEXT } = EdgeKinds;
 
 const changedStatues = { 0: "NONE", 1: "ADDED", 2: "MODIFIED", 3: "DELETED" };
-const variableTypes: any = {
-  boolean: booleanWrapper,
-  number: numberWrapper,
-  string: stringWrapper,
-  array: arrayWrapper,
-  object: objectWrapper,
-};
+// const variableTypes: any = {
+//   boolean: booleanWrapper,
+//   number: numberWrapper,
+//   string: stringWrapper,
+//   array: arrayWrapper,
+//   object: objectWrapper,
+// };
 
 /*
     1)variable usage easy language api(similar to default language syntax)
@@ -198,7 +197,7 @@ const VisitAvaliableBranches = (
 
         // find 1 pair
         const { destinationTimeline } =
-          (graph.statesObject.states[currentStateID] as ControlFlowState) || {};
+          (graph.statesObject.states[currentStateID] as State) || {};
         if (destinationTimeline === undefined) {
           return;
         }
@@ -279,11 +278,11 @@ const VisitAvaliableBranches = (
           let variables = state.getVariables();
           console.log("here", {
             variables,
-            x: variables?.init,
+            // x: variables?.init,
           });
           if (!(branchID in variables)) {
             const variableObject =
-              graph.getVariableById(variables?.init)?.value ?? {};
+              graph.getVariableById(/*variables?.init*/ 5)?.value ?? {};
             Object.keys(variableObject).forEach((item: string) => {
               // make new state variables with the names and init value
               // fix
@@ -296,10 +295,10 @@ const VisitAvaliableBranches = (
               console.log({
                 variableState: graph.getVariableById(variableObject[item]),
                 x: typeName,
-                y: variableTypes[typeName],
+                // y: variableTypes[typeName],
               });
               const index = graph.statesObject.nextStateId;
-              graph.statesObject.states[index] = variableTypes[typeName]();
+              // graph.statesObject.states[index] = variableTypes[typeName]();
               // graph.statesObject.states[index].wrapper.init(, {})
               const argObject = { id, name, value, typeName };
               console.log({
@@ -308,44 +307,34 @@ const VisitAvaliableBranches = (
               });
 
               if (typeName === "boolean") {
-                let variableState = graph.statesObject.states[
-                  index
-                ] as BooleanState;
-                variableState.wrapper.init(argObject);
+                let variableState = graph.statesObject.states[index] as State;
+                // variableState.init(argObject);
                 console.log({
-                  "finished with new variable": variableState.wrapper,
+                  "finished with new variable": variableState,
                 });
               } else if (typeName === "number") {
-                let variableState = graph.statesObject.states[
-                  index
-                ] as NumberState;
-                variableState.wrapper.init(argObject);
+                let variableState = graph.statesObject.states[index] as State;
+                // variableState.wrapper.init(argObject);
                 console.log({
-                  "finished with new variable": variableState.wrapper,
+                  "finished with new variable": variableState,
                 });
               } else if (typeName === "string") {
-                let variableState = graph.statesObject.states[
-                  index
-                ] as StringState;
-                variableState.wrapper.init(argObject);
+                let variableState = graph.statesObject.states[index] as State;
+                // variableState.wrapper.init(argObject);
                 console.log({
-                  "finished with new variable": variableState.wrapper,
+                  "finished with new variable": variableState,
                 });
               } else if (typeName === "array") {
-                let variableState = graph.statesObject.states[
-                  index
-                ] as ArrayState;
-                variableState.wrapper.init(argObject);
+                let variableState = graph.statesObject.states[index] as State;
+                // variableState.wrapper.init(argObject);
                 console.log({
-                  "finished with new variable": variableState.wrapper,
+                  "finished with new variable": variableState,
                 });
               } else if (typeName === "object") {
-                let variableState = graph.statesObject.states[
-                  index
-                ] as ObjectState;
-                variableState.wrapper.init(argObject);
+                let variableState = graph.statesObject.states[index] as State;
+                // variableState.wrapper.init(argObject);
                 console.log({
-                  "finished with new variable": variableState.wrapper,
+                  "finished with new variable": variableState,
                 });
               }
 
