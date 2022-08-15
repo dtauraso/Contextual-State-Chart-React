@@ -11,6 +11,8 @@ import {
   StatesObject,
   NamesTrie,
   Graph,
+  TreeBottom,
+  Tree,
 } from "../../App.types";
 // f(stateTree) => names and states arrays
 import { insertName, searchName, getStateId } from "./TrieTree";
@@ -81,6 +83,8 @@ const makeVariable = ({
   indexObject,
   name,
   graph,
+  stateRunTreeBottom,
+  runTree,
 }: any): any => {
   if ("value" in stateTree) {
     const value = stateTree["value"];
@@ -177,6 +181,8 @@ const makeState = ({
   currentStateName,
   graph,
   childrenStateIDs,
+  stateRunTreeBottom,
+  runTree,
 }: any): any => {
   if ("state" in stateTree) {
     const substateNames = Object.keys(stateTree).filter(
@@ -191,6 +197,8 @@ const makeState = ({
           currentStateName: [...currentStateName, childNamePart],
           graph,
           childrenStateIDs,
+          stateRunTreeBottom,
+          runTree,
         });
       });
     }
@@ -221,6 +229,8 @@ const makeState = ({
         currentStateName: [childNamePart],
         graph,
         childrenStateIDs: newChildrenStateIDs,
+        stateRunTreeBottom,
+        runTree,
       });
     });
     newChildrenStateIDs.forEach((childID: number) => {
@@ -235,6 +245,8 @@ const makeState = ({
           indexObject,
           name: variableName,
           graph,
+          stateRunTreeBottom,
+          runTree,
         }),
       }),
       {}
@@ -279,6 +291,8 @@ const makeState = ({
       currentStateName: [...currentStateName, childNamePart],
       graph,
       childrenStateIDs,
+      stateRunTreeBottom,
+      runTree,
     });
   });
 };
@@ -286,7 +300,12 @@ const makeState = ({
 const arrayState = (states: States, i: number) => states[i] as State;
 
 const makeChildParentLinks = (states: State) => {};
-const makeArrays = (stateTree: any, graph: Graph) => {
+const makeArrays = (
+  stateTree: any,
+  graph: Graph,
+  stateRunTreeBottom: TreeBottom,
+  runTree: Tree
+) => {
   /*
   read the full state name
   save all the state attributes except for 
@@ -300,6 +319,8 @@ const makeArrays = (stateTree: any, graph: Graph) => {
     currentStateName: [],
     graph, //: graph.statesObject.states,
     childrenStateIDs: [],
+    stateRunTreeBottom,
+    runTree,
   });
   // trieTreeCollection.forEach((name: any) => {
   //   graph.namesTrie = insertName({

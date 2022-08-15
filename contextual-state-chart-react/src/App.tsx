@@ -5,7 +5,7 @@ import {
   // getStateNames,
   makeArrays,
 } from "./ContextualStateChart/Init/ContextualStateChartInit";
-import { Graph, NamesTrie, State } from "./App.types";
+import { Graph, NamesTrie, State, Tree, TreeBottom } from "./App.types";
 import { calculatorStateTree } from "./Calculator/CalculatorStateTree";
 import {
   getState,
@@ -375,6 +375,25 @@ const App = (props: any) => {
   // i.setValue(5);
   // i.add(i.value + 1).add(1);
   // console.log({ i });
+  let stateRunTreeBottom: TreeBottom = {
+    branches: {
+      0: {
+        currentStateID: 1,
+      },
+    },
+    maxBranchID: 0,
+  };
+  let runTree: Tree = {
+    0: {
+      1: {
+        activeChildStates: {},
+        parentID: 0,
+        parentBranchID: -1,
+        edgesGroupIndex: 0,
+      },
+    },
+    currentBranchID: 0,
+  };
   let graph: Graph = {
     statesObject: { states: {}, nextStateId: 0 },
     namesTrie: {},
@@ -383,7 +402,7 @@ const App = (props: any) => {
     getStateById: getStateById,
     getVariableById: getVariableById,
   };
-  makeArrays(stateTree, graph);
+  makeArrays(stateTree, graph, stateRunTreeBottom, runTree);
   let { statesObject, namesTrie } = graph;
   Object.keys(statesObject.states)
     .map(Number)

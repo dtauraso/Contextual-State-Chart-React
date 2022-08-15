@@ -33,24 +33,24 @@ const pushBranch = (graph: Graph) => {
     .getVariable("winningStateName");
   const winningState = graph.getState(winningStateName.value);
   // internal variable is added to trie tree
-  makeArrays(
-    {
-      [newBranchName[level]]: {
-        [newBranchName[timeLine]]: {
-          state: {
-            parents: [[...currentBranchName]],
-            children: {},
-            variables: {
-              nextStates: winningState.edgeGroups,
-              winningStateName: [],
-              j: { value: 0 },
-            },
-          },
-        },
-      },
-    },
-    graph
-  );
+  // makeArrays(
+  //   {
+  //     [newBranchName[level]]: {
+  //       [newBranchName[timeLine]]: {
+  //         state: {
+  //           parents: [[...currentBranchName]],
+  //           children: {},
+  //           variables: {
+  //             nextStates: winningState.edgeGroups,
+  //             winningStateName: [],
+  //             j: { value: 0 },
+  //           },
+  //         },
+  //       },
+  //     },
+  //   },
+  //   graph
+  // );
   let currentBranch = graph.getState(currentBranchName);
   currentBranch.children.push([...newBranchName]);
   let stateRunTreeBottom = graph

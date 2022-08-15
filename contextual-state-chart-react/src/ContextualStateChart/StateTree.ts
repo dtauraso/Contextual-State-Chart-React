@@ -435,23 +435,40 @@ const VariableWrapper = function (): Variable {
         return this?.currentValue?.booleanValue;
       } else if (typeName === "[object Number]") {
         return this?.currentValue?.numberValue;
+      } else if (typeName === "[object String]") {
+        return this?.currentValue?.numberValue;
       }
     },
-    setValue: function (this: Variable, cb: Function, args: any[]) {
+    setValue: function (
+      this: Variable,
+      functionName: string,
+      args: any[],
+      functionResult?: any
+    ) {
       const typeName = this.variableTypeName;
       if (typeName === "[object Boolean]") {
         this.prevValue = this.booleanValue;
       } else if (typeName === "[object Number]") {
         this.prevValue = this.numberValue;
+        this.changeStatus = MODIFIED;
+        this.numberValue = functionResult;
       } else if (typeName === "[object String]") {
         this.prevValue = this.stringValue;
       } else if (typeName === "[object Array]") {
         this.prevValue = this.numberArrayValue;
-        const functionName = cb.name;
         if (functionName === "unshift") {
-          this.valueIDsChangedStatus["0"] = ADDED;
-          // this.graph?.statesObject.states[position];
+          this.valueIDsChangedStatus["0"] = {
+            changedStatus: ADDED,
+            previousValue: null,
+          };
+          // add new state with name, value ("0", arg[1])
+          // this.graph?.statesObject.states[0];
+          // args[1] = state id
           this.numberArrayValue?.unshift(...args);
+        } else if (functionName === "at") {
+          const position = this.numberArrayValue?.at(args[0]) as number;
+          const state = this.graph?.statesObject.states[position];
+          return state?.getValue();
         }
       } else if (typeName === "[object Object]") {
         this.prevValue = this.stringMapNumberValue;

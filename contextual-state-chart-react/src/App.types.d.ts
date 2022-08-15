@@ -24,10 +24,13 @@ type Variable = {
 
   variableTypeName?: string;
   prevValue?: any;
-  valueIDsChangedStatus: { [id: string]: ChangeStatus };
+  valueIDsChangedStatus: { [id: string]: {changedStatus: ChangedStatus, previousValue: any} };
   changeStatus: ChangeStatus;
 
+  // traverse nested structures
   graph?: Graph;
+
+
   setId?: (this: any, id: number) => this;
   setName?: (this: any, name: string) => this;
   setValue?: (this: any, value: any) => this;
@@ -51,6 +54,7 @@ type State = {
   currentValue?: Variable;
   isVariable: boolean;
   stateRunCount: number;
+  branchIDVariableID: {[branchID: number]: number},
   branchIDParentIDParentBranchID: {
     [branchID: number]: {
       activeChildStatesCount: number;
@@ -61,9 +65,18 @@ type State = {
   timelineIDs: { [timelineID: number]: number };
   areChildrenParallel: boolean;
   areNextParallel: boolean;
+
+  // access the current branch ID and the parent state ID
+  runTree?: Tree;
+
+  // access the parent state and the current branch IDth variable ID
+  graph?: Graph;
+
+
   // using "any" to avoid having to use ".typeName()" when getting the value of a variable
   getVariables: (this: ControlFlowState) => Variable;
   getVariable: (this: ControlFlowState, variableName: string) => any;
+  getValue: function (this: State): any;
   getParent: (this: ControlFlowState) => any;
   getEdges: (this: ControlFlowState, edgesGroupIndex: number) => Edges;
   areEdgesStart: (this: ControlFlowState, edgesGroupIndex: number) => boolean;
@@ -96,6 +109,27 @@ type Graph = {
   getVariableById: (this: Graph, variableId: number) => any;
 };
 
+type Tree = {
+  [branchID: number]: {
+    [stateID: number]: {
+      activeChildStates: ActiveChildStates;
+      parentID: number;
+      parentBranchID: number;
+      edgesGroupIndex: number;
+    };
+  };
+  currentBranchID: number;
+
+}
+type TreeBottom = {
+  branches: {
+    [branchID: number]: {
+      currentStateID: number,
+    },
+  },
+  maxBranchID: number,
+}
+
 export {
   Variable,
   State,
@@ -106,4 +140,6 @@ export {
   ActiveChildStates,
   Edge,
   Edges,
+  Tree,
+  TreeBottom
 };
