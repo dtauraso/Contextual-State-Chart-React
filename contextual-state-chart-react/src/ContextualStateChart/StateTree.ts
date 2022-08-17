@@ -7,6 +7,8 @@ import {
   Edge,
   Edges,
   Variable,
+  TreeBottom,
+  Tree,
 } from "../App.types";
 import { calculatorStateTree } from "../Calculator/CalculatorStateTree";
 import { NFAStateTree } from "../NFA/NFAStateTree";
@@ -55,7 +57,7 @@ let stateTree = {
 const printTree = function (this: Graph) {};
 const convertToJson = function (this: Graph) {};
 
-const StateWrapper = function (): State {
+const stateWrapper = function (): State {
   return Object.create({
     getVariable,
     init: function init(
@@ -91,6 +93,27 @@ const StateWrapper = function (): State {
       this.haveStartChildren = haveStartChildren;
       this.destinationTimeline = destinationTimeline;
       this.timelineIDs = timelineIDs;
+    },
+    initVariable: function (
+      this: any,
+      { id, name, value, typeName, runTree, graph }: any
+    ) {
+      if (typeName === "[object Boolean]") {
+        this.booleanValue = value;
+      } else if (typeName === "[object Number]") {
+        this.numberValue = value;
+      } else if (typeName === "[object String]") {
+        this.stringValue = value;
+      } else if (typeName === "[object Array]") {
+        this.numberArrayValue = value;
+      } else if (typeName === "[object Object]") {
+        this.stringMapNumberValue = value;
+      }
+      this.variableTypeName = typeName;
+      this.id = id;
+      this.name = name;
+      this.runTree = runTree;
+      this.graph = graph;
     },
     visitState: function visitState(this: any) {},
 
@@ -412,10 +435,17 @@ const StateWrapper = function (): State {
     },
   });
 };
-const VariableWrapper = function (): Variable {
+const variableWrapper = function (): Variable {
   return Object.create({
-    init: function (this: any, value: any) {
-      const typeName = Object.prototype.toString.call(value);
+    init: function (
+      this: any,
+      id: string, // will the variable
+      name: string,
+      value: any,
+      typeName: string,
+      stateRunTreeBottom: TreeBottom,
+      runTree: Tree
+    ) {
       if (typeName === "[object Boolean]") {
         this.booleanValue = value;
       } else if (typeName === "[object Number]") {
@@ -786,4 +816,5 @@ export {
   // insertVariableState,
   // insertState,
   printRecordTree,
+  stateWrapper,
 };

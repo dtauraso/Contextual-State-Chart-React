@@ -402,7 +402,7 @@ const App = (props: any) => {
     getStateById: getStateById,
     getVariableById: getVariableById,
   };
-  makeArrays(stateTree, graph, stateRunTreeBottom, runTree);
+  makeArrays(stateTree, runTree, graph);
   let { statesObject, namesTrie } = graph;
   Object.keys(statesObject.states)
     .map(Number)

@@ -44,37 +44,10 @@ import {
   // ControlFlowStateWrapper,
   stateTree,
   getVariable,
+  stateWrapper,
 } from "../StateTree";
 
 const returnTrueShort = (value: any) => true;
-// const variableTypes: any = {
-//   "[object Boolean]": {
-//     cb: returnTrueShort,
-//     typeName: "boolean",
-//     wrapper: booleanWrapper,
-//   },
-//   "[object Number]": {
-//     cb: returnTrueShort,
-//     typeName: "number",
-//     wrapper: numberWrapper,
-//   },
-//   "[object String]": {
-//     cb: returnTrueShort,
-//     typeName: "string",
-//     wrapper: stringWrapper,
-//   },
-//   "[object Array]": {
-//     cb: (value: any) => value.length === 0,
-//     typeName: "array",
-//     wrapper: arrayWrapper,
-//   },
-//   "[object Object]": {
-//     cb: (value: any) => Object.keys(value).length === 0,
-//     typeName: "object",
-//     wrapper: objectWrapper,
-//   },
-// };
-// needs distintive type construction
 const getTypeName = (item: any) => Object.prototype.toString.call(item);
 
 const makeVariable = ({
@@ -82,47 +55,46 @@ const makeVariable = ({
   stateTree,
   indexObject,
   name,
-  graph,
-  stateRunTreeBottom,
   runTree,
+  graph,
 }: any): any => {
   if ("value" in stateTree) {
-    const value = stateTree["value"];
-    const typeNameString = getTypeName(value);
+    const { value } = stateTree;
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
-    // graph.statesObject.states[variableId] =
-    //   variableTypes?.[typeNameString]?.wrapper();
-    graph.statesObject.states[variableId].init({
+    graph.statesObject.states[variableId] = stateWrapper();
+    graph.statesObject.states[variableId].initVariable({
       id: variableId,
       name,
       value,
-      // typeName: variableTypes?.[typeNameString]?.typeName,
+      typeName: getTypeName(value),
+      runTree,
+      graph,
     });
-    graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
   } else if (isArray(stateTree)) {
     const value = stateTree.map((element: any, i: number) =>
       makeVariable({
         trieTreeCollection,
-        stateTree: stateTree[i],
+        stateTree: element,
         indexObject,
         name: `${i}`,
+        runTree,
         graph,
       })
     );
 
-    const typeNameString = getTypeName(value);
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
-    // graph.statesObject.states[variableId] = arrayWrapper();
-    graph.statesObject.states[variableId].init({
+    graph.statesObject.states[variableId] = stateWrapper();
+    graph.statesObject.states[variableId].initVariable({
       id: variableId,
       name,
       value,
-      // typeName: variableTypes?.[typeNameString]?.typeName,
+      typeName: getTypeName(value),
+      runTree,
+      graph,
     });
-    graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
   } else if (isObject(stateTree)) {
     const value = Object.keys(stateTree).reduce(
@@ -133,22 +105,23 @@ const makeVariable = ({
           stateTree: stateTree[variableName],
           indexObject,
           name: variableName,
+          runTree,
           graph,
         }),
       }),
       {}
     );
-    const typeNameString = getTypeName(value);
     const variableId = indexObject.nextStateId;
     indexObject.nextStateId += 1;
-    // graph.statesObject.states[variableId] = objectWrapper();
-    graph.statesObject.states[variableId].init({
+    graph.statesObject.states[variableId] = stateWrapper();
+    graph.statesObject.states[variableId].initVariable({
       id: variableId,
       name,
       value,
-      // typeName: variableTypes?.[typeNameString]?.typeName,
+      typeName: getTypeName(value),
+      runTree,
+      graph,
     });
-    graph.statesObject.states[variableId].setGraph(graph);
     return variableId;
   } else {
     return -1;
@@ -262,7 +235,7 @@ const makeState = ({
     } = currentState || {};
     let serializedChildren: string[][] = [];
     serializeChildren(children, [], serializedChildren);
-    // graph.statesObject.states[stateId] = ControlFlowStateWrapper();
+    graph.statesObject.states[stateId] = stateWrapper();
     graph.statesObject.states[stateId].init({
       id: stateId,
       parents: [],
@@ -300,12 +273,7 @@ const makeState = ({
 const arrayState = (states: States, i: number) => states[i] as State;
 
 const makeChildParentLinks = (states: State) => {};
-const makeArrays = (
-  stateTree: any,
-  graph: Graph,
-  stateRunTreeBottom: TreeBottom,
-  runTree: Tree
-) => {
+const makeArrays = (stateTree: any, runTree: Tree, graph: Graph) => {
   /*
   read the full state name
   save all the state attributes except for 
@@ -317,10 +285,9 @@ const makeArrays = (
     stateTree,
     indexObject: graph.statesObject,
     currentStateName: [],
-    graph, //: graph.statesObject.states,
-    childrenStateIDs: [],
-    stateRunTreeBottom,
     runTree,
+    graph,
+    childrenStateIDs: [],
   });
   // trieTreeCollection.forEach((name: any) => {
   //   graph.namesTrie = insertName({
