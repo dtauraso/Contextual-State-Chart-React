@@ -84,7 +84,7 @@ const stateWrapper = function (): State {
       this.functionName = functionName;
       this.edgeGroups = edgeGroups;
       this.children = children;
-      this.variables = variables;
+      this.branchIDVariableID = { "-1": variables };
       this.stateRunCount = 0;
       this.getVariables = getVariables;
       this.getVariable = getVariable;
@@ -114,6 +114,37 @@ const stateWrapper = function (): State {
       this.name = name;
       this.runTree = runTree;
       this.graph = graph;
+    },
+    variableTreeToInitJson: function variableTreeToJson(this: State) {
+      const variable = this.currentValue;
+
+      const convertVariableTreeToInitJson = (variable: any): any => {
+        const typeName = variable.variableTypeName;
+        if (typeName === "[object Boolean]") {
+          return { value: variable.booleanValue };
+        } else if (typeName === "[object Number]") {
+          return { value: variable.numberValue };
+        } else if (typeName === "[object String]") {
+          return { value: variable.stringValue };
+        } else if (typeName === "[object Array]") {
+          return variable.numberArrayValue?.map((stateID: number) =>
+            convertVariableTreeToInitJson(
+              this.graph?.getStateById(stateID).currentValue
+            )
+          );
+        } else if (typeName === "[object Object]") {
+          return Object.keys(variable.stringMapNumberValue ?? []).reduce(
+            (acc: any, key: any) => ({
+              ...acc,
+              [key]: convertVariableTreeToInitJson(
+                this.graph?.getStateById(variable.stringMapNumberValue?.[key])
+                  .currentValue
+              ),
+            })
+          );
+        }
+      };
+      convertVariableTreeToInitJson(variable);
     },
     visitState: function visitState(this: any) {},
 

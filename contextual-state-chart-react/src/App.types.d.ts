@@ -73,7 +73,6 @@ type State = {
   graph?: Graph;
 
 
-  // using "any" to avoid having to use ".typeName()" when getting the value of a variable
   getVariables: (this: ControlFlowState) => Variable;
   getVariable: (this: ControlFlowState, variableName: string) => any;
   getValue: function (this: State): any;
