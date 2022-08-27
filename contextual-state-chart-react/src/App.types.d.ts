@@ -72,7 +72,8 @@ type State = {
   // access the parent state and the current branch IDth variable ID
   graph?: Graph;
 
-
+  getInitVariables: (this: State) => Variable;
+  getVariableBranches: (this: State) => string[];
   getVariables: (this: ControlFlowState) => Variable;
   getVariable: (this: ControlFlowState, variableName: string) => any;
   getValue: function (this: State): any;

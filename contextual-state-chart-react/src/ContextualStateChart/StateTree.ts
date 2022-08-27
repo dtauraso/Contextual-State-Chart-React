@@ -84,7 +84,7 @@ const stateWrapper = function (): State {
       this.functionName = functionName;
       this.edgeGroups = edgeGroups;
       this.children = children;
-      this.branchIDVariableID = { "-1": variables };
+      this.branchIDVariableID = variables;
       this.stateRunCount = 0;
       this.getVariables = getVariables;
       this.getVariable = getVariable;
@@ -115,6 +115,14 @@ const stateWrapper = function (): State {
       this.runTree = runTree;
       this.graph = graph;
     },
+    getInitVariables: function (this: any) {
+      if ("init" in this?.branchIDVariableID) {
+        return this.graph.getStateById(this?.branchIDVariableID["init"]);
+      }
+    },
+    getVariableBranches: function (this: any): string[] {
+      return Object.keys(this?.branchIDVariableID);
+    },
     variableTreeToInitJson: function variableTreeToJson(this: State) {
       const variable = this.currentValue;
 
@@ -144,7 +152,7 @@ const stateWrapper = function (): State {
           );
         }
       };
-      convertVariableTreeToInitJson(variable);
+      return convertVariableTreeToInitJson(variable);
     },
     visitState: function visitState(this: any) {},
 

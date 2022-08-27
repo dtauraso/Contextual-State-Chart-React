@@ -51,7 +51,6 @@ const returnTrueShort = (value: any) => true;
 const getTypeName = (item: any) => Object.prototype.toString.call(item);
 
 const makeVariable = ({
-  trieTreeCollection,
   stateTree,
   indexObject,
   name,
@@ -75,7 +74,6 @@ const makeVariable = ({
   } else if (isArray(stateTree)) {
     const value = stateTree.map((element: any, i: number) =>
       makeVariable({
-        trieTreeCollection,
         stateTree: element,
         indexObject,
         name: `${i}`,
@@ -101,7 +99,6 @@ const makeVariable = ({
       (acc: any, variableName: string) => ({
         ...acc,
         [variableName]: makeVariable({
-          trieTreeCollection,
           stateTree: stateTree[variableName],
           indexObject,
           name: variableName,
@@ -213,7 +210,6 @@ const makeState = ({
       (acc: any, variableName: string) => ({
         ...acc,
         [variableName]: makeVariable({
-          trieTreeCollection,
           stateTree: variables[variableName],
           indexObject,
           name: variableName,
