@@ -98,22 +98,9 @@ const stateWrapper = function (): State {
       this: any,
       { id, name, value, typeName, runTree, graph }: any
     ) {
-      if (typeName === "[object Boolean]") {
-        this.booleanValue = value;
-      } else if (typeName === "[object Number]") {
-        this.numberValue = value;
-      } else if (typeName === "[object String]") {
-        this.stringValue = value;
-      } else if (typeName === "[object Array]") {
-        this.numberArrayValue = value;
-      } else if (typeName === "[object Object]") {
-        this.stringMapNumberValue = value;
-      }
-      this.variableTypeName = typeName;
-      this.id = id;
-      this.name = name;
-      this.runTree = runTree;
-      this.graph = graph;
+      this.init({ name, id });
+      this.currentValue = variableWrapper();
+      this.currentValue.init({ value, typeName, runTree, graph });
     },
     getInitVariables: function (this: any) {
       if ("init" in this?.branchIDVariableID) {
@@ -124,7 +111,7 @@ const stateWrapper = function (): State {
       return Object.keys(this?.branchIDVariableID);
     },
     variableTreeToInitJson: function variableTreeToJson(this: State) {
-      const variable = this.currentValue;
+      const variable = this;
 
       const convertVariableTreeToInitJson = (variable: any): any => {
         const typeName = variable.variableTypeName;
@@ -476,15 +463,7 @@ const stateWrapper = function (): State {
 };
 const variableWrapper = function (): Variable {
   return Object.create({
-    init: function (
-      this: any,
-      id: string, // will the variable
-      name: string,
-      value: any,
-      typeName: string,
-      stateRunTreeBottom: TreeBottom,
-      runTree: Tree
-    ) {
+    init: function (this: any, { value, typeName, runTree, graph }: any) {
       if (typeName === "[object Boolean]") {
         this.booleanValue = value;
       } else if (typeName === "[object Number]") {
@@ -497,6 +476,8 @@ const variableWrapper = function (): Variable {
         this.stringMapNumberValue = value;
       }
       this.variableTypeName = typeName;
+      this.runTree = runTree;
+      this.graph = graph;
     },
     getValue: function (this: State): any {
       const typeName = this?.currentValue?.variableTypeName;

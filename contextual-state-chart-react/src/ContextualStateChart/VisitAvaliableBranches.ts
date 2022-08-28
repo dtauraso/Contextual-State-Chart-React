@@ -275,13 +275,16 @@ const VisitAvaliableBranches = (
           //     state cannot be run
           // if state has to transfer a value
           //   assume state is child of paired parent
-          let variables = state.getVariableBranches();
+          const variables = state.getVariableBranches();
           console.log("here", {
             variables,
             state,
           });
-          if (!(branchID in variables)) {
-            console.log("make variables for branch", branchID);
+          if (!variables.includes(String(branchID))) {
+            const initBranchState = state.getInitVariables();
+            console.log({ initBranchState });
+            const result = initBranchState.variableTreeToInitJson();
+            console.log({ result });
             // const variableObject =
             //   graph.getVariableById(/*variables?.init*/ 5)?.value ?? {};
             // Object.keys(variableObject).forEach((item: string) => {
