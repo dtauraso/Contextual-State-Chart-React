@@ -19,6 +19,7 @@ import // arrayWrapper,
 // wrapper,
 "./StateTree";
 import { VisitBranches } from "./Visitor";
+import { makeVariable } from "./Init/ContextualStateChartInit";
 enum EdgeKinds {
   START_CHILDREN = 0,
   NEXT = 1,
@@ -283,8 +284,20 @@ const VisitAvaliableBranches = (
           if (!variables.includes(String(branchID))) {
             const initBranchState = state.getInitVariables();
             console.log({ initBranchState });
-            const result = initBranchState.variableTreeToInitJson();
-            console.log({ result });
+            if (initBranchState !== undefined) {
+              const result = initBranchState.variableTreeToInitJson();
+              console.log({ result });
+              const newBranchVariables = result;
+              const newBranchVariableID = makeVariable({
+                stateTree: newBranchVariables,
+                indexObject: graph.statesObject,
+                name: branchID,
+                runTree,
+                graph,
+              });
+              state.branchIDVariableID[branchID] = newBranchVariableID;
+              console.log({ graph });
+            }
             // const variableObject =
             //   graph.getVariableById(/*variables?.init*/ 5)?.value ?? {};
             // Object.keys(variableObject).forEach((item: string) => {

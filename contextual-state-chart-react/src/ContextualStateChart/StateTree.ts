@@ -98,7 +98,7 @@ const stateWrapper = function (): State {
       this: any,
       { id, name, value, typeName, runTree, graph }: any
     ) {
-      this.init({ name, id });
+      this.init({ name, id, graph });
       this.currentValue = variableWrapper();
       this.currentValue.init({ value, typeName, runTree, graph });
     },
@@ -111,9 +111,8 @@ const stateWrapper = function (): State {
       return Object.keys(this?.branchIDVariableID);
     },
     variableTreeToInitJson: function variableTreeToJson(this: State) {
-      const variable = this;
-
-      const convertVariableTreeToInitJson = (variable: any): any => {
+      const variable = this.currentValue as Variable;
+      const convertVariableTreeToInitJson = (variable: Variable): any => {
         const typeName = variable.variableTypeName;
         if (typeName === "[object Boolean]") {
           return { value: variable.booleanValue };
@@ -122,9 +121,9 @@ const stateWrapper = function (): State {
         } else if (typeName === "[object String]") {
           return { value: variable.stringValue };
         } else if (typeName === "[object Array]") {
-          return variable.numberArrayValue?.map((stateID: number) =>
+          return (variable.numberArrayValue ?? []).map((stateID: number) =>
             convertVariableTreeToInitJson(
-              this.graph?.getStateById(stateID).currentValue
+              this.graph?.getStateById(stateID).currentValue as Variable
             )
           );
         } else if (typeName === "[object Object]") {
@@ -132,14 +131,16 @@ const stateWrapper = function (): State {
             (acc: any, key: any) => ({
               ...acc,
               [key]: convertVariableTreeToInitJson(
-                this.graph?.getStateById(variable.stringMapNumberValue?.[key])
-                  .currentValue
+                this.graph?.getStateById(
+                  variable.stringMapNumberValue?.[key] as number
+                ).currentValue as Variable
               ),
-            })
+            }),
+            {}
           );
         }
       };
-      return convertVariableTreeToInitJson(variable);
+      return convertVariableTreeToInitJson(variable as Variable);
     },
     visitState: function visitState(this: any) {},
 
