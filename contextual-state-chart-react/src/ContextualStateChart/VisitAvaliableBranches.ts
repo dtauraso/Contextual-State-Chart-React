@@ -5,6 +5,7 @@ import {
   ActiveChildStates,
   // PendingStates,
   Variable,
+  Tree,
   // ArrayState,
   // BooleanState,
   // NumberState,
@@ -128,20 +129,11 @@ const VisitAvaliableBranches = (
     };
     maxBranchID: number;
   },
-  runTree: {
-    [branchID: number]: {
-      [stateID: number]: {
-        activeChildStates: ActiveChildStates;
-        parentID: number;
-        parentBranchID: number;
-        edgesGroupIndex: number;
-      };
-    };
-  }
+  runTree: Tree
   // branchID -> childStateID -> parentStateID
 ) => {
   const stateRunCountMax = 2;
-  const stateRunCount = graph.getState(tree).getVariable("stateRunCount");
+  // const stateRunCount = graph.getState(tree).getVariable("stateRunCount");
   const firstBranchID = Object.keys(stateRunTreeBottom).length;
   let levelsRun = 0;
   // erase all the branchIDParentID objects used
@@ -244,6 +236,7 @@ const VisitAvaliableBranches = (
     Object.keys(stateRunTreeBottom.branches)
       .map(Number)
       .forEach((branchID: number) => {
+        runTree.currentBranchID = branchID;
         const { currentStateID } = stateRunTreeBottom.branches[branchID];
         const { edgesGroupIndex, parentID, parentBranchID } =
           runTree[branchID][currentStateID];
@@ -296,7 +289,11 @@ const VisitAvaliableBranches = (
                 graph,
               });
               state.branchIDVariableID[branchID] = newBranchVariableID;
-              console.log({ graph });
+              console.log({
+                graph,
+                currentBranch: runTree.currentBranchID,
+                statesRunTree: state.runTree.currentBranchID,
+              });
             }
             // const variableObject =
             //   graph.getVariableById(/*variables?.init*/ 5)?.value ?? {};
@@ -745,21 +742,10 @@ const VisitAvaliableBranches = (
   // }
   return true;
 };
-const printRunTree = (
-  runTree: {
-    [branchID: number]: {
-      [stateID: number]: {
-        activeChildStates: ActiveChildStates;
-        parentID: number;
-        parentBranchID: number;
-        edgesGroupIndex: number;
-      };
-    };
-  },
-  graph: Graph
-) => {
+const printRunTree = (runTree: Tree, graph: Graph) => {
   console.log(
     `   current runTree: \n       ${Object.keys(runTree)
+      .filter((key) => key !== "currentBranchID")
       .map((item: string) => Number(item))
       .map((branchID: number) => {
         const {

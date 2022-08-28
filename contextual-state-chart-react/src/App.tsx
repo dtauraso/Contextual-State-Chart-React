@@ -394,6 +394,25 @@ const App = (props: any) => {
     },
     currentBranchID: 0,
   };
+  // let runTree: {
+  //   [branchID: number]: {
+  //     [stateID: number]: {
+  //       activeChildStates: ActiveChildStates;
+  //       parentID: number;
+  //       parentBranchID: number;
+  //       edgesGroupIndex: number;
+  //     };
+  //   };
+  // } = {
+  //   0: {
+  //     1: {
+  //       activeChildStates: {},
+  //       parentID: 0,
+  //       parentBranchID: -1,
+  //       edgesGroupIndex: 0,
+  //     },
+  //   },
+  // };
   let graph: Graph = {
     statesObject: { states: {}, nextStateId: 0 },
     namesTrie: {},
@@ -419,7 +438,7 @@ const App = (props: any) => {
   console.log({ namesTrie, statesObject });
 
   // twoSumMappingTest();
-  visitor(["NFA"], graph);
+  visitor(["NFA"], graph, stateRunTreeBottom, runTree);
   // console.log(
   //   "namesTrie",
   //   JSON.parse(JSON.stringify(namesTrie)),

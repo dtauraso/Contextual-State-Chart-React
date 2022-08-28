@@ -67,13 +67,15 @@ type State = {
   areNextParallel: boolean;
 
   // access the current branch ID and the parent state ID
-  runTree?: Tree;
+  runTree: Tree;
 
   // access the parent state and the current branch IDth variable ID
-  graph?: Graph;
+  graph: Graph;
 
   getInitVariables: (this: State) => State;
   getVariableBranches: (this: State) => string[];
+  getValueFromBranch: (this: State, variableName: string) => number;
+  getValue: (this: State) => any;
   variableTreeToInitJson: (this: State) => any;
   getVariables: (this: ControlFlowState) => Variable;
   getVariable: (this: ControlFlowState, variableName: string) => any;

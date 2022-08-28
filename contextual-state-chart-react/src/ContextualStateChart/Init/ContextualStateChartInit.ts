@@ -246,6 +246,7 @@ const makeState = ({
       variables: stateVariables,
       getVariable,
       graph,
+      runTree,
       destinationTimeline,
       timelineIDs,
     });

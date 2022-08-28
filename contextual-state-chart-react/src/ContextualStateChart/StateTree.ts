@@ -75,6 +75,7 @@ const stateWrapper = function (): State {
         haveStartChildren,
         destinationTimeline,
         timelineIDs,
+        runTree,
       }: any
     ) {
       this.id = id;
@@ -89,6 +90,7 @@ const stateWrapper = function (): State {
       this.getVariables = getVariables;
       this.getVariable = getVariable;
       this.graph = graph;
+      this.runTree = runTree;
       this.branchIDParentIDParentBranchID = {};
       this.haveStartChildren = haveStartChildren;
       this.destinationTimeline = destinationTimeline;
@@ -109,6 +111,28 @@ const stateWrapper = function (): State {
     },
     getVariableBranches: function (this: any): string[] {
       return Object.keys(this?.branchIDVariableID);
+    },
+    getValueFromBranch: function (this: State, variableName: string) {
+      const typeName = this?.currentValue?.variableTypeName;
+      if (typeName === "[object Object]") {
+        return this?.currentValue?.stringMapNumberValue?.[
+          variableName
+        ] as number;
+      }
+    },
+    getValue: function (this: State): any {
+      const typeName = this?.currentValue?.variableTypeName;
+      if (typeName === "[object Boolean]") {
+        return this?.currentValue?.booleanValue;
+      } else if (typeName === "[object Number]") {
+        return this?.currentValue?.numberValue;
+      } else if (typeName === "[object String]") {
+        return this?.currentValue?.stringValue;
+      } else if (typeName === "[object Array]") {
+        return this?.currentValue?.numberArrayValue;
+      } else if (typeName === "[object Object]") {
+        return this?.currentValue?.stringMapNumberValue;
+      }
     },
     variableTreeToInitJson: function variableTreeToJson(this: State) {
       const variable = this.currentValue as Variable;
@@ -480,16 +504,7 @@ const variableWrapper = function (): Variable {
       this.runTree = runTree;
       this.graph = graph;
     },
-    getValue: function (this: State): any {
-      const typeName = this?.currentValue?.variableTypeName;
-      if (typeName === "[object Boolean]") {
-        return this?.currentValue?.booleanValue;
-      } else if (typeName === "[object Number]") {
-        return this?.currentValue?.numberValue;
-      } else if (typeName === "[object String]") {
-        return this?.currentValue?.numberValue;
-      }
-    },
+
     setValue: function (
       this: Variable,
       functionName: string,
@@ -650,18 +665,35 @@ const getVariable = function (
     console.log(variableName, "must be a string");
     return -1;
   }
+  console.log("david this", this);
+
+  console.log("david this json", JSON.parse(JSON.stringify(this?.runTree)));
+  console.log("david current branch id", this?.runTree.currentBranchID);
+  const { currentBranchID } = this?.runTree;
+  const branchStateID = this?.branchIDVariableID[currentBranchID];
+  console.log("david branch id", branchStateID);
+  const branchState: State = this?.graph.statesObject.states[branchStateID];
+  console.log("david branch state");
+  console.log({ branchState });
+  const variableState =
+    this?.graph.statesObject.states[
+      branchState.getValueFromBranch(variableName)
+    ];
+  console.log("david variable state");
+  console.log({ variableState });
+  return variableState.getValue();
   // console.log({ this: this, variableName });
   // if (parentDataStateName === undefined) {
   //   return null;
   // }
   // const states = this.states;
   // const parentDataState = getState(this, parentDataStateName);
-  const variableId = this?.variables?.[variableName];
+  // const variableId = this?.variables?.[variableName];
   // console.log({ variableId });
   // console.log({ variable: this.graph.statesObject.states[variableId] });
   // const variable: any = this.graph.statesObject.states[variableId];
   // if (variable.typeName === "number") return variable as NumberState;
-  return this.graph.statesObject.states[variableId];
+  // return this.graph.statesObject.states[variableId];
 };
 const setVariable = (graph: Graph, variableName: string, newValue: any) => {
   // console.log({ graph, state, variableName, newValue });

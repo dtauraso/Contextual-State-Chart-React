@@ -5,6 +5,8 @@ import {
   // NumberState,
   State,
   ActiveChildStates,
+  TreeBottom,
+  Tree,
   // PendingStates,
 } from "../App.types";
 import {
@@ -500,7 +502,12 @@ const setupTrackers = (startStateName: string[], graph: Graph) => {
   nextStates.value.push(newStateId);
 };
 
-const visitor = (startStateName: string[], graph: any) => {
+const visitor = (
+  startStateName: string[],
+  graph: any,
+  stateRunTreeBottom: TreeBottom,
+  runTree: Tree
+) => {
   /*
     setup trackers
 
@@ -524,36 +531,11 @@ const visitor = (startStateName: string[], graph: any) => {
   // setupTrackers(startStateName, graph);
 
   // a timeline node is also a state node
-  let stateRunTreeBottom = {
-    branches: {
-      0: {
-        currentStateID: 1,
-      },
-    },
-    maxBranchID: 0,
-  };
+
   /*
   stateID: {branchID: {activeChildStateIDs, parentStateID, parentBranchID}}
   */
-  let runTree: {
-    [branchID: number]: {
-      [stateID: number]: {
-        activeChildStates: ActiveChildStates;
-        parentID: number;
-        parentBranchID: number;
-        edgesGroupIndex: number;
-      };
-    };
-  } = {
-    0: {
-      1: {
-        activeChildStates: {},
-        parentID: 0,
-        parentBranchID: -1,
-        edgesGroupIndex: 0,
-      },
-    },
-  };
+
   // const currentState = graph.getStateById(1);
   // currentState.branchIDParentIDParentBranchID = {
   //   0: {
