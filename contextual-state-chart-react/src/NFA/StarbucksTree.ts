@@ -126,7 +126,10 @@ let StartbucksStateTree = {
                       },
                     },
                     variables: {
-                      init: { currentOrder: { value: 0 }, price: { value: 0 } },
+                      init: {
+                        currentOrder: { value: 23456 },
+                        price: { value: 0 },
+                      },
                     },
                     timelineIDs: {},
                     destinationTimeline: "Customer",
@@ -202,7 +205,7 @@ let StartbucksStateTree = {
                       },
                     },
                     variables: {
-                      init: { drink: { value: "" } },
+                      init: { drink: { value: "frap choco" } },
                     },
                     timelineIDs: {},
                     destinationTimeline: "Cashier",

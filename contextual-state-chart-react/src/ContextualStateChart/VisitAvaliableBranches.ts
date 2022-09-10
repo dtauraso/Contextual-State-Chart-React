@@ -302,6 +302,41 @@ const VisitAvaliableBranches = (
                 console.log({
                   counterpartState,
                 });
+                if (state.functionName === "customer") {
+                  const drinkName = state.getVariable("drink");
+                  console.log({ drinkName });
+
+                  const currentOrder =
+                    counterpartState.getVariable("currentOrder");
+                  console.log({ currentOrder });
+
+                  const drinkState = graph.getStateById(
+                    state.branchIDVariableID[state.id]
+                  );
+                  const otherVariables = graph.getStateById(
+                    counterpartState.branchIDVariableID[counterpartState.id]
+                  );
+
+                  const result2 = drinkState.variableTreeToInitJson();
+                  const result3 = otherVariables.variableTreeToInitJson();
+                  console.log({ result2 });
+                  const newBranchVariables2 = { ...result2, ...result3 };
+                  const newBranchVariableID2 = makeVariable({
+                    stateTree: newBranchVariables2,
+                    indexObject: graph.statesObject,
+                    name: counterpartState.id,
+                    runTree,
+                    graph,
+                  });
+                  counterpartState.branchIDVariableID[counterpartState.id] =
+                    newBranchVariableID2;
+                  const drinkName2 = counterpartState.getVariable("drink");
+                  console.log({ drinkName2 });
+                  const currentOrder2 =
+                    counterpartState.getVariable("currentOrder");
+                  const price2 = counterpartState.getVariable("price");
+                  console.log({ currentOrder2, price2 });
+                }
                 pairMade = false;
               }
             }
