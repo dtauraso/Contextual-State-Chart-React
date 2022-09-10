@@ -665,21 +665,16 @@ const getVariable = function (
     console.log(variableName, "must be a string");
     return -1;
   }
-  console.log("david this", this);
 
-  console.log("david this json", JSON.parse(JSON.stringify(this?.runTree)));
-  console.log("david current branch id", this?.runTree.currentBranchID);
-  const { currentBranchID } = this?.runTree;
+  const currentBranchID = this?.id;
   const branchStateID = this?.branchIDVariableID[currentBranchID];
-  console.log("david branch id", branchStateID);
+
   const branchState: State = this?.graph.statesObject.states[branchStateID];
-  console.log("david branch state");
-  console.log({ branchState });
+
   const variableState =
     this?.graph.statesObject.states[
       branchState.getValueFromBranch(variableName)
     ];
-  console.log("david variable state");
   console.log({ variableState });
   return variableState.getValue();
   // console.log({ this: this, variableName });

@@ -386,11 +386,7 @@ timeline rules:
    make sure all paired timelines are run at the sametime
 
 pair id rules:
-// state will have many branches coming from it
-// need to know the other branch of the other state the current state will connect to
-/*
-currentBranchID (assume only 1 branch level will be used for transfering data)
-  branch of paired state in bottomTree
+  map to the state because each state will be 1 to 1 paired with the counterpart state
 
 */
 
