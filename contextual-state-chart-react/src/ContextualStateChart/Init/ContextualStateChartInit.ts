@@ -380,6 +380,18 @@ root state for the search tries(26 tries)
     root/random/userLetter/a/[0, n]; all the nodes in the search
 
     c/{randomNumber/, ....}/title -> [title/{randomNumber/, ....}, ]
+
+
+timeline rules:
+   make sure all paired timelines are run at the sametime
+
+pair id rules:
+// state will have many branches coming from it
+// need to know the other branch of the other state the current state will connect to
+/*
+currentBranchID (assume only 1 branch level will be used for transfering data)
+  branch of paired state in bottomTree
+
 */
 
 export {

@@ -62,7 +62,7 @@ type State = {
     };
   };
   destinationTimeline: string;
-  timelineIDs: { [timelineID: number]: number };
+  timelineIDs: { [currentBranchID: number]: number };
   areChildrenParallel: boolean;
   areNextParallel: boolean;
 
