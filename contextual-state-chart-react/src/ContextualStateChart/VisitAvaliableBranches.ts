@@ -435,8 +435,6 @@ const VisitAvaliableBranches = (
     Object.keys(stateRunTreeBottom.branches)
       .map((branchID: string) => Number(branchID))
       .forEach((branchID: number) => {
-        let deletableBranch = false;
-
         const { currentStateID } = stateRunTreeBottom.branches[branchID];
         const currentState = graph.getStateById(currentStateID);
 
