@@ -480,7 +480,34 @@ const VisitAvaliableBranches = (
               stateRunStatus.health === PENDING
           )
         ) {
-          if (currentStateHealth === PASS) {
+          if (currentState.children.length > 0) {
+            // child states
+            branchIDStateIDs[branchID].forEach(
+              (stateRunStatus: StateRunStatus, i: number) => {
+                const { id: winningStateID } = stateRunStatus;
+                stateRunTreeBottom.maxBranchID += 1;
+                const newBranchID = stateRunTreeBottom.maxBranchID;
+                runTree[branchID][currentStateID].activeChildStates[
+                  newBranchID
+                ] = winningStateID;
+                runTree[newBranchID] = {
+                  [winningStateID]: {
+                    activeChildStates: {},
+                    parentBranchID: branchID,
+                    parentID: currentStateID,
+                    edgesGroupIndex: START_CHILDREN,
+                    currentStateHealth: PASS,
+                  },
+                };
+                // make record state holding the changes
+                // add new branch entry in bottom
+                stateRunTreeBottom.branches[newBranchID] = {
+                  currentStateID: winningStateID,
+                };
+                delete stateRunTreeBottom.branches[branchID];
+              }
+            );
+          } else if (currentStateHealth === PASS) {
             // next states
             branchIDStateIDs[branchID].forEach(
               (stateRunStatus: StateRunStatus, i: number) => {
@@ -522,34 +549,6 @@ const VisitAvaliableBranches = (
                   };
                   delete runTree[branchID][currentStateID];
                 }
-              }
-            );
-          } else if (currentStateHealth === PENDING) {
-            // todo: fix, because only running 1 time for the first state
-            // child states
-            branchIDStateIDs[branchID].forEach(
-              (stateRunStatus: StateRunStatus, i: number) => {
-                const { id: winningStateID } = stateRunStatus;
-                stateRunTreeBottom.maxBranchID += 1;
-                const newBranchID = stateRunTreeBottom.maxBranchID;
-                runTree[branchID][currentStateID].activeChildStates[
-                  newBranchID
-                ] = winningStateID;
-                runTree[newBranchID] = {
-                  [winningStateID]: {
-                    activeChildStates: {},
-                    parentBranchID: branchID,
-                    parentID: currentStateID,
-                    edgesGroupIndex: START_CHILDREN,
-                    currentStateHealth: PASS,
-                  },
-                };
-                // make record state holding the changes
-                // add new branch entry in bottom
-                stateRunTreeBottom.branches[newBranchID] = {
-                  currentStateID: winningStateID,
-                };
-                delete stateRunTreeBottom.branches[branchID];
               }
             );
           }
