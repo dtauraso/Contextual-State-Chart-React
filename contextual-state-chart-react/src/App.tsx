@@ -28,6 +28,12 @@ import "./App.css";
 import Header from "./components/debug_interface/Header";
 // import Data from "./components/debug_interface/data/Data";
 import InsertWords from "./components/debug_interface/data/InsertWords";
+enum StateHealth {
+  PASS = "Pass",
+  PENDING = "Pending",
+  FAIL = "Fail",
+}
+const { PASS, PENDING, FAIL } = StateHealth;
 // basic contextual state chart editor
 // drag and drop states only
 // no fancy things
@@ -390,6 +396,7 @@ const App = (props: any) => {
         parentID: 0,
         parentBranchID: -1,
         edgesGroupIndex: 0,
+        currentStateHealth: PENDING,
       },
     },
     currentBranchID: 0,

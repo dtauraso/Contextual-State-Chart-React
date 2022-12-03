@@ -86,6 +86,11 @@ type State = {
   isStartEmpty: () => boolean;
 };
 
+type StateRunStatus = {
+  id: number,
+  health: string,
+}
+
 // 1 state with all variables and functions needed
 // 1 variable holding 1 type storing all types as separate variables
 type States = {
@@ -119,6 +124,8 @@ type Tree = {
       parentID: number;
       parentBranchID: number;
       edgesGroupIndex: number;
+      currentStateHealth: string
+
     };
   };
   currentBranchID: number;
@@ -136,6 +143,7 @@ type TreeBottom = {
 export {
   Variable,
   State,
+  StateRunStatus,
   States,
   StatesObject,
   NamesTrie,
