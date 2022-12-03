@@ -461,7 +461,12 @@ const VisitAvaliableBranches = (
         //   winningStates: branchIDStateIDs[branchID],
         // });
 
-        if (branchIDStateIDs[branchID].length === 0) {
+        if (
+          branchIDStateIDs[branchID].length === 0 ||
+          branchIDStateIDs[branchID].every(
+            (stateRunStatus: StateRunStatus) => stateRunStatus.health === FAIL
+          )
+        ) {
           traverseUp(
             graph,
             runTree,
@@ -522,6 +527,7 @@ const VisitAvaliableBranches = (
               }
             );
           } else if (currentStateHealth === PENDING) {
+            // todo: fix, because only running 1 time for the first state
             // child states
             branchIDStateIDs[branchID].forEach(
               (stateRunStatus: StateRunStatus, i: number) => {
@@ -549,19 +555,6 @@ const VisitAvaliableBranches = (
               }
             );
           }
-        } else if (
-          branchIDStateIDs[branchID].every(
-            (stateRunStatus: StateRunStatus) => stateRunStatus.health === FAIL
-          )
-        ) {
-          traverseUp(
-            graph,
-            runTree,
-            currentState,
-            branchID,
-            currentStateID,
-            stateRunTreeBottom
-          );
         }
       });
     // edges adjustment
