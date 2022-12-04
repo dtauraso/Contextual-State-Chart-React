@@ -120,26 +120,7 @@ stateRunTreeBottom
   bottom set of nodes on the separate timelines
 
 */
-const makePair = (
-  stateIDBranchID: { [key: number]: any },
-  stateID: number,
-  idNumber: number
-) => {
-  return {
-    [`stateID${idNumber}`]: stateID,
-    [`branchID${idNumber}`]: Number(Object.keys(stateIDBranchID[stateID])[0]),
-  };
-};
-const deleteEntry = (
-  stateIDBranchID: { [key: number]: any },
-  stateID: number,
-  branchID: number
-) => {
-  delete stateIDBranchID[stateID][branchID];
-  if (Object.keys(stateIDBranchID[stateID]).length === 0) {
-    delete stateIDBranchID[stateID];
-  }
-};
+
 const traverseUp = (
   graph: Graph,
   runTree: Tree,
@@ -292,7 +273,6 @@ const VisitAvaliableBranches = (
           currentState.getEdges(edgesGroupIndex) || {};
 
         branchIDStateIDs[branchID] = [];
-        let pairMade = false;
         console.log({ branchID });
         let statePasses = false;
         edges.forEach(({ nextStateID }) => {
@@ -307,56 +287,22 @@ const VisitAvaliableBranches = (
             console.log({ parent: graph.getStateById(parentID) });
           }
 
-          if (!(nextStateID in stateIDBranchID)) {
-            stateIDBranchID[nextStateID] = { [branchID]: true };
-          } else if (!(branchID in stateIDBranchID[nextStateID])) {
-            stateIDBranchID[nextStateID][branchID] = true;
+          if (state.pairID) {
+            console.log("david", { pairID: state.pairID });
           }
 
-          // // find 1 pair
-          const { destinationTimeline } =
-            (graph.statesObject.states[nextStateID] as State) || {};
-          // console.log({statName: })
-          if (destinationTimeline !== undefined) {
-            const destinationStateID = graph.getState([destinationTimeline]).id;
-            if (destinationStateID in stateIDBranchID) {
-              const { stateID0, branchID0 } = makePair(
-                stateIDBranchID,
-                nextStateID,
-                0
-              );
-              const { stateID1, branchID1 } = makePair(
-                stateIDBranchID,
-                destinationStateID,
-                1
-              );
-              deleteEntry(stateIDBranchID, nextStateID, branchID0);
-              deleteEntry(stateIDBranchID, destinationStateID, branchID1);
-              // console.log("pair", { branchID0, branchID1, branchID });
-              graph.getStateById(stateID0).timelineIDs = {
-                ...graph.getStateById(stateID0).timelineIDs,
-                [stateID0]: stateID1,
-              };
-              graph.getStateById(stateID1).timelineIDs = {
-                ...graph.getStateById(stateID1).timelineIDs,
-                [stateID1]: stateID0,
-              };
-              pairMade = true;
-              // console.log({ graph });
-            }
-          }
           // if state has to transfer a value
           //   assume state is child of paired parent
           const variables = state.getVariableBranches();
-          // console.log("make variable", {
-          //   variables,
-          //   state,
-          // });
+          console.log("make variable", {
+            variables,
+            state,
+          });
 
           if (!variables.includes(String(state.id))) {
             const initBranchState = state.getInitVariables();
             // console.log({ initBranchState });
-            if (initBranchState !== undefined) {
+            if (initBranchState) {
               const result = initBranchState.variableTreeToInitJson();
               // console.log({ result });
               const newBranchVariables = result;
@@ -373,22 +319,20 @@ const VisitAvaliableBranches = (
               //   currentBranch: runTree.currentBranchID,
               //   statesRunTree: state.runTree.currentBranchID,
               // });
-              if (pairMade) {
+              if (state.pairID) {
                 // console.log("pair test");
                 // console.log({ state, branchID });
-                const counterpartState = graph.getStateById(
-                  state.timelineIDs[state.id]
-                );
-                // console.log({
-                //   counterpartState,
-                // });
+                const counterpartState = graph.getStateById(state.pairID);
+                console.log({
+                  counterpartState,
+                });
                 if (state.functionName === "customer") {
                   const drinkName = state.getVariable("drink");
-                  // console.log({ drinkName });
+                  console.log({ drinkName });
 
                   const currentOrder =
                     counterpartState.getVariable("currentOrder");
-                  // console.log({ currentOrder });
+                  console.log({ currentOrder });
 
                   const drinkState = graph.getStateById(
                     state.branchIDVariableID[state.id]
@@ -399,7 +343,7 @@ const VisitAvaliableBranches = (
 
                   const result2 = drinkState.variableTreeToInitJson();
                   const result3 = otherVariables.variableTreeToInitJson();
-                  // console.log({ result2 });
+                  console.log({ result2 });
                   const newBranchVariables2 = { ...result2, ...result3 };
                   const newBranchVariableID2 = makeVariable({
                     stateTree: newBranchVariables2,
@@ -411,13 +355,12 @@ const VisitAvaliableBranches = (
                   counterpartState.branchIDVariableID[counterpartState.id] =
                     newBranchVariableID2;
                   const drinkName2 = counterpartState.getVariable("drink");
-                  // console.log({ drinkName2 });
+                  console.log({ drinkName2 });
                   const currentOrder2 =
                     counterpartState.getVariable("currentOrder");
                   const price2 = counterpartState.getVariable("price");
                   console.log({ currentOrder2, price2 });
                 }
-                pairMade = false;
               }
             }
           }

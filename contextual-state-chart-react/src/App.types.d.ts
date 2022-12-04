@@ -61,6 +61,7 @@ type State = {
       parentBranch: { parentID: number; parentBranchID: number };
     };
   };
+  pairID: number,
   destinationTimeline: string;
   timelineIDs: { [currentBranchID: number]: number };
   areChildrenParallel: boolean;
