@@ -94,6 +94,7 @@ let StartbucksStateTree = {
                                 areParallel: false,
                               },
                             ],
+                            stateDependencyCount: 1,
                             haveStartChildren: false,
                           },
                         },

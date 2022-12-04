@@ -293,7 +293,8 @@ const VisitAvaliableBranches = (
           } else {
             console.log({ parent: graph.getStateById(parentID) });
           }
-
+          // assume state and counterpart state are at the same level
+          // assume the paths to the state and counterpart state are the same length
           if (state.pairID) {
             console.log("david", { pairID: state.pairID });
             const parentIDSum = state.id + state.pairID;
@@ -305,9 +306,21 @@ const VisitAvaliableBranches = (
             const parentIDSum = parentState.pairID + parentState.id;
             console.log("david", {
               state,
+              parentID: parentState.id,
+              parentPairID: parentState.pairID,
               parentIDSum: parentIDSum,
-              variablesToSendToCounterpartState,
+              variablesToSendToCounterpartState:
+                variablesToSendToCounterpartState[parentIDSum],
             });
+            // need to make sure the right state gets tried first
+            // state is locked (locked count > 0)
+            //  state lock is decremented by 1 if > 0 and tried again in next round for branchID (only locked state is retried)
+            // first state
+            //  if variablesToSendToCounterpartState[parentIDSum] is empty
+            //    put variables from state into variablesToSendToCounterpartState[parentIDSum]
+            // second state (from counterpart parent)
+            //  if variablesToSendToCounterpartState[parentIDSum] has at least 1 variable name
+            //  transfer to state(counterpart state) at branchID
           }
           // if state has to transfer a value
           //   assume state is child of paired parent
