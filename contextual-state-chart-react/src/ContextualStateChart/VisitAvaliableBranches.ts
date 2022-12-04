@@ -225,6 +225,9 @@ const VisitAvaliableBranches = (
   console.log({ stateRunTreeBottom });
   const x = new Set([1, 6]);
   console.log({ type: typeof x, x });
+  let variablesToSendToCounterpartState: {
+    [parentIDSum: number]: string[];
+  } = {};
   while (Object.keys(stateRunTreeBottom.branches).length > 0) {
     console.log({ levelsRun });
     if (levelsRun >= 13) {
@@ -273,6 +276,7 @@ const VisitAvaliableBranches = (
           currentState.getEdges(edgesGroupIndex) || {};
 
         branchIDStateIDs[branchID] = [];
+
         console.log({ branchID });
         let statePasses = false;
         edges.forEach(({ nextStateID }) => {
@@ -281,6 +285,9 @@ const VisitAvaliableBranches = (
           }
 
           const state = graph.getStateById(nextStateID);
+          const parentState = currentState.areEdgesStart(edgesGroupIndex)
+            ? currentState
+            : graph.getStateById(parentID);
           if (currentState.areEdgesStart(edgesGroupIndex)) {
             console.log({ parent: currentState });
           } else {
@@ -289,8 +296,19 @@ const VisitAvaliableBranches = (
 
           if (state.pairID) {
             console.log("david", { pairID: state.pairID });
+            const parentIDSum = state.id + state.pairID;
+            if (!(parentIDSum in variablesToSendToCounterpartState)) {
+              variablesToSendToCounterpartState[parentIDSum] = [];
+            }
           }
-
+          if (parentState.pairID) {
+            const parentIDSum = parentState.pairID + parentState.id;
+            console.log("david", {
+              state,
+              parentIDSum: parentIDSum,
+              variablesToSendToCounterpartState,
+            });
+          }
           // if state has to transfer a value
           //   assume state is child of paired parent
           const variables = state.getVariableBranches();
