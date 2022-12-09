@@ -126,6 +126,8 @@ type Tree = {
       parentBranchID: number;
       edgesGroupIndex: number;
       currentStateHealth: string
+      dependencyStateCount?: number;
+      variableNames?: any;
 
     };
   };

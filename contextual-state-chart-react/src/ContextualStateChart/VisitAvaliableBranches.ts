@@ -304,6 +304,12 @@ const VisitAvaliableBranches = (
             stateId1|stateId2: { [branchId1, branchId2], branchId1|branchId2: {variables}}
             runtree
             customer and cashier need to have the same parent state
+            customer|cashier|barista state
+              pairState1 (holds all variables customer, cashier, and barista share)
+                customer (isPaired so "place order" knows to go up 2 levels to find variables)
+                cashier (isPaired)
+                barista (isPaired)
+              pair2
              */
             // 618
             // 6|18
