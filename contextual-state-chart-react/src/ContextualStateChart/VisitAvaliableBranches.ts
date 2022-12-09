@@ -298,6 +298,24 @@ const VisitAvaliableBranches = (
           if (state.pairID) {
             console.log("david", { pairID: state.pairID });
             const parentIDSum = state.id + state.pairID;
+            // using parent ids instead of branch id
+            /**
+             * fails
+            stateId1|stateId2: { [branchId1, branchId2], branchId1|branchId2: {variables}}
+            runtree
+            customer and cashier need to have the same parent state
+             */
+            // 618
+            // 6|18
+            // 61|8
+            const parentIDPairID = `${state.id}|${state.pairID}`;
+            const parentPairIDID = `${state.pairID}|${state.id}`;
+
+            if (!(parentIDPairID in variablesToSendToCounterpartState)) {
+              if (!(parentPairIDID in variablesToSendToCounterpartState)) {
+                // variablesToSendToCounterpartState[parentIDPairID] = []
+              }
+            }
             if (!(parentIDSum in variablesToSendToCounterpartState)) {
               variablesToSendToCounterpartState[parentIDSum] = [];
             }
