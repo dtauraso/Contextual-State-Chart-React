@@ -278,6 +278,24 @@ let StartbucksStateTree = {
                 },
               },
             },
+            "Chocolate Cream Cold Foam": {
+              toppings: {
+                "cold foam": {
+                  state: {
+                    edgeGroups: [
+                      {
+                        edges: [
+                          {
+                            nextStateName:
+                              "id number of Chocolate Cream Cold Foam state",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
           },
           // data cells
           options: {
@@ -302,7 +320,11 @@ let StartbucksStateTree = {
             ],
           },
           toppings: {
-            "cold foam": { value: "Chocolate Cream Cold Foam", servings: 5 },
+            "cold foam": {
+              value: "Chocolate Cream Cold Foam",
+              servings: 5,
+              price: 1,
+            },
           },
           drinks: [
             {
