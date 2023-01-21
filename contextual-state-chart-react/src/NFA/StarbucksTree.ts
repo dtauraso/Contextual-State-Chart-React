@@ -216,19 +216,77 @@ let StartbucksStateTree = {
             },
           },
         },
-        // database
-        variables: {
-          drinks: [
-            {
-              name: { value: "Pistachio" },
-              desciption: { value: "desciption 1" },
+        database: {
+          names: {
+            Pistachio: {
+              drink: {
+                state: {
+                  edgeGroups: [
+                    {
+                      edges: [
+                        { nextStateName: "id number of pistachio drink state" },
+                      ],
+                    },
+                  ],
+                },
+              },
             },
-          ],
-          options: [
-            { value: "size" },
-            { value: "flavors" },
-            { value: "toppings" },
-          ],
+            "Dark Caramel Sauce": {
+              flavor: {
+                Sauces: {
+                  state: {
+                    edgeGroups: [
+                      {
+                        edges: [
+                          {
+                            nextStateName:
+                              "id number of dark carmel sauce state",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            "Mocha Sauce": {
+              flavor: {
+                Sauces: {
+                  state: {
+                    edgeGroups: [
+                      {
+                        edges: [
+                          { nextStateName: "id number of mocha sauce state" },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            size: {
+              options: {
+                state: {
+                  edgeGroups: [
+                    {
+                      edges: [
+                        { nextStateName: "id number of size option state" },
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          options: {
+            state: {
+              array: [
+                { state: { value: "size" } },
+                { state: { value: "flavors" } },
+                { state: { value: "toppings" } },
+              ],
+            },
+          },
           sizes: {
             large: { value: 1 },
             grande: { value: 1 },
@@ -242,6 +300,12 @@ let StartbucksStateTree = {
             ],
           },
           toppings: { "cold foam": { value: "Chocolate Cream Cold Foam" } },
+          drinks: [
+            {
+              name: { value: "Pistachio" },
+              desciption: { value: "desciption 1" },
+            },
+          ],
         },
       },
     },
