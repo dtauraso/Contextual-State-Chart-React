@@ -217,6 +217,7 @@ let StartbucksStateTree = {
           },
         },
         database: {
+          // search structure
           names: {
             Pistachio: {
               drink: {
@@ -278,6 +279,7 @@ let StartbucksStateTree = {
               },
             },
           },
+          // data cells
           options: {
             state: {
               array: [
@@ -299,7 +301,9 @@ let StartbucksStateTree = {
               { value: "Caramel Syrup" },
             ],
           },
-          toppings: { "cold foam": { value: "Chocolate Cream Cold Foam" } },
+          toppings: {
+            "cold foam": { value: "Chocolate Cream Cold Foam", servings: 5 },
+          },
           drinks: [
             {
               name: { value: "Pistachio" },
@@ -312,6 +316,11 @@ let StartbucksStateTree = {
   },
 };
 /*
+customer order: string
+cashier: customer order -> drink data with price
+barista: customer order -> drink data with resource availiability
+customer order string -> parsed using names object -> compiled drink object
+
 size: {
   large: 1, grande: 1, vente: 1
 }
