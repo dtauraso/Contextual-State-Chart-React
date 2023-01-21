@@ -250,18 +250,27 @@ let StartbucksStateTree = {
                 },
               },
             },
-            "Mocha Sauce": {
-              flavor: {
-                Sauces: {
-                  state: {
-                    edgeGroups: [
-                      {
-                        edges: [
-                          { nextStateName: "id number of mocha sauce state" },
-                        ],
-                      },
-                    ],
-                  },
+            Mocha: {
+              Sauce: {
+                state: {
+                  edgeGroups: [
+                    {
+                      edges: [
+                        { nextStateName: "id number of mocha sauce state" },
+                      ],
+                    },
+                  ],
+                },
+              },
+              Foam: {
+                state: {
+                  edgeGroups: [
+                    {
+                      edges: [
+                        { nextStateName: "id number of mocha foam state" },
+                      ],
+                    },
+                  ],
                 },
               },
             },
