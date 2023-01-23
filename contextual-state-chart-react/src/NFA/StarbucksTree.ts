@@ -316,6 +316,7 @@ let StartbucksStateTree = {
               ],
             },
           },
+          // https://doc.babylonjs.com/features/featuresDeepDive/animation/advanced_animations
           sizes: {
             large: { value: 1 },
             grande: { value: 1 },
