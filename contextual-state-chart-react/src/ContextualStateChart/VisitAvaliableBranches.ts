@@ -471,7 +471,7 @@ const VisitAvaliableBranches = (
             currentStateID,
             stateRunTreeBottom
           );
-        } else if (currentState.children.length > 0) {
+        } else if (currentStateHealth === PENDING) {
           // child states
           branchIDStateIDs[branchID].forEach(
             (stateRunStatus: StateRunStatus, i: number) => {
@@ -480,13 +480,15 @@ const VisitAvaliableBranches = (
               const newBranchID = stateRunTreeBottom.maxBranchID;
               runTree[branchID][currentStateID].activeChildStates[newBranchID] =
                 winningStateID;
+              const winningState = graph.getStateById(winningStateID);
               runTree[newBranchID] = {
                 [winningStateID]: {
                   activeChildStates: {},
                   parentBranchID: branchID,
                   parentID: currentStateID,
                   edgesGroupIndex: START_CHILDREN,
-                  currentStateHealth: PASS,
+                  currentStateHealth:
+                    winningState.children.length > 0 ? PENDING : PASS,
                 },
               };
               // make record state holding the changes
@@ -517,13 +519,15 @@ const VisitAvaliableBranches = (
                 runTree[parentBranchID][parentID].activeChildStates[
                   newBranchID
                 ] = winningStateID;
+                const winningState = graph.getStateById(winningStateID);
                 runTree[newBranchID] = {
                   [winningStateID]: {
                     activeChildStates: {},
                     parentBranchID: parentBranchID,
                     parentID: parentID,
                     edgesGroupIndex: START_CHILDREN,
-                    currentStateHealth: PASS,
+                    currentStateHealth:
+                      winningState.children.length > 0 ? PENDING : PASS,
                   },
                 };
                 // // add new branch entry in bottom
