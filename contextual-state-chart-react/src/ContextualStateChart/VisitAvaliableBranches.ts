@@ -195,12 +195,7 @@ const calculateHealth = (state: State, statePasses: boolean): StateHealth => {
 };
 const VisitAvaliableBranches = (
   graph: Graph,
-  stateRunTreeBottom: {
-    branches: {
-      [branchID: number]: any;
-    };
-    maxBranchID: number;
-  },
+  stateRunTreeBottom: TreeBottom,
   runTree: Tree
   // branchID -> childStateID -> parentStateID
 ) => {
@@ -650,24 +645,14 @@ const VisitAvaliableBranches = (
     Object.keys(stateRunTreeBottom.branches)
       .map((branchID: string) => Number(branchID))
       .forEach((branchID: number) => {
-        const { currentStateID, nextStates, isParallel } =
+        const { currentStateID } =
           stateRunTreeBottom["branches"][branchID] || {};
         const { edgesGroupIndex } = runTree[branchID][currentStateID];
 
         console.log(`branch id ${branchID}`);
-        console.log(`  isParallel: ${isParallel}`);
-        if (nextStates !== undefined) {
-          console.log(`  nextStates:`);
-          const currentState = graph.getStateById(currentStateID);
-          const { edges, areParallel } = currentState.getEdges(edgesGroupIndex);
 
-          edges.forEach(({ nextStateName }) => {
-            const { name } = graph.getState(nextStateName);
-            console.log(`   ${name.join("/ ")}`);
-          });
-        } else {
-          console.log(`  nextStates: undefined`);
-        }
+        console.log(`  nextStates: undefined`);
+
         const { name } = graph.getStateById(currentStateID);
         console.log(
           `   currentState name: ${name.join("/ ")}, id: ${currentStateID}`

@@ -131,6 +131,7 @@ type Tree = {
 
     };
   };
+  // remove currentBranchID
   currentBranchID: number;
 
 }
@@ -140,6 +141,7 @@ type TreeBottom = {
       currentStateID: number,
     },
   },
+  currentBranchID: number
   maxBranchID: number,
 }
 

@@ -387,6 +387,7 @@ const App = (props: any) => {
         currentStateID: 1,
       },
     },
+    currentBranchID: 0,
     maxBranchID: 0,
   };
   let runTree: Tree = {
