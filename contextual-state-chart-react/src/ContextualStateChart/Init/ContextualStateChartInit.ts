@@ -226,7 +226,6 @@ const makeState = ({
       edgeGroups,
       value,
       haveStartChildren,
-      pairID,
       destinationTimeline,
       timelineIDs,
     } = currentState || {};
@@ -248,7 +247,6 @@ const makeState = ({
       getVariable,
       graph,
       runTree,
-      pairID,
       timelineIDs,
     });
     childrenStateIDs.push(stateId);

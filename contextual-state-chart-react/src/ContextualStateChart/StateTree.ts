@@ -73,7 +73,6 @@ const stateWrapper = function (): State {
         variables,
         graph,
         haveStartChildren,
-        pairID,
         timelineIDs,
         runTree,
       }: any
@@ -93,7 +92,6 @@ const stateWrapper = function (): State {
       this.runTree = runTree;
       this.branchIDParentIDParentBranchID = {};
       this.haveStartChildren = haveStartChildren;
-      this.pairID = pairID;
       this.timelineIDs = timelineIDs;
     },
     initVariable: function (

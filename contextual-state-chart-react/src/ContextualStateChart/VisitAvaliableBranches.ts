@@ -295,130 +295,130 @@ const VisitAvaliableBranches = (
           }
           // assume state and counterpart state are at the same level
           // assume the paths to the state and counterpart state are the same length
-          if (state.pairID) {
-            console.log("david", { pairID: state.pairID });
-            const parentIDSum = state.id + state.pairID;
-            // using parent ids instead of branch id
-            /**
-             * fails
-            stateId1|stateId2: { [branchId1, branchId2], branchId1|branchId2: {variables}}
-            runtree
-            customer and cashier need to have the same parent state
-            customer|cashier|barista state
-              pairState1 (holds all variables customer, cashier, and barista share)
-                customer (isPaired so "place order" knows to go up 2 levels to find variables)
-                cashier (isPaired)
-                barista (isPaired)
-              pair2
-             */
-            // 618
-            // 6|18
-            // 61|8
-            const parentIDPairID = `${state.id}|${state.pairID}`;
-            const parentPairIDID = `${state.pairID}|${state.id}`;
+          // if (state.pairID) {
+          //   console.log("david", { pairID: state.pairID });
+          //   const parentIDSum = state.id + state.pairID;
+          //   // using parent ids instead of branch id
+          //   /**
+          //    * fails
+          //   stateId1|stateId2: { [branchId1, branchId2], branchId1|branchId2: {variables}}
+          //   runtree
+          //   customer and cashier need to have the same parent state
+          //   customer|cashier|barista state
+          //     pairState1 (holds all variables customer, cashier, and barista share)
+          //       customer (isPaired so "place order" knows to go up 2 levels to find variables)
+          //       cashier (isPaired)
+          //       barista (isPaired)
+          //     pair2
+          //    */
+          //   // 618
+          //   // 6|18
+          //   // 61|8
+          //   const parentIDPairID = `${state.id}|${state.pairID}`;
+          //   const parentPairIDID = `${state.pairID}|${state.id}`;
 
-            if (!(parentIDPairID in variablesToSendToCounterpartState)) {
-              if (!(parentPairIDID in variablesToSendToCounterpartState)) {
-                // variablesToSendToCounterpartState[parentIDPairID] = []
-              }
-            }
-            if (!(parentIDSum in variablesToSendToCounterpartState)) {
-              variablesToSendToCounterpartState[parentIDSum] = [];
-            }
-          }
-          if (parentState.pairID) {
-            const parentIDSum = parentState.pairID + parentState.id;
-            console.log("david", {
-              state,
-              parentID: parentState.id,
-              parentPairID: parentState.pairID,
-              parentIDSum: parentIDSum,
-              variablesToSendToCounterpartState:
-                variablesToSendToCounterpartState[parentIDSum],
-            });
-            // need to make sure the right state gets tried first
-            // state is locked (locked count > 0)
-            //  state lock is decremented by 1 if > 0 and tried again in next round for branchID (only locked state is retried)
-            // first state
-            //  if variablesToSendToCounterpartState[parentIDSum] is empty
-            //    put variables from state into variablesToSendToCounterpartState[parentIDSum]
-            // second state (from counterpart parent)
-            //  if variablesToSendToCounterpartState[parentIDSum] has at least 1 variable name
-            //  transfer to state(counterpart state) at branchID
-          }
+          //   if (!(parentIDPairID in variablesToSendToCounterpartState)) {
+          //     if (!(parentPairIDID in variablesToSendToCounterpartState)) {
+          //       // variablesToSendToCounterpartState[parentIDPairID] = []
+          //     }
+          //   }
+          //   if (!(parentIDSum in variablesToSendToCounterpartState)) {
+          //     variablesToSendToCounterpartState[parentIDSum] = [];
+          //   }
+          // }
+          // if (parentState.pairID) {
+          //   const parentIDSum = parentState.pairID + parentState.id;
+          //   console.log("david", {
+          //     state,
+          //     parentID: parentState.id,
+          //     parentPairID: parentState.pairID,
+          //     parentIDSum: parentIDSum,
+          //     variablesToSendToCounterpartState:
+          //       variablesToSendToCounterpartState[parentIDSum],
+          //   });
+          //   // need to make sure the right state gets tried first
+          //   // state is locked (locked count > 0)
+          //   //  state lock is decremented by 1 if > 0 and tried again in next round for branchID (only locked state is retried)
+          //   // first state
+          //   //  if variablesToSendToCounterpartState[parentIDSum] is empty
+          //   //    put variables from state into variablesToSendToCounterpartState[parentIDSum]
+          //   // second state (from counterpart parent)
+          //   //  if variablesToSendToCounterpartState[parentIDSum] has at least 1 variable name
+          //   //  transfer to state(counterpart state) at branchID
+          // }
           // if state has to transfer a value
           //   assume state is child of paired parent
-          const variables = state.getVariableBranches();
-          console.log("make variable", {
-            variables,
-            state,
-          });
+          // const variables = state.getVariableBranches();
+          // console.log("make variable", {
+          //   variables,
+          //   state,
+          // });
 
-          if (!variables.includes(String(state.id))) {
-            const initBranchState = state.getInitVariables();
-            // console.log({ initBranchState });
-            if (initBranchState) {
-              const result = initBranchState.variableTreeToInitJson();
-              // console.log({ result });
-              const newBranchVariables = result;
-              const newBranchVariableID = makeVariable({
-                stateTree: newBranchVariables,
-                indexObject: graph.statesObject,
-                name: state.id,
-                runTree,
-                graph,
-              });
-              state.branchIDVariableID[state.id] = newBranchVariableID;
-              // console.log({
-              //   graph,
-              //   currentBranch: runTree.currentBranchID,
-              //   statesRunTree: state.runTree.currentBranchID,
-              // });
-              if (state.pairID) {
-                // console.log("pair test");
-                // console.log({ state, branchID });
-                const counterpartState = graph.getStateById(state.pairID);
-                console.log({
-                  counterpartState,
-                });
-                if (state.functionName === "customer") {
-                  const drinkName = state.getVariable("drink");
-                  console.log({ drinkName });
+          // if (!variables.includes(String(state.id))) {
+          //   const initBranchState = state.getInitVariables();
+          //   // console.log({ initBranchState });
+          //   if (initBranchState) {
+          //     const result = initBranchState.variableTreeToInitJson();
+          //     // console.log({ result });
+          //     const newBranchVariables = result;
+          //     const newBranchVariableID = makeVariable({
+          //       stateTree: newBranchVariables,
+          //       indexObject: graph.statesObject,
+          //       name: state.id,
+          //       runTree,
+          //       graph,
+          //     });
+          //     state.branchIDVariableID[state.id] = newBranchVariableID;
+          //     // console.log({
+          //     //   graph,
+          //     //   currentBranch: runTree.currentBranchID,
+          //     //   statesRunTree: state.runTree.currentBranchID,
+          //     // });
+          //     if (state.pairID) {
+          //       // console.log("pair test");
+          //       // console.log({ state, branchID });
+          //       const counterpartState = graph.getStateById(state.pairID);
+          //       console.log({
+          //         counterpartState,
+          //       });
+          //       if (state.functionName === "customer") {
+          //         const drinkName = state.getVariable("drink");
+          //         console.log({ drinkName });
 
-                  const currentOrder =
-                    counterpartState.getVariable("currentOrder");
-                  console.log({ currentOrder });
+          //         const currentOrder =
+          //           counterpartState.getVariable("currentOrder");
+          //         console.log({ currentOrder });
 
-                  const drinkState = graph.getStateById(
-                    state.branchIDVariableID[state.id]
-                  );
-                  const otherVariables = graph.getStateById(
-                    counterpartState.branchIDVariableID[counterpartState.id]
-                  );
+          //         const drinkState = graph.getStateById(
+          //           state.branchIDVariableID[state.id]
+          //         );
+          //         const otherVariables = graph.getStateById(
+          //           counterpartState.branchIDVariableID[counterpartState.id]
+          //         );
 
-                  const result2 = drinkState.variableTreeToInitJson();
-                  const result3 = otherVariables.variableTreeToInitJson();
-                  console.log({ result2 });
-                  const newBranchVariables2 = { ...result2, ...result3 };
-                  const newBranchVariableID2 = makeVariable({
-                    stateTree: newBranchVariables2,
-                    indexObject: graph.statesObject,
-                    name: counterpartState.id,
-                    runTree,
-                    graph,
-                  });
-                  counterpartState.branchIDVariableID[counterpartState.id] =
-                    newBranchVariableID2;
-                  const drinkName2 = counterpartState.getVariable("drink");
-                  console.log({ drinkName2 });
-                  const currentOrder2 =
-                    counterpartState.getVariable("currentOrder");
-                  const price2 = counterpartState.getVariable("price");
-                  console.log({ currentOrder2, price2 });
-                }
-              }
-            }
-          }
+          //         const result2 = drinkState.variableTreeToInitJson();
+          //         const result3 = otherVariables.variableTreeToInitJson();
+          //         console.log({ result2 });
+          //         const newBranchVariables2 = { ...result2, ...result3 };
+          //         const newBranchVariableID2 = makeVariable({
+          //           stateTree: newBranchVariables2,
+          //           indexObject: graph.statesObject,
+          //           name: counterpartState.id,
+          //           runTree,
+          //           graph,
+          //         });
+          //         counterpartState.branchIDVariableID[counterpartState.id] =
+          //           newBranchVariableID2;
+          //         const drinkName2 = counterpartState.getVariable("drink");
+          //         console.log({ drinkName2 });
+          //         const currentOrder2 =
+          //           counterpartState.getVariable("currentOrder");
+          //         const price2 = counterpartState.getVariable("price");
+          //         console.log({ currentOrder2, price2 });
+          //       }
+          //     }
+          //   }
+          // }
           if (state.functionCode(graph)) {
             statePasses = true;
           }

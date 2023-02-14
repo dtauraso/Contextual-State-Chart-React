@@ -7,8 +7,8 @@ const cashier = (graph: any) => {
 };
 
 const customer = (graph: any) => {
-  const drink = graph.getState(["Customer"]).getVariable("drink");
-  console.log(`|${drink}|`);
+  // const drink = graph.getState(["Customer"]).getVariable("drink");
+  // console.log(`|${drink}|`);
   return true;
 };
 
