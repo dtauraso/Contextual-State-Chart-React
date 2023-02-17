@@ -203,7 +203,9 @@ const makeState = ({
         runTree,
       });
     });
+    // what happens when the same state is visited by the parent
     newChildrenStateIDs.forEach((childID: number) => {
+      // needs {...parents, [currentStateName]: stateId}
       graph.statesObject.states[childID].parents.push(currentStateName);
     });
     let stateVariables = Object.keys(variables ?? []).reduce(

@@ -131,7 +131,7 @@ type Tree = {
 
     };
   };
-  // remove currentBranchID
+  // remove currentBranchID and adjust code
   currentBranchID: number;
 
 }
