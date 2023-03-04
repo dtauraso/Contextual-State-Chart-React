@@ -174,6 +174,24 @@ let StartbucksStateTree = {
         ],
         haveStartChildren: true,
         children: {
+          CustomerCashier: {
+            state: {
+              functionCode: returnTrue,
+              children: {
+                Customer,
+                Cashier,
+              },
+            },
+          },
+          CustomerBarista: {
+            state: {
+              functionCode: returnTrue,
+              children: {
+                Customer,
+                Barista,
+              },
+            },
+          },
           "Coffee Shop": {
             state: {
               functionCode: returnTrue,
