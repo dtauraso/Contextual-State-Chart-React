@@ -116,6 +116,12 @@ type Graph = {
   namesTrie: NamesTrie;
   statesObject: StatesObject;
 
+  // access the variable names
+  runTree: Tree;
+
+  // access the current branch ID and current state ID
+  treeBottom: TreeBottom
+
   getState: (this: Graph, stateName: string[]) => State;
   getStateById: (this: Graph, stateId: number) => State;
   getVariableById: (this: Graph, variableId: number) => any;
