@@ -400,7 +400,6 @@ const App = (props: any) => {
         currentStateHealth: PENDING,
       },
     },
-    currentBranchID: 0,
   };
   // let runTree: {
   //   [branchID: number]: {
@@ -429,7 +428,7 @@ const App = (props: any) => {
     getStateById: getStateById,
     getVariableById: getVariableById,
   };
-  makeArrays(stateTree, runTree, graph);
+  makeArrays(stateTree, runTree, stateRunTreeBottom, graph);
   let { statesObject, namesTrie } = graph;
   Object.keys(statesObject.states)
     .map(Number)

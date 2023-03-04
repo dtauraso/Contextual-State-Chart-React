@@ -55,6 +55,7 @@ const makeVariable = ({
   indexObject,
   name,
   runTree,
+  stateRunTreeBottom,
   graph,
 }: any): any => {
   if ("value" in stateTree) {
@@ -69,6 +70,7 @@ const makeVariable = ({
       typeName: getTypeName(value),
       runTree,
       graph,
+      stateRunTreeBottom,
     });
     return variableId;
   } else if (isArray(stateTree)) {
@@ -78,6 +80,7 @@ const makeVariable = ({
         indexObject,
         name: `${i}`,
         runTree,
+        stateRunTreeBottom,
         graph,
       })
     );
@@ -91,6 +94,7 @@ const makeVariable = ({
       value,
       typeName: getTypeName(value),
       runTree,
+      stateRunTreeBottom,
       graph,
     });
     return variableId;
@@ -103,6 +107,7 @@ const makeVariable = ({
           indexObject,
           name: variableName,
           runTree,
+          stateRunTreeBottom,
           graph,
         }),
       }),
@@ -117,6 +122,7 @@ const makeVariable = ({
       value,
       typeName: getTypeName(value),
       runTree,
+      stateRunTreeBottom,
       graph,
     });
     return variableId;
@@ -149,10 +155,10 @@ const makeState = ({
   stateTree,
   indexObject,
   currentStateName,
+  runTree,
+  stateRunTreeBottom,
   graph,
   childrenStateIDs,
-  stateRunTreeBottom,
-  runTree,
 }: any): any => {
   if ("state" in stateTree) {
     const substateNames = Object.keys(stateTree).filter(
@@ -215,9 +221,9 @@ const makeState = ({
           stateTree: variables[variableName],
           indexObject,
           name: variableName,
-          graph,
-          stateRunTreeBottom,
           runTree,
+          stateRunTreeBottom,
+          graph,
         }),
       }),
       {}
@@ -247,6 +253,7 @@ const makeState = ({
       children: serializedChildren,
       variables: stateVariables,
       getVariable,
+      stateRunTreeBottom,
       graph,
       runTree,
       timelineIDs,
@@ -271,7 +278,12 @@ const makeState = ({
 const arrayState = (states: States, i: number) => states[i] as State;
 
 const makeChildParentLinks = (states: State) => {};
-const makeArrays = (stateTree: any, runTree: Tree, graph: Graph) => {
+const makeArrays = (
+  stateTree: any,
+  runTree: Tree,
+  stateRunTreeBottom: TreeBottom,
+  graph: Graph
+) => {
   /*
   read the full state name
   save all the state attributes except for 
@@ -284,6 +296,7 @@ const makeArrays = (stateTree: any, runTree: Tree, graph: Graph) => {
     indexObject: graph.statesObject,
     currentStateName: [],
     runTree,
+    stateRunTreeBottom,
     graph,
     childrenStateIDs: [],
   });

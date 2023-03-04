@@ -262,7 +262,7 @@ const VisitAvaliableBranches = (
     Object.keys(stateRunTreeBottom.branches)
       .map(Number)
       .forEach((branchID: number) => {
-        runTree.currentBranchID = branchID;
+        stateRunTreeBottom.currentBranchID = branchID;
         const { currentStateID } = stateRunTreeBottom.branches[branchID];
         const { edgesGroupIndex, parentID, parentBranchID } =
           runTree[branchID][currentStateID];
@@ -664,7 +664,7 @@ const VisitAvaliableBranches = (
         // );
         // console.log(JSON.parse(JSON.stringify(runTree)));
       });
-    printRunTree(runTree, graph);
+    printRunTree(runTree, stateRunTreeBottom, graph);
 
     console.log("---------------");
 
@@ -735,7 +735,7 @@ const VisitAvaliableBranches = (
   // }
   return true;
 };
-const printRunTree = (runTree: Tree, graph: Graph) => {
+const printRunTree = (runTree: Tree, TreeBottom: TreeBottom, graph: Graph) => {
   console.log(
     `   current runTree: \n       ${Object.keys(runTree)
       .filter((key) => key !== "currentBranchID")
@@ -783,6 +783,6 @@ const printRunTree = (runTree: Tree, graph: Graph) => {
       })
       .join(", \n       ")}`
   );
-  console.log(`   current branch id: ${runTree.currentBranchID}`);
+  console.log(`   current branch id: ${TreeBottom.currentBranchID}`);
 };
 export { VisitAvaliableBranches };
