@@ -44,7 +44,7 @@ type Variable = {
 
 type State = {
   id: number;
-  parents: string[][];
+  parents: {[parentStateName: string]: parentStateId};
   name: string[];
   functionCode: (graph: Graph) => boolean;
   functionName: string;
@@ -67,8 +67,11 @@ type State = {
   areChildrenParallel: boolean;
   areNextParallel: boolean;
 
-  // access the current branch ID and the parent state ID
+  // access the parent state ID
   runTree: Tree;
+
+  // access the current branch ID and current state ID
+  treeBottom: TreeBottom
 
   // access the parent state and the current branch IDth variable ID
   graph: Graph;
@@ -131,9 +134,6 @@ type Tree = {
 
     };
   };
-  // remove currentBranchID and adjust code
-  currentBranchID: number;
-
 }
 type TreeBottom = {
   branches: {

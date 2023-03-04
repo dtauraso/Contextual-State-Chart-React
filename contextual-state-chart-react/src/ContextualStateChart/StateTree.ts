@@ -71,10 +71,11 @@ const stateWrapper = function (): State {
         edgeGroups,
         children,
         variables,
+        runTree,
+        stateRunTreeBottom,
         graph,
         haveStartChildren,
         timelineIDs,
-        runTree,
       }: any
     ) {
       this.id = id;
@@ -88,19 +89,26 @@ const stateWrapper = function (): State {
       this.stateRunCount = 0;
       this.getVariables = getVariables;
       this.getVariable = getVariable;
-      this.graph = graph;
       this.runTree = runTree;
+      this.stateRunTreeBottom = stateRunTreeBottom;
+      this.graph = graph;
       this.branchIDParentIDParentBranchID = {};
       this.haveStartChildren = haveStartChildren;
       this.timelineIDs = timelineIDs;
     },
     initVariable: function (
       this: any,
-      { id, name, value, typeName, runTree, graph }: any
+      { id, name, value, typeName, runTree, stateRunTreeBottom, graph }: any
     ) {
       this.init({ name, id, graph });
       this.currentValue = variableWrapper();
-      this.currentValue.init({ value, typeName, runTree, graph });
+      this.currentValue.init({
+        value,
+        typeName,
+        runTree,
+        stateRunTreeBottom,
+        graph,
+      });
     },
     getInitVariables: function (this: any) {
       if ("init" in this?.branchIDVariableID) {
