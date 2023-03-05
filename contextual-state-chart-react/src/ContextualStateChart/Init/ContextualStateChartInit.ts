@@ -251,9 +251,7 @@ const makeState = ({
     let serializedChildren: string[][] = [];
     serializeChildren(children, [], serializedChildren);
 
-    // getting and using the first version of the state
     graph.statesObject.states[stateId] = stateWrapper();
-    // doing [], push(name) 1 time for each time the state is visited
     graph.statesObject.states[stateId].init({
       id: stateId,
       parents: {},
