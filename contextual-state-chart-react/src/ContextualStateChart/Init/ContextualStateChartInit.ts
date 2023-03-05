@@ -195,7 +195,7 @@ const makeState = ({
       name: currentStateName,
     });
     if (currentStateId > -1) {
-      return currentStateId;
+      return;
     }
     graph.namesTrie = insertName({
       names: graph.namesTrie,
