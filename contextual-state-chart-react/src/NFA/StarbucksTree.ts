@@ -9,61 +9,66 @@ import {
 } from "../Starbucks/StarbucksStateFunctions";
 
 let Customer = {
-  state: {
-    functionCode: customer,
-    edgeGroups: [
-      {
-        edges: [{ nextStateName: ["Place order"] }],
-        areParallel: false,
-      },
-    ],
-    haveStartChildren: true,
-    children: {
-      "Place order": {
-        state: {
-          functionCode: returnTrue,
-          edgeGroups: [
-            {
-              edges: [
-                { nextStateName: ["Dig up money"] },
-                { nextStateName: ["Sip coffee"] },
-              ],
-              areParallel: true,
-            },
-          ],
-          haveStartChildren: false,
-        },
-      },
-      "Dig up money": {
-        state: {
-          functionCode: returnTrue,
-          edgeGroups: [
-            {
-              edges: [{ nextStateName: ["Put away change"] }],
-              areParallel: true,
-            },
-          ],
-          haveStartChildren: false,
-        },
-      },
-      "Put away change": {
-        state: {
-          functionCode: returnTrue,
-        },
-      },
-      "Sip coffee": {
-        state: {
-          functionCode: returnTrue,
-        },
-      },
-    },
-    variables: {
-      init: { drink: { value: "frap choco" } },
-    },
-    timelineIDs: {},
-  },
   Cashier: {
-    state: {},
+    state: {
+      functionCode: customer,
+      edgeGroups: [
+        {
+          edges: [{ nextStateName: ["Place order"] }],
+          areParallel: false,
+        },
+      ],
+      haveStartChildren: true,
+      children: {
+        "Place order": {
+          state: {
+            functionCode: returnTrue,
+            edgeGroups: [
+              {
+                edges: [
+                  { nextStateName: ["Dig up money"] },
+                  { nextStateName: ["Sip coffee"] },
+                ],
+                areParallel: true,
+              },
+            ],
+            haveStartChildren: false,
+          },
+        },
+        "Dig up money": {
+          state: {
+            functionCode: returnTrue,
+            edgeGroups: [
+              {
+                edges: [{ nextStateName: ["Put away change"] }],
+                areParallel: true,
+              },
+            ],
+            haveStartChildren: false,
+            lockedByStates: { "Compute Price": true },
+            lockedByStatesCount: 1,
+          },
+        },
+        "Put away change": {
+          state: {
+            functionCode: returnTrue,
+            lockedByStates: { "Compute change": true },
+            lockedByStatesCount: 1,
+          },
+        },
+        "Sip coffee": {
+          state: {
+            functionCode: returnTrue,
+            lockedByStates: { "Output buffer": true },
+            lockedByStatesCount: 1,
+          },
+        },
+      },
+      variables: {
+        init: { drink: { value: "frap choco" } },
+      },
+      timelineIDs: {},
+    },
   },
   Barista: {
     state: {},
@@ -92,6 +97,8 @@ let Cashier = {
             ],
             stateDependencyCount: 1,
             haveStartChildren: false,
+            lockedByStates: { "Place order": true },
+            lockedByStatesCount: 1,
           },
         },
       },
@@ -116,6 +123,8 @@ let Cashier = {
             },
           ],
           haveStartChildren: false,
+          lockedByStates: { "Dig up money": true },
+          lockedByStatesCount: 1,
         },
       },
       "No change": {
@@ -231,7 +240,7 @@ let StartbucksStateTree = {
               functionCode: returnTrue,
               edgeGroups: [
                 {
-                  edges: [{ nextStateName: ["Customer"] }],
+                  edges: [{ nextStateName: ["Customer", "Cashier"] }],
                   areParallel: false,
                 },
               ],

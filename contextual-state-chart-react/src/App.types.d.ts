@@ -24,12 +24,13 @@ type Variable = {
 
   variableTypeName?: string;
   prevValue?: any;
-  valueIDsChangedStatus: { [id: string]: {changedStatus: ChangedStatus, previousValue: any} };
+  valueIDsChangedStatus: {
+    [id: string]: { changedStatus: ChangedStatus; previousValue: any };
+  };
   changeStatus: ChangeStatus;
 
   // traverse nested structures
   graph?: Graph;
-
 
   setId?: (this: any, id: number) => this;
   setName?: (this: any, name: string) => this;
@@ -44,7 +45,7 @@ type Variable = {
 
 type State = {
   id: number;
-  parents: {[parentStateName: string]: parentStateId};
+  parents: { [parentStateName: string]: parentStateId };
   name: string[];
   functionCode: (graph: Graph) => boolean;
   functionName: string;
@@ -54,24 +55,26 @@ type State = {
   currentValue?: Variable;
   isVariable: boolean;
   stateRunCount: number;
-  branchIDVariableID: {[branchID: number]: number},
+  branchIDVariableID: { [branchID: number]: number };
   branchIDParentIDParentBranchID: {
     [branchID: number]: {
       activeChildStatesCount: number;
       parentBranch: { parentID: number; parentBranchID: number };
     };
   };
-  pairID: number,
+  pairID: number;
   destinationTimeline: string;
   timelineIDs: { [currentBranchID: number]: number };
   areChildrenParallel: boolean;
   areNextParallel: boolean;
+  lockedByStates: { [stateName: string]: boolean };
+  lockedByStatesCount: number;
 
   // access the parent state ID
   runTree: Tree;
 
   // access the current branch ID and current state ID
-  treeBottom: TreeBottom
+  treeBottom: TreeBottom;
 
   // access the parent state and the current branch IDth variable ID
   graph: Graph;
@@ -83,7 +86,7 @@ type State = {
   variableTreeToInitJson: (this: State) => any;
   getVariables: (this: ControlFlowState) => Variable;
   getVariable: (this: ControlFlowState, variableName: string) => any;
-  getValue: function (this: State): any;
+  getValue: (this: State) => any;
   getParent: (this: ControlFlowState) => any;
   getEdges: (this: ControlFlowState, edgesGroupIndex: number) => Edges;
   areEdgesStart: (this: ControlFlowState, edgesGroupIndex: number) => boolean;
@@ -91,9 +94,9 @@ type State = {
 };
 
 type StateRunStatus = {
-  id: number,
-  health: string,
-}
+  id: number;
+  health: string;
+};
 
 // 1 state with all variables and functions needed
 // 1 variable holding 1 type storing all types as separate variables
@@ -120,7 +123,7 @@ type Graph = {
   runTree: Tree;
 
   // access the current branch ID and current state ID
-  treeBottom: TreeBottom
+  treeBottom: TreeBottom;
 
   getState: (this: Graph, stateName: string[]) => State;
   getStateById: (this: Graph, stateId: number) => State;
@@ -134,22 +137,21 @@ type Tree = {
       parentID: number;
       parentBranchID: number;
       edgesGroupIndex: number;
-      currentStateHealth: string
+      currentStateHealth: string;
       dependencyStateCount?: number;
       variableNames?: any;
-
     };
   };
-}
+};
 type TreeBottom = {
   branches: {
     [branchID: number]: {
-      currentStateID: number,
-    },
-  },
-  currentBranchID: number
-  maxBranchID: number,
-}
+      currentStateID: number;
+    };
+  };
+  currentBranchID: number;
+  maxBranchID: number;
+};
 
 export {
   Variable,
@@ -163,5 +165,5 @@ export {
   Edge,
   Edges,
   Tree,
-  TreeBottom
+  TreeBottom,
 };

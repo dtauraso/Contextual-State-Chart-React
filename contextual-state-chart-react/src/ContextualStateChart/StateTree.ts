@@ -71,6 +71,8 @@ const stateWrapper = function (): State {
         edgeGroups,
         children,
         variables,
+        lockedByStates,
+        lockedByStatesCount,
         runTree,
         stateRunTreeBottom,
         graph,
@@ -89,6 +91,9 @@ const stateWrapper = function (): State {
       this.stateRunCount = 0;
       this.getVariables = getVariables;
       this.getVariable = getVariable;
+      this.lockedByStates = lockedByStates;
+      this.lockedByStatesCount =
+        lockedByStatesCount === undefined ? 0 : lockedByStatesCount;
       this.runTree = runTree;
       this.stateRunTreeBottom = stateRunTreeBottom;
       this.graph = graph;

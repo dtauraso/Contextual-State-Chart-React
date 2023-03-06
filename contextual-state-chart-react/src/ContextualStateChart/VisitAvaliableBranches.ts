@@ -33,6 +33,7 @@ enum StateHealth {
   PASS = "Pass",
   PENDING = "Pending",
   FAIL = "Fail",
+  WAIT = "Wait",
 }
 const { PASS, PENDING, FAIL } = StateHealth;
 
@@ -288,6 +289,17 @@ const VisitAvaliableBranches = (
           } else {
             console.log({ parent: graph.getStateById(parentID) });
           }
+          /*
+          state lock is active
+            unlock if currentState in state.lockStateNames
+            decrement state.locksCount
+            state.locksCount > 0
+              currentState is the WAIT state
+              return
+            run state
+          
+          */
+
           // assume state and counterpart state are at the same level
           // assume the paths to the state and counterpart state are the same length
           // if (state.pairID) {

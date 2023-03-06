@@ -245,6 +245,8 @@ const makeState = ({
       edgeGroups,
       value,
       haveStartChildren,
+      lockedByStates,
+      lockedByStatesCount,
       destinationTimeline,
       timelineIDs,
     } = currentState || {};
@@ -265,6 +267,8 @@ const makeState = ({
       children: serializedChildren,
       variables: stateVariables,
       getVariable,
+      lockedByStates,
+      lockedByStatesCount,
       stateRunTreeBottom,
       graph,
       runTree,
