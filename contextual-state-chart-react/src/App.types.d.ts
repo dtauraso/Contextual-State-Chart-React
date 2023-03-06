@@ -67,8 +67,8 @@ type State = {
   timelineIDs: { [currentBranchID: number]: number };
   areChildrenParallel: boolean;
   areNextParallel: boolean;
-  lockedByStates: { [branchID: number]: { [stateName: string]: boolean } };
-  lockedByStatesCount: { [branchID: number]: number };
+  lockedByStates: { [stateName: string]: boolean };
+  lockedByStatesCount: number;
 
   // access the parent state ID
   runTree: Tree;
