@@ -297,6 +297,7 @@ const VisitAvaliableBranches = (
               currentState is the WAIT state
               return
             run state
+            lock state
           
           */
 
