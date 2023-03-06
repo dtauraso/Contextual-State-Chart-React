@@ -69,6 +69,7 @@ type State = {
   areNextParallel: boolean;
   lockedByStates: { [stateName: string]: boolean };
   lockedByStatesCount: number;
+  lockedByStatesCountDown: number;
 
   // access the parent state ID
   runTree: Tree;

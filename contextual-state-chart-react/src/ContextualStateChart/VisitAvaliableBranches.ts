@@ -292,8 +292,8 @@ const VisitAvaliableBranches = (
           /*
           state lock is active
             unlock if currentState in state.lockStateNames
-            decrement state.locksCount
-            state.locksCount > 0
+            decrement state.locksCountDown
+            state.locksCountDown > 0
               currentState is the WAIT state
               return
             run state
@@ -463,7 +463,9 @@ const VisitAvaliableBranches = (
         //   currentStateID: currentStateID,
         //   winningStates: branchIDStateIDs[branchID],
         // });
-
+        // 1 or more winning states is in the WAIT status
+        // some states may have passed or failed
+        // some passed states may be parents
         if (
           branchIDStateIDs[branchID].length === 0 ||
           branchIDStateIDs[branchID].every(
