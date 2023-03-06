@@ -423,6 +423,8 @@ const App = (props: any) => {
   let graph: Graph = {
     statesObject: { states: {}, nextStateId: 0 },
     namesTrie: {},
+    runTree,
+    treeBottom: stateRunTreeBottom,
     // getState
     getState: getState,
     getStateById: getStateById,

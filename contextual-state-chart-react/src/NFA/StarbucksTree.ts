@@ -62,6 +62,12 @@ let Customer = {
     },
     timelineIDs: {},
   },
+  Cashier: {
+    state: {},
+  },
+  Barista: {
+    state: {},
+  },
 };
 let Cashier = {
   state: {
@@ -178,11 +184,14 @@ let StartbucksStateTree = {
             state: {
               functionCode: returnTrue,
               children: {
-                Customer,
+                Customer: {
+                  Cashier: Customer.Cashier,
+                },
                 Cashier,
               },
             },
           },
+          Barista,
           CustomerBarista: {
             state: {
               functionCode: returnTrue,
