@@ -479,6 +479,8 @@ const VisitAvaliableBranches = (
           // parent state failing after submachine fails is treated differently than
           // when parent state fails immediately after running
           // we know parent state failed after traversing up tree.
+          // backtrack to prev state
+          // rerun all prev state's next states than haven't failed but not in this code block.
         } else if (currentStateHealth === PENDING) {
           // child states
           branchIDStateIDs[branchID].forEach(
