@@ -476,6 +476,7 @@ const VisitAvaliableBranches = (
             currentStateID,
             stateRunTreeBottom
           );
+          // todo:
           // parent state failing after submachine fails is treated differently than
           // when parent state fails immediately after running
           // we know parent state failed after traversing up tree.
