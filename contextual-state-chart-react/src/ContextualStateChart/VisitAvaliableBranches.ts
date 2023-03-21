@@ -290,14 +290,9 @@ const VisitAvaliableBranches = (
             console.log({ parent: graph.getStateById(parentID) });
           }
           /*
-          state lock is active
-            unlock if currentState in state.lockStateNames
-            decrement state.locksCountDown
-            state.locksCountDown > 0
-              currentState is the WAIT state
-              return
-            run state
-            lock state
+
+          need next state to wait if next state still has locks to unlock
+          need current state to be end state if next state has > 1 remaining locks on it
           
           */
 
