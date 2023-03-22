@@ -181,8 +181,8 @@ let StartbucksStateTree = {
         edgeGroups: [
           {
             edges: [
-              { nextStateName: ["Coffee Shop"] },
-              { nextStateName: ["dummyState"] },
+              { nextStateName: ["CustomerCashier"] },
+              { nextStateName: ["Barista"] },
             ],
             areParallel: true,
           },
