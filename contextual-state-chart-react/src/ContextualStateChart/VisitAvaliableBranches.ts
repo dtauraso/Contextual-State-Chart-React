@@ -227,7 +227,7 @@ const VisitAvaliableBranches = (
   } = {};
   while (Object.keys(stateRunTreeBottom.branches).length > 0) {
     console.log({ levelsRun });
-    if (levelsRun >= 13) {
+    if (levelsRun >= 4) {
       // if (testAtStateRunCount(levelsRun, graph)) {
       //   console.log("passes");
       // }
@@ -447,6 +447,11 @@ const VisitAvaliableBranches = (
           currentStateHealth,
         } = runTree[branchID][currentStateID];
 
+        // 1 or more winning states is in the WAIT status
+        // filter out WAIT states
+        //  if there are no more states left
+        //    return
+
         const stateIDs = branchIDStateIDs[branchID];
         console.log("updating branch", { branchID });
         // const areEdgesStart = currentState.areEdgesStart(edgesGroupIndex);
@@ -461,9 +466,6 @@ const VisitAvaliableBranches = (
         //   currentStateID: currentStateID,
         //   winningStates: branchIDStateIDs[branchID],
         // });
-        // 1 or more winning states is in the WAIT status
-        // some states may have passed or failed
-        // some passed states may be parents
         if (
           branchIDStateIDs[branchID].length === 0 ||
           branchIDStateIDs[branchID].every(
