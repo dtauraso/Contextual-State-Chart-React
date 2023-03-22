@@ -533,44 +533,44 @@ const VisitAvaliableBranches = (
               ...runTree[branchID][currentStateID],
             };
             delete runTree[branchID][currentStateID];
-          } else {
-            branchIDStateIDs[branchID].forEach(
-              (stateRunStatus: StateRunStatus, i: number) => {
-                const { id: winningStateID } = stateRunStatus;
-                if (i === 0) {
-                  stateRunTreeBottom.branches[branchID] = {
-                    currentStateID: winningStateID,
-                  };
-                  runTree[branchID][winningStateID] = {
-                    ...runTree[branchID][currentStateID],
-                  };
-                  delete runTree[branchID][currentStateID];
-                } else if (i > 0) {
-                  //  add new branches
-                  stateRunTreeBottom.maxBranchID += 1;
-                  const newBranchID = stateRunTreeBottom.maxBranchID;
-                  runTree[parentBranchID][parentID].activeChildStates[
-                    newBranchID
-                  ] = winningStateID;
-                  const winningState = graph.getStateById(winningStateID);
-                  runTree[newBranchID] = {
-                    [winningStateID]: {
-                      activeChildStates: {},
-                      parentBranchID: parentBranchID,
-                      parentID: parentID,
-                      edgesGroupIndex: START_CHILDREN,
-                      currentStateHealth:
-                        winningState.children.length > 0 ? PENDING : PASS,
-                    },
-                  };
-                  // // add new branch entry in bottom
-                  stateRunTreeBottom.branches[newBranchID] = {
-                    currentStateID: winningStateID,
-                  };
-                }
-              }
-            );
+            return;
           }
+          branchIDStateIDs[branchID].forEach(
+            (stateRunStatus: StateRunStatus, i: number) => {
+              const { id: winningStateID } = stateRunStatus;
+              if (i === 0) {
+                stateRunTreeBottom.branches[branchID] = {
+                  currentStateID: winningStateID,
+                };
+                runTree[branchID][winningStateID] = {
+                  ...runTree[branchID][currentStateID],
+                };
+                delete runTree[branchID][currentStateID];
+              } else if (i > 0) {
+                //  add new branches
+                stateRunTreeBottom.maxBranchID += 1;
+                const newBranchID = stateRunTreeBottom.maxBranchID;
+                runTree[parentBranchID][parentID].activeChildStates[
+                  newBranchID
+                ] = winningStateID;
+                const winningState = graph.getStateById(winningStateID);
+                runTree[newBranchID] = {
+                  [winningStateID]: {
+                    activeChildStates: {},
+                    parentBranchID: parentBranchID,
+                    parentID: parentID,
+                    edgesGroupIndex: START_CHILDREN,
+                    currentStateHealth:
+                      winningState.children.length > 0 ? PENDING : PASS,
+                  },
+                };
+                // // add new branch entry in bottom
+                stateRunTreeBottom.branches[newBranchID] = {
+                  currentStateID: winningStateID,
+                };
+              }
+            }
+          );
         }
       });
     // edges adjustment
