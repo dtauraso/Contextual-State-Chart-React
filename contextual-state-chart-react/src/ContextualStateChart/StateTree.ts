@@ -197,6 +197,8 @@ const stateWrapper = function (): State {
       }
       const length = this.edgeGroups.length;
       if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {
+        console.log("getEdges error", { edgesGroupIndex, length });
+
         return {
           edges: [],
           areParallel: false,
@@ -213,7 +215,7 @@ const stateWrapper = function (): State {
       const length = edgeGroups.length;
 
       if (edgesGroupIndex < 0 || edgesGroupIndex >= length) {
-        console.log("error", { edgesGroupIndex, length });
+        console.log("areEdgesStart error", { edgesGroupIndex, length });
         return false;
       }
       return haveStartChildren && edgesGroupIndex === 0;

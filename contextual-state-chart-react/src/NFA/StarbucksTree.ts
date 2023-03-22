@@ -11,7 +11,7 @@ import {
 let Customer = {
   Cashier: {
     state: {
-      functionCode: customer,
+      functionCode: returnTrue, //customer,
       edgeGroups: [
         {
           edges: [{ nextStateName: ["Place order"] }],
@@ -71,12 +71,14 @@ let Customer = {
     },
   },
   Barista: {
-    state: {},
+    state: {
+      functionCode: returnTrue,
+    },
   },
 };
 let Cashier = {
   state: {
-    functionCode: cashier,
+    functionCode: returnTrue, //cashier,
     edgeGroups: [
       {
         edges: [{ nextStateName: ["Take order", "from customer"] }],
@@ -142,7 +144,7 @@ let Cashier = {
 };
 let Barista = {
   state: {
-    functionCode: barista,
+    functionCode: returnTrue, //barista,
     edgeGroups: [
       {
         edges: [{ nextStateName: ["Make drink"] }],
@@ -181,75 +183,47 @@ let StartbucksStateTree = {
         edgeGroups: [
           {
             edges: [
-              { nextStateName: ["CustomerCashier"] },
+              { nextStateName: ["Register"] },
               { nextStateName: ["Barista"] },
             ],
             areParallel: true,
           },
         ],
         haveStartChildren: true,
+        variables: {
+          init: {
+            orderQueue: { value: [] },
+            drinkOrder: { value: [] },
+            outputBuffer: { value: [] },
+          },
+        },
         children: {
-          CustomerCashier: {
-            state: {
-              functionCode: returnTrue,
-              children: {
-                Customer: {
-                  Cashier: Customer.Cashier,
-                },
-                Cashier,
-              },
-            },
-          },
-          Barista,
-          CustomerBarista: {
-            state: {
-              functionCode: returnTrue,
-              children: {
-                Customer,
-                Barista,
-              },
-            },
-          },
-          "Coffee Shop": {
+          Register: {
             state: {
               functionCode: returnTrue,
               edgeGroups: [
                 {
                   edges: [
+                    { nextStateName: ["Customer", "Cashier"] },
                     { nextStateName: ["Cashier"] },
-                    { nextStateName: ["Barista"] },
                   ],
                   areParallel: true,
                 },
-              ],
-              haveStartChildren: true,
-              children: {
-                Barista,
-                Cashier,
-              },
-              variables: {
-                init: {
-                  orderQueue: { value: [] },
-                  outputBuffer: { value: [] },
-                },
-              },
-            },
-          },
-          dummyState: {
-            state: {
-              functionCode: returnTrue,
-              edgeGroups: [
                 {
-                  edges: [{ nextStateName: ["Customer", "Cashier"] }],
-                  areParallel: false,
+                  edges: [{ nextStateName: ["Customer", "Barista"] }],
                 },
               ],
               haveStartChildren: true,
+              variables: {
+                init: { drinkPrice: { value: 0 }, change: { value: 0 } },
+              },
               children: {
                 Customer,
+                Cashier,
               },
             },
           },
+          Barista,
         },
         database: {
           // search structure

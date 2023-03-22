@@ -160,8 +160,8 @@ const traverseUp = (
       delete runTree[parentBranchID][parentID].activeChildStates[
         branchIDTracker
       ];
-      // leaf node and parent link to leaf node is gone
 
+      // leaf node and parent link to leaf node is gone
       if (
         Object.keys(runTree[parentBranchID][parentID].activeChildStates)
           .length > 0
@@ -174,6 +174,7 @@ const traverseUp = (
       stateIDTracker = parentID;
       // todo: test if works when there is a multi-level state run fail
       const { edgeGroups } = graph.getStateById(stateIDTracker);
+      console.log({ branchIDTracker, stateIDTracker, edgeGroups });
       if (edgeGroups) {
         stateRunTreeBottom.branches[branchIDTracker] = {
           currentStateID: stateIDTracker,
@@ -273,13 +274,13 @@ const VisitAvaliableBranches = (
 
         branchIDStateIDs[branchID] = [];
 
-        console.log({ branchID });
+        console.log({ branchID, edges });
         let statePasses = false;
         edges.forEach(({ nextStateID }) => {
           if (!areParallel && statePasses) {
             return;
           }
-
+          console.log({ nextStateID });
           const state = graph.getStateById(nextStateID);
           const parentState = currentState.areEdgesStart(edgesGroupIndex)
             ? currentState
@@ -447,7 +448,8 @@ const VisitAvaliableBranches = (
         } = runTree[branchID][currentStateID];
 
         const stateIDs = branchIDStateIDs[branchID];
-        const areEdgesStart = currentState.areEdgesStart(edgesGroupIndex);
+        console.log("updating branch", { branchID });
+        // const areEdgesStart = currentState.areEdgesStart(edgesGroupIndex);
         // run without using any states not in the current timeline
         // add dummy states to keep the paired timelines running only their states
 
