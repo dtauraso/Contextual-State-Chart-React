@@ -451,6 +451,12 @@ const VisitAvaliableBranches = (
         // filter out WAIT states
         //  if there are no more states left
         //    return
+        // n locked edges and 0 regular edges
+        //  does nothing
+        // n locked edges and 1 regular edge
+        //  moves to next state using same branch
+        // n locked edges and 2+ regular edges
+        //  moves to next states using new branches and moves original branch
 
         const stateIDs = branchIDStateIDs[branchID];
         console.log("updating branch", { branchID });
